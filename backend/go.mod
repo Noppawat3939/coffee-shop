@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/gin-gonic/gin v1.10.1
-	github.com/jackc/pgx/v5 v5.7.5
+	github.com/jackc/pgx/v5 v5.7.5 // indirect
 	github.com/joho/godotenv v1.5.1
 	gorm.io/gorm v1.30.1
 )

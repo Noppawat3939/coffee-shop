@@ -12,5 +12,13 @@ Table menu_variations {
   price number
 }
 
+Table menu_price_logs {
+  id int [pk]
+  menu_variation_id int
+  price number
+  created_at timestamp
+}
+
 
 Ref: menu_variations.menu_id > menus.id
+Ref: menu_price_logs.menu_variation_id > menu_variations.id
