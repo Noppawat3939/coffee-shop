@@ -2,21 +2,30 @@ package db
 
 import (
 	"backend/config"
-	"context"
+	"backend/models"
 	"fmt"
 	"log"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func Connect(cfg config.Config) *pgxpool.Pool {
+func Connect(cfg config.Config) *gorm.DB {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName)
 
-	pool, err := pgxpool.New(context.Background(), dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
 	if err != nil {
-		log.Fatalf("❌ Unable to connect to database: %v\n", err)
+		log.Fatalf("Failed to connect database: %v\n", err)
+	}
+
+	err = db.AutoMigrate(&models.Memu{}, &models.MenuVariation{}, &models.MenuPriceLog{})
+
+	if err != nil {
+		log.Fatalf("Failed to auto migrate tables: %v\n", err)
 	}
 
 	fmt.Println("✅ Connected to database")
-	return pool
+
+	return db
 }

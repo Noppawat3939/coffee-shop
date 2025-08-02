@@ -1,23 +1,29 @@
 package main
 
 import (
-	"backend/config"
+	c "backend/config"
 	"backend/db"
+	"backend/routes"
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	cfg := config.Load()
-	pool := db.Connect(cfg)
-	defer pool.Close()
+var cfg c.Config
 
+func init() {
+	cfg = c.Load()
+	db.Connect(cfg)
+}
+
+func main() {
+	cfg = c.Load()
+	database := db.Connect(cfg)
 	r := gin.Default()
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"message": "ok"})
-	})
+
+	api := r.Group("/api")
+
+	routes.IntialMenuRoutes(api, database)
 
 	fmt.Print("✅ Starting server in port ", cfg.ServerPort)
 	r.Run(":" + cfg.ServerPort)

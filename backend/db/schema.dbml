@@ -1,0 +1,16 @@
+Table menus {
+  id int [pk]
+  name text [not null]
+  description text
+  is_available bool
+}
+
+Table menu_variations {
+  id int [pk]
+  menu_id int
+  type text [note: "hot,ice,frappe"]
+  price number
+}
+
+
+Ref: menu_variations.menu_id > menus.id
