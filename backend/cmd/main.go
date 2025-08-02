@@ -20,11 +20,11 @@ func main() {
 	cfg = c.Load()
 	database := db.Connect(cfg)
 	r := gin.Default()
+	r.Use(gin.Logger(), gin.Recovery())
 
-	api := r.Group("/api")
-
-	routes.IntialMenuRoutes(api, database)
+	routes.SetupRoutes(r, database)
 
 	fmt.Print("✅ Starting server in port ", cfg.ServerPort)
+
 	r.Run(":" + cfg.ServerPort)
 }

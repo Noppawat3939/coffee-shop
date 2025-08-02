@@ -10,10 +10,11 @@ import (
 
 func IntialMenuRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	repo := repository.NewMenuRepository(db)
-	ctlr := controllers.NewMenuController(repo)
+	controller := controllers.NewMenuController(repo)
 
 	menu := r.Group("/menu")
 	{
-		menu.GET("/", ctlr.GetMenus)
+		menu.GET("/", controller.GetMenus)
+		menu.GET("/:id", controller.GetMenu)
 	}
 }

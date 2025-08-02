@@ -8,6 +8,7 @@ import (
 
 type MenuRepo interface {
 	FindAll() ([]models.Memu, error)
+	FindOne(id int) (models.Memu, error)
 }
 
 type repo struct {
@@ -19,9 +20,16 @@ func NewMenuRepository(db *gorm.DB) MenuRepo {
 }
 
 func (r *repo) FindAll() ([]models.Memu, error) {
-	var menus []models.Memu
+	var data []models.Memu
 
-	err := r.db.Preload("Variations").Find(&menus).Error
+	err := r.db.Preload("Variations").Find(&data).Error
 
-	return menus, err
+	return data, err
+}
+func (r *repo) FindOne(id int) (models.Memu, error) {
+	var data models.Memu
+
+	err := r.db.Preload("Variations").First(&data, id).Error
+
+	return data, err
 }
