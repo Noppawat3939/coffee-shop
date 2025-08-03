@@ -9,6 +9,7 @@ import (
 type MenuRepo interface {
 	FindAll() ([]models.Memu, error)
 	FindOne(id int) (models.Memu, error)
+	UpdateByID(id int, menu models.Memu) (models.Memu, error)
 }
 
 type repo struct {
@@ -30,6 +31,18 @@ func (r *repo) FindOne(id int) (models.Memu, error) {
 	var data models.Memu
 
 	err := r.db.Preload("Variations").First(&data, id).Error
+
+	return data, err
+}
+
+func (r *repo) UpdateByID(id int, menu models.Memu) (models.Memu, error) {
+	var data models.Memu
+
+	if err := r.db.First(&data, id).Error; err != nil {
+		return data, err
+	}
+
+	err := r.db.Model(&data).Updates(menu).Error
 
 	return data, err
 }

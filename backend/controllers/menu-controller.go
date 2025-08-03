@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"backend/helpers"
+	"backend/models"
 	"backend/repository"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,13 +26,12 @@ func (c *controller) GetMenus(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, menus)
+	helpers.Success(ctx, menus)
 }
 
 func (c *controller) GetMenu(ctx *gin.Context) {
-	menuID := ctx.Param("id")
 
-	id := helpers.ToInt(menuID)
+	id := helpers.ParamToInt(ctx, "id")
 
 	menu, err := c.repo.FindOne(id)
 
@@ -40,5 +41,28 @@ func (c *controller) GetMenu(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, menu)
+	helpers.Success(ctx, menu)
+}
+
+func (c *controller) UpdateMenuByID(ctx *gin.Context) {
+	id := helpers.ParamToInt(ctx, "id")
+
+	var body models.Memu
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		fmt.Print(body)
+		helpers.Error(ctx, http.StatusBadRequest, "body invalid")
+		return
+	}
+
+	fmt.Println(id)
+
+	menu, err := c.repo.UpdateByID(id, body)
+
+	if err != nil {
+		helpers.Error(ctx, http.StatusConflict, "failed update menu id %d ", id)
+		return
+	}
+
+	helpers.Success(ctx, menu)
 }
