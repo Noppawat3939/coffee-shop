@@ -44,13 +44,30 @@ func (c *controller) GetMenu(ctx *gin.Context) {
 	helpers.Success(ctx, menu)
 }
 
+func (c *controller) CreateMenu(ctx *gin.Context) {
+	var body models.Memu
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		helpers.Error(ctx, http.StatusBadRequest, "body invalid")
+		return
+	}
+
+	menu, err := c.repo.Create(body)
+
+	if err != nil {
+		helpers.Error(ctx, http.StatusConflict, "failed create menu")
+		return
+	}
+
+	helpers.Success(ctx, menu)
+}
+
 func (c *controller) UpdateMenuByID(ctx *gin.Context) {
 	id := helpers.ParamToInt(ctx, "id")
 
 	var body models.Memu
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		fmt.Print(body)
 		helpers.Error(ctx, http.StatusBadRequest, "body invalid")
 		return
 	}
