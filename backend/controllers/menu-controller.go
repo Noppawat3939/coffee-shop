@@ -4,7 +4,6 @@ import (
 	"backend/helpers"
 	"backend/models"
 	"backend/repository"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -71,8 +70,6 @@ func (c *controller) UpdateMenuByID(ctx *gin.Context) {
 		helpers.Error(ctx, http.StatusBadRequest, "body invalid")
 		return
 	}
-
-	fmt.Println(id)
 
 	menu, err := c.repo.UpdateByID(id, body)
 
