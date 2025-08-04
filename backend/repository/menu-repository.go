@@ -9,9 +9,12 @@ import (
 type MenuRepo interface {
 	FindAll() ([]models.Memu, error)
 	FindOne(id int) (models.Memu, error)
+
+	Create(menu models.Memu, tx *gorm.DB) (models.Memu, error)
+	CreatePriceLog(priceLog models.MenuPriceLog, tx *gorm.DB) (models.MenuPriceLog, error)
+	CreateMenuVariation(variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error)
+
 	UpdateByID(id int, menu models.Memu) (models.Memu, error)
-	Create(models.Memu) (models.Memu, error)
-	CreatePriceLog(models.MenuPriceLog) (models.MenuPriceLog, error)
 }
 
 type repo struct {
@@ -22,9 +25,15 @@ func NewMenuRepository(db *gorm.DB) MenuRepo {
 	return &repo{db}
 }
 
+func (r *repo) getDB(tx *gorm.DB) *gorm.DB {
+	if tx != nil {
+		return tx
+	}
+	return r.db
+}
+
 func (r *repo) FindAll() ([]models.Memu, error) {
 	var data []models.Memu
-
 	err := r.db.Preload("Variations").Find(&data).Error
 
 	return data, err
@@ -37,15 +46,32 @@ func (r *repo) FindOne(id int) (models.Memu, error) {
 	return data, err
 }
 
-func (r *repo) Create(models.Memu) (models.Memu, error) {
-	var data models.Memu
-	return data, nil
+func (r *repo) Create(menu models.Memu, tx *gorm.DB) (models.Memu, error) {
+	db := r.getDB(tx)
+	if err := db.Create(&menu).Error; err != nil {
+		return models.Memu{}, err
+	}
+
+	return menu, nil
 }
 
-func (r *repo) CreatePriceLog(models.MenuPriceLog) (models.MenuPriceLog, error) {
-	var data models.MenuPriceLog
+func (r *repo) CreateMenuVariation(variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error) {
+	db := r.getDB(tx)
 
-	return data, nil
+	if err := db.Create(&variation).Error; err != nil {
+		return models.MenuVariation{}, err
+	}
+	return variation, nil
+}
+
+func (r *repo) CreatePriceLog(priceLog models.MenuPriceLog, tx *gorm.DB) (models.MenuPriceLog, error) {
+	db := r.getDB(tx)
+
+	if err := db.Create(&priceLog).Error; err != nil {
+		return models.MenuPriceLog{}, err
+	}
+
+	return priceLog, nil
 }
 
 func (r *repo) UpdateByID(id int, menu models.Memu) (models.Memu, error) {

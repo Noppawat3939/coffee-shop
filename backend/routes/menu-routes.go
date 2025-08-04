@@ -10,7 +10,7 @@ import (
 
 func IntialMenuRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	repo := repository.NewMenuRepository(db)
-	controller := controllers.NewMenuController(repo)
+	controller := controllers.NewMenuController(repo, db)
 
 	menu := r.Group("/menu")
 	{
