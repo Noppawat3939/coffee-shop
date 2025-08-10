@@ -1,10 +1,37 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+import "./index.css";
+
+import { routeTree } from "./routeTree.gen";
+import { AppProvider } from "~/provider";
+import { LoadingOverlay } from "@mantine/core";
+
+// Create a new router instance
+const router = createRouter({
+  routeTree,
+  defaultPendingComponent: () => (
+    <LoadingOverlay visible zIndex={1000} overlayProps={{ blur: 2 }} />
+  ),
+});
+
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+// Render the app
+const rootElement = document.getElementById("root")!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <AppProvider>
+        <RouterProvider router={router} />
+      </AppProvider>
+    </StrictMode>
+  );
+}
