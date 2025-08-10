@@ -7,7 +7,7 @@ import (
 )
 
 func Success(c *gin.Context, data ...interface{}) {
-	res := gin.H{"success": true}
+	res := gin.H{"code": http.StatusOK}
 
 	if len(data) > 0 {
 		res["data"] = data
@@ -17,7 +17,7 @@ func Success(c *gin.Context, data ...interface{}) {
 }
 
 func Error(c *gin.Context, status int, msg string, data ...interface{}) {
-	res := gin.H{"success": false, "message": msg}
+	res := gin.H{"code": status, "message": msg}
 
 	if len(data) > 0 {
 		res["data"] = data
@@ -27,7 +27,7 @@ func Error(c *gin.Context, status int, msg string, data ...interface{}) {
 }
 
 func ErrorNotFound(c *gin.Context) {
-	res := gin.H{"success": false, "message": "data not found"}
+	res := gin.H{"code": http.StatusNotFound, "message": "data not found"}
 
 	c.JSON(http.StatusNotFound, res)
 }
