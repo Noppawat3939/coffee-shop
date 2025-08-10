@@ -6,6 +6,8 @@ import (
 	"backend/routes"
 	"fmt"
 
+	_ "backend/cmd/docs"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +25,7 @@ func main() {
 	r.Use(gin.Logger(), gin.Recovery())
 
 	routes.SetupRoutes(r, database)
+	routes.SetupSwagger(r, cfg.ServerPort)
 
 	fmt.Print("✅ Starting server in port ", cfg.ServerPort)
 
