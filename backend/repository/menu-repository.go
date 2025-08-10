@@ -15,6 +15,7 @@ type MenuRepo interface {
 	CreateMenuVariation(variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error)
 
 	UpdateByID(id int, menu models.Memu) (models.Memu, error)
+	UpdateVariationByID(id int, variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error)
 }
 
 type repo struct {
@@ -84,4 +85,18 @@ func (r *repo) UpdateByID(id int, menu models.Memu) (models.Memu, error) {
 	err := r.db.Model(&data).Updates(menu).Error
 
 	return data, err
+}
+
+func (r *repo) UpdateVariationByID(id int, variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error) {
+	db := r.getDB(tx)
+
+	var data models.MenuVariation
+
+	if err := db.First(&data, id).Error; err != nil {
+		return data, err
+	}
+
+	err := db.Model(&data).Updates(variation).Error
+
+	return variation, err
 }

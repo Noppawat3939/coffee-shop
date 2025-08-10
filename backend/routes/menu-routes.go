@@ -18,5 +18,6 @@ func IntialMenuRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		menu.GET("/:id", controller.GetMenu)
 		menu.POST("/", controller.CreateMenu)
 		menu.PATCH("/:id", controller.UpdateMenuByID)
+		menu.PATCH("/variation/:id", controller.UpdateVariationByID)
 	}
 }
