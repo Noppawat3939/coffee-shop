@@ -12,7 +12,12 @@ import { LoadingOverlay } from "@mantine/core";
 const router = createRouter({
   routeTree,
   defaultPendingComponent: () => (
-    <LoadingOverlay visible zIndex={1000} overlayProps={{ blur: 2 }} />
+    <LoadingOverlay
+      visible
+      c={"blue"}
+      zIndex={1000}
+      overlayProps={{ blur: 2 }}
+    />
   ),
 });
 

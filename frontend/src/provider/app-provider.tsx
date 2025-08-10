@@ -7,7 +7,7 @@ type AppProviderProps = Readonly<PropsWithChildren>;
 
 export default function AppProvider({ children }: AppProviderProps) {
   return (
-    <MantineProvider theme={{ primaryColor: "green" }}>
+    <MantineProvider theme={{ primaryColor: "dark" }}>
       {children}
     </MantineProvider>
   );
