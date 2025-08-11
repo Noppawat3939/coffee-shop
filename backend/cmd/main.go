@@ -25,7 +25,6 @@ func main() {
 	r.Use(gin.Logger(), gin.Recovery())
 
 	routes.SetupRoutes(r, database)
-	routes.SetupSwagger(r, cfg.ServerPort)
 
 	fmt.Print("✅ Starting server in port ", cfg.ServerPort)
 
