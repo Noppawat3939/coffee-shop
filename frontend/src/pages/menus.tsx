@@ -1,5 +1,6 @@
-import { Typography } from "@mantine/core";
-import { useEffect } from "react";
+import { Accordion, Typography, Flex, Image } from "@mantine/core";
+import { Fragment, useEffect } from "react";
+import { priceFormat } from "~/helper";
 import { useAxios } from "~/hooks";
 import { apis } from "~/services";
 
@@ -14,10 +15,47 @@ export default function MenusPage() {
 
   return (
     <div>
-      {data?.data &&
-        data.data.map((item, idx) => (
-          <Typography key={`menu-${idx}`}>{item.name}</Typography>
-        ))}
+      <Accordion variant="filled" transitionDuration={300}>
+        {data?.data &&
+          data.data.map((item) => (
+            <Accordion.Item key={item.id} value={item.id.toString()}>
+              <Accordion.Control fz="h2" tt="capitalize">
+                {item.name}
+              </Accordion.Control>
+              <Accordion.Panel>
+                {item.variations &&
+                  item.variations.map((variation, idx) => (
+                    <Fragment key={`variation-${idx}`}>
+                      <Flex py={4} px={8} columnGap={24} mb={5}>
+                        {variation.image && (
+                          <Image
+                            src={variation.image}
+                            alt="menu"
+                            h={100}
+                            w={100}
+                            radius={12}
+                            style={{ objectFit: "cover" }}
+                            loading="lazy"
+                          />
+                        )}
+                        <Flex direction="column" justify="center" rowGap={2}>
+                          <Typography fz="h4" tt="capitalize">
+                            {variation.type}
+                          </Typography>
+                          <Typography c="gray" opacity={0.7} fz="xs">
+                            {item.description}
+                          </Typography>
+                          <Typography fz="h3" fw={500} tt="capitalize">
+                            {priceFormat(variation.price)}
+                          </Typography>
+                        </Flex>
+                      </Flex>
+                    </Fragment>
+                  ))}
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+      </Accordion>
     </div>
   );
 }
