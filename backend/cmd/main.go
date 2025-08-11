@@ -6,8 +6,6 @@ import (
 	"backend/routes"
 	"fmt"
 
-	_ "backend/cmd/docs"
-
 	"github.com/gin-gonic/gin"
 )
 
