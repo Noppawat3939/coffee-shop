@@ -15,7 +15,7 @@ func Success(c *gin.Context, data ...interface{}) {
 	res := gin.H{"code": http.StatusOK}
 
 	if len(data) > 0 {
-		res["data"] = data
+		res["data"] = data[0]
 	}
 
 	c.JSON(http.StatusOK, res)

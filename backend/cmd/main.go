@@ -3,6 +3,7 @@ package main
 import (
 	c "backend/config"
 	"backend/db"
+	"backend/middleware"
 	"backend/routes"
 	"fmt"
 
@@ -19,12 +20,21 @@ func init() {
 func main() {
 	cfg = c.Load()
 	database := db.Connect(cfg)
+
 	r := gin.Default()
+	r.RedirectTrailingSlash = true
+
 	r.Use(gin.Logger(), gin.Recovery())
+
+	r.Use(middleware.SetupCORS())
 
 	routes.SetupRoutes(r, database)
 
 	fmt.Print("✅ Starting server in port ", cfg.ServerPort)
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
 
 	r.Run(":" + cfg.ServerPort)
 }
