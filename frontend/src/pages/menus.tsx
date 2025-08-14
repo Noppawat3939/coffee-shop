@@ -1,11 +1,19 @@
-import { Accordion, Typography, Flex, Image } from "@mantine/core";
+import { Accordion, Typography, Flex, Image, ActionIcon } from "@mantine/core";
+import { useMap } from "@mantine/hooks";
+import { useNavigate } from "@tanstack/react-router";
+import { Coffee } from "lucide-react";
 import { Fragment, useEffect } from "react";
-import { priceFormat } from "~/helper";
+import { IncreaseDecreaseInput, MainLayout } from "~/components";
+import { priceFormat, sum } from "~/helper";
 import { useAxios } from "~/hooks";
 import { apis } from "~/services";
 
 export default function MenusPage() {
   const { execute, data } = useAxios(apis.getMenus);
+
+  const navigation = useNavigate();
+
+  const orderMap = useMap();
 
   useEffect(() => {
     return () => {
@@ -13,9 +21,41 @@ export default function MenusPage() {
     };
   }, []);
 
+  const sumOrders = sum([...orderMap.values()] as number[]);
+
+  const toCheckout = () => {
+    const orders: { menu_id: number; variation_id: number; amount: number }[] =
+      [];
+
+    for (const [key, value] of orderMap.entries()) {
+      const [menuId, varitaionId] = String(key).split("_");
+      const amount = Number(value);
+
+      if (amount > 0) {
+        orders.push({ menu_id: +menuId, variation_id: +varitaionId, amount });
+      }
+    }
+
+    const qs = orders
+      .map((od) => `variation_id=${od.variation_id}&amount=${od.amount}`)
+      .join("&");
+
+    navigation({ to: `/checkout?${qs}` });
+  };
+
   return (
-    <div>
-      <Accordion variant="filled" transitionDuration={300}>
+    <MainLayout
+      title={"Menu"}
+      extra={
+        <ActionIcon
+          variant={sumOrders > 0 ? "filled" : "outline"}
+          onClick={toCheckout}
+        >
+          <Coffee width={14} />
+        </ActionIcon>
+      }
+    >
+      <Accordion mt={12} variant="filled" transitionDuration={300}>
         {data?.data &&
           data.data.map((item) => (
             <Accordion.Item key={item.id} value={item.id.toString()}>
@@ -49,6 +89,14 @@ export default function MenusPage() {
                             {priceFormat(variation.price)}
                           </Typography>
                         </Flex>
+                        <IncreaseDecreaseInput
+                          intialValue={0}
+                          onChange={(value) => {
+                            const name = `${variation.menu_id}_${variation.id}`;
+
+                            orderMap.set(name, value);
+                          }}
+                        />
                       </Flex>
                     </Fragment>
                   ))}
@@ -56,6 +104,6 @@ export default function MenusPage() {
             </Accordion.Item>
           ))}
       </Accordion>
-    </div>
+    </MainLayout>
   );
 }
