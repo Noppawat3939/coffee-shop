@@ -23,24 +23,19 @@ export default function MenusPage() {
 
   const sumOrders = sum([...orderMap.values()] as number[]);
 
-  const toCheckout = () => {
-    const orders: { menu_id: number; variation_id: number; amount: number }[] =
-      [];
+  const goToCheckout = () => {
+    const searchParams = {} as Record<string, number>;
 
     for (const [key, value] of orderMap.entries()) {
-      const [menuId, varitaionId] = String(key).split("_");
+      const [, varitaionId] = String(key).split("_");
       const amount = Number(value);
 
       if (amount > 0) {
-        orders.push({ menu_id: +menuId, variation_id: +varitaionId, amount });
+        searchParams[`varitaion_id_${varitaionId}`] = amount;
       }
     }
 
-    const qs = orders
-      .map((od) => `variation_id=${od.variation_id}&amount=${od.amount}`)
-      .join("&");
-
-    navigation({ to: `/checkout?${qs}` });
+    navigation({ to: "/checkout", search: searchParams });
   };
 
   return (
@@ -49,7 +44,7 @@ export default function MenusPage() {
       extra={
         <ActionIcon
           variant={sumOrders > 0 ? "filled" : "outline"}
-          onClick={toCheckout}
+          onClick={goToCheckout}
         >
           <Coffee width={14} />
         </ActionIcon>

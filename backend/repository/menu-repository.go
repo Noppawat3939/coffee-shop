@@ -10,6 +10,8 @@ type MenuRepo interface {
 	FindAll() ([]models.Memu, error)
 	FindOne(id int) (models.Memu, error)
 
+	FindVariationAll(ids []int) ([]models.MenuVariation, error)
+
 	Create(menu models.Memu, tx *gorm.DB) (models.Memu, error)
 	CreatePriceLog(priceLog models.MenuPriceLog, tx *gorm.DB) (models.MenuPriceLog, error)
 	CreateMenuVariation(variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error)
@@ -39,6 +41,15 @@ func (r *repo) FindAll() ([]models.Memu, error) {
 
 	return data, err
 }
+
+func (r *repo) FindVariationAll(ids []int) ([]models.MenuVariation, error) {
+	var data []models.MenuVariation
+
+	err := r.db.Where(ids).Find(&data).Error
+
+	return data, err
+}
+
 func (r *repo) FindOne(id int) (models.Memu, error) {
 	var data models.Memu
 

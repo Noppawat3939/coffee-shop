@@ -14,7 +14,11 @@ export default function MainLayout({
     <Box aria-description="main-layout" h={"100dvh"} px={16} py={24}>
       <Flex direction="column">
         <Flex justify="space-between" align="center">
-          {title && <Typography fz="h3">{title}</Typography>}
+          {title && (
+            <Typography fz="h3" fw={500}>
+              {title}
+            </Typography>
+          )}
           {extra && extra}
         </Flex>
         {children}
