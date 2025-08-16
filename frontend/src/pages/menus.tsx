@@ -1,11 +1,20 @@
-import { Accordion, Typography, Flex, Image, ActionIcon } from "@mantine/core";
-import { useMap } from "@mantine/hooks";
+import {
+  Accordion,
+  Typography,
+  Flex,
+  Image,
+  ActionIcon,
+  Modal,
+  Button,
+} from "@mantine/core";
+import { useDisclosure, useMap } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
 import { Coffee } from "lucide-react";
-import { Fragment, useEffect } from "react";
-import { IncreaseDecreaseInput, MainLayout } from "~/components";
+import { Fragment, useEffect, useMemo } from "react";
+import { BillOrders, IncreaseDecreaseInput, MainLayout } from "~/components";
 import { priceFormat, sum } from "~/helper";
 import { useAxios } from "~/hooks";
+import type { IMenu } from "~/interfaces/menu.interface";
 import { apis } from "~/services";
 
 export default function MenusPage() {
@@ -13,7 +22,9 @@ export default function MenusPage() {
 
   const navigation = useNavigate();
 
-  const orderMap = useMap();
+  const orderMap: Map<string, number> = useMap();
+
+  const [opened, { open, close }] = useDisclosure();
 
   useEffect(() => {
     return () => {
@@ -23,15 +34,38 @@ export default function MenusPage() {
 
   const sumOrders = sum([...orderMap.values()] as number[]);
 
+  const getSelectedOrders = useMemo(() => {
+    const menus = data?.data || [];
+
+    return menus
+      .map((menu) => {
+        const variations = menu.variations
+          ?.map((v) => {
+            const key = `${menu.id}_${v.id}`;
+            const amount = orderMap.get(key) as number;
+
+            if (amount > 0) {
+              return { ...v };
+            }
+            return null;
+          })
+          .filter(Boolean) as typeof menu.variations;
+
+        if (!variations?.length) return null;
+
+        return { ...menu, variations };
+      })
+      .filter(Boolean) as IMenu[];
+  }, [data?.data, orderMap.size]);
+
   const goToCheckout = () => {
     const searchParams = {} as Record<string, number>;
 
-    for (const [key, value] of orderMap.entries()) {
-      const [, varitaionId] = String(key).split("_");
-      const amount = Number(value);
+    for (const [key, amount] of orderMap.entries()) {
+      const [, variationId] = key.split("_");
 
       if (amount > 0) {
-        searchParams[`varitaion_id_${varitaionId}`] = amount;
+        searchParams[`variation_id_${variationId}`] = amount;
       }
     }
 
@@ -42,10 +76,7 @@ export default function MenusPage() {
     <MainLayout
       title={"Menu"}
       extra={
-        <ActionIcon
-          variant={sumOrders > 0 ? "filled" : "outline"}
-          onClick={goToCheckout}
-        >
+        <ActionIcon variant={"filled"} onClick={open} disabled={!sumOrders}>
           <Coffee width={14} />
         </ActionIcon>
       }
@@ -99,6 +130,29 @@ export default function MenusPage() {
             </Accordion.Item>
           ))}
       </Accordion>
+
+      <Modal
+        opened={opened}
+        onClose={close}
+        overlayProps={{ blur: 2 }}
+        title={
+          <Typography fz="h4" fw={500}>
+            {"Orders"}
+          </Typography>
+        }
+      >
+        <Modal.Body pt={0} px={6}>
+          <BillOrders
+            orders={getSelectedOrders}
+            getAmountByOrder={(menuId, varId) =>
+              orderMap.get(`${menuId}_${varId}`) || 0
+            }
+          />
+        </Modal.Body>
+        <Flex justify="center">
+          <Button onClick={goToCheckout}>{"Continue"}</Button>
+        </Flex>
+      </Modal>
     </MainLayout>
   );
 }

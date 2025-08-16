@@ -28,6 +28,8 @@ type MenuVariation struct {
 	CreatedAt     time.Time      `json:"created_at"`
 	UpdatedAt     time.Time      `json:"updated_at"`
 	MenuPriceLogs []MenuPriceLog `json:"menu_price_logs,omitempty" gorm:"foreignKey:MenuVariationID"`
+
+	Menu Memu `json:"menu" gorm:"foreignKey:MenuID;references:ID"`
 }
 
 type MenuPriceLog struct {

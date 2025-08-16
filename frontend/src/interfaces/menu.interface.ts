@@ -18,4 +18,5 @@ export interface IVariation extends ITimestampt {
   price: number;
   type: string;
   image: string | null;
+  menu?: IMenu;
 }

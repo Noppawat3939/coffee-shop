@@ -44,8 +44,13 @@ func (r *repo) FindAll() ([]models.Memu, error) {
 
 func (r *repo) FindVariationAll(ids []int) ([]models.MenuVariation, error) {
 	var data []models.MenuVariation
+	query := r.db.Preload("Menu")
 
-	err := r.db.Where(ids).Find(&data).Error
+	if len(ids) > 0 {
+		query = query.Where("menu_variations.id IN ?", ids)
+	}
+
+	err := query.Find(&data).Error
 
 	return data, err
 }
