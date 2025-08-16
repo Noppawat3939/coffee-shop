@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -9,7 +10,7 @@ import (
 
 func SetupCORS() gin.HandlerFunc {
 	return cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5555"},
+		AllowOrigins:     []string{os.Getenv("COR_ORIGIN")},
 		AllowMethods:     []string{"GET", "POST", "PATCH"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

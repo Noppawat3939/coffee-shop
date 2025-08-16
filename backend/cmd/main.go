@@ -5,12 +5,10 @@ import (
 	"backend/db"
 	"backend/middleware"
 	"backend/routes"
-	"encoding/base64"
+	"backend/services"
 	"fmt"
 
-	pp "github.com/Frontware/promptpay"
 	"github.com/gin-gonic/gin"
-	"github.com/skip2/go-qrcode"
 )
 
 var cfg c.Config
@@ -20,7 +18,6 @@ func init() {
 	db.Connect(cfg)
 }
 
-// Request body struct
 type QRRequest struct {
 	Amount float64 `json:"amount" binding:"required"`
 }
@@ -46,27 +43,12 @@ func main() {
 			return
 		}
 
-		mockPhone := "0855873984"
-		payment := pp.PromptPay{
-			PromptPayID: mockPhone,
-			Amount:      req.Amount,
-			OneTime:     true,
-		}
-
-		// Generate PromptPay QR string
-		qrString, err := payment.Gen()
+		qr, err := services.GeneratePromptPayQR(req.Amount)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to generate QR"})
+			c.JSON(400, gin.H{"error": "failed generate QR promptpay"})
 			return
 		}
 
-		png, err := qrcode.Encode(qrString, qrcode.Medium, 256)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed generate QR image"})
-		}
-
-		// Return image as blob
-		qr := base64.StdEncoding.EncodeToString(png)
 		c.JSON(200, gin.H{"code": 200, "data": qr})
 	})
 

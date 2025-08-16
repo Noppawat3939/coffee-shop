@@ -14,4 +14,5 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	api := r.Group("/api")
 
 	IntialMenuRoutes(api, db)
+	IntialPaymentRoutes(api, db)
 }
