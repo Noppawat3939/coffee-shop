@@ -11,16 +11,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type controller struct {
+type menuController struct {
 	repo repository.MenuRepo
 	db   *gorm.DB
 }
 
-func NewMenuController(repo repository.MenuRepo, db *gorm.DB) *controller {
-	return &controller{repo, db}
+func NewMenuController(repo repository.MenuRepo, db *gorm.DB) *menuController {
+	return &menuController{repo, db}
 }
 
-func (c *controller) GetMenus(ctx *gin.Context) {
+func (c *menuController) GetMenus(ctx *gin.Context) {
 	menus, err := c.repo.FindAll()
 	if err != nil {
 		hlp.ErrorNotFound(ctx)
@@ -31,8 +31,8 @@ func (c *controller) GetMenus(ctx *gin.Context) {
 	hlp.Success(ctx, menus)
 }
 
-func (c *controller) GetMenuVariations(ctx *gin.Context) {
-	id := ctx.Query("id")
+func (mc *menuController) GetMenuVariations(c *gin.Context) {
+	id := c.Query("id")
 
 	var ids []int
 
@@ -40,43 +40,42 @@ func (c *controller) GetMenuVariations(ctx *gin.Context) {
 		ids = hlp.IdStringToInts(id, ",")
 	}
 
-	data, err := c.repo.FindVariationAll(ids)
+	data, err := mc.repo.FindVariationAll(ids)
 
 	if err != nil {
-		hlp.ErrorNotFound(ctx)
+		hlp.ErrorNotFound(c)
 		return
 	}
 
-	hlp.Success(ctx, data)
+	hlp.Success(c, data)
 }
 
-func (c *controller) GetMenu(ctx *gin.Context) {
+func (mc *menuController) GetMenu(c *gin.Context) {
+	id := hlp.ParamToInt(c, "id")
 
-	id := hlp.ParamToInt(ctx, "id")
-
-	menu, err := c.repo.FindOne(id)
+	menu, err := mc.repo.FindOne(id)
 
 	if err != nil {
-		hlp.ErrorNotFound(ctx)
+		hlp.ErrorNotFound(c)
 
 		return
 	}
 
-	hlp.Success(ctx, menu)
+	hlp.Success(c, menu)
 }
 
-func (c *controller) CreateMenu(ctx *gin.Context) {
+func (mc *menuController) CreateMenu(c *gin.Context) {
 	var req dto.CreateMenuRequest
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		hlp.ErrorBodyInvalid(ctx)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		hlp.ErrorBodyInvalid(c)
 		return
 	}
 
 	var data models.Memu
 
-	err := c.db.Transaction(func(tx *gorm.DB) error {
-		menu, err := c.repo.Create(models.Memu{
+	err := mc.db.Transaction(func(tx *gorm.DB) error {
+		menu, err := mc.repo.Create(models.Memu{
 			Name:        req.Name,
 			Description: req.Description,
 			IsAvailable: req.IsAvailable,
@@ -88,7 +87,7 @@ func (c *controller) CreateMenu(ctx *gin.Context) {
 
 		for _, v := range req.Variations {
 
-			variation, err := c.repo.CreateMenuVariation(models.MenuVariation{
+			variation, err := mc.repo.CreateMenuVariation(models.MenuVariation{
 				MenuID: int(menu.ID),
 				Type:   v.Type,
 				Price:  v.Price,
@@ -99,7 +98,7 @@ func (c *controller) CreateMenu(ctx *gin.Context) {
 				return err
 			}
 
-			_, err = c.repo.CreatePriceLog(models.MenuPriceLog{
+			_, err = mc.repo.CreatePriceLog(models.MenuPriceLog{
 				MenuVariationID: variation.ID,
 				Price:           variation.Price,
 			}, tx)
@@ -117,48 +116,48 @@ func (c *controller) CreateMenu(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		hlp.Error(ctx, http.StatusConflict, "failed create menu")
+		hlp.Error(c, http.StatusConflict, "failed create menu")
 		return
 	}
 
-	hlp.Success(ctx, data)
+	hlp.Success(c, data)
 }
 
-func (c *controller) UpdateMenuByID(ctx *gin.Context) {
-	id := hlp.ParamToInt(ctx, "id")
+func (mc *menuController) UpdateMenuByID(c *gin.Context) {
+	id := hlp.ParamToInt(c, "id")
 
 	var body models.Memu
 
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		hlp.Error(ctx, http.StatusBadRequest, "body invalid")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		hlp.Error(c, http.StatusBadRequest, "body invalid")
 		return
 	}
 
-	menu, err := c.repo.UpdateByID(id, body)
+	menu, err := mc.repo.UpdateByID(id, body)
 
 	if err != nil {
-		hlp.Error(ctx, http.StatusConflict, "failed update menu id %d ", id)
+		hlp.Error(c, http.StatusConflict, "failed update menu id %d ", id)
 		return
 	}
 
-	hlp.Success(ctx, menu)
+	hlp.Success(c, menu)
 }
 
-func (c *controller) UpdateVariationByID(ctx *gin.Context) {
-	id := hlp.ParamToInt(ctx, "id")
+func (mc *menuController) UpdateVariationByID(c *gin.Context) {
+	id := hlp.ParamToInt(c, "id")
 
 	var req models.MenuVariation
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		hlp.ErrorBodyInvalid(ctx)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		hlp.ErrorBodyInvalid(c)
 		return
 	}
 
 	var data models.Memu
 
-	err := c.db.Transaction(func(tx *gorm.DB) error {
+	err := mc.db.Transaction(func(tx *gorm.DB) error {
 		if req.Price > 0 {
-			_, err := c.repo.CreatePriceLog(models.MenuPriceLog{
+			_, err := mc.repo.CreatePriceLog(models.MenuPriceLog{
 				Price:           req.Price,
 				MenuVariationID: uint(id),
 			}, tx)
@@ -168,7 +167,7 @@ func (c *controller) UpdateVariationByID(ctx *gin.Context) {
 			}
 		}
 
-		_, err := c.repo.UpdateVariationByID(id, req, tx)
+		_, err := mc.repo.UpdateVariationByID(id, req, tx)
 
 		if err != nil {
 			return err
@@ -183,9 +182,9 @@ func (c *controller) UpdateVariationByID(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		hlp.Error(ctx, http.StatusConflict, "failed update menu variation id: %d", id)
+		hlp.Error(c, http.StatusConflict, "failed update menu variation id: %d", id)
 		return
 	}
 
-	hlp.Success(ctx, data)
+	hlp.Success(c, data)
 }

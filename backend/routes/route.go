@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"backend/helpers"
+	hlp "backend/helpers"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -9,7 +9,7 @@ import (
 
 func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	r.NoRoute(
-		func(c *gin.Context) { helpers.ErrorNotFound(c) })
+		func(c *gin.Context) { hlp.ErrorNotFound(c) })
 
 	api := r.Group("/api")
 
