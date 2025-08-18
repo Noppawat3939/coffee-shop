@@ -5,14 +5,14 @@ import { MainLayout } from "~/components";
 import { priceFormat, sum } from "~/helper";
 import { useAxios } from "~/hooks";
 import type { IVariation } from "~/interfaces/menu.interface";
-import { getVariations } from "~/services/apis";
+import { menu } from "~/services";
 
 type Order = IVariation & { amount: number };
 
 export default function CheckoutPage() {
   const search = useSearch({ strict: false }) as Record<string, number>;
 
-  const { execute } = useAxios(getVariations);
+  const { execute } = useAxios(menu.getVariations);
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);

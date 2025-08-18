@@ -15,10 +15,10 @@ import { BillOrders, IncreaseDecreaseInput, MainLayout } from "~/components";
 import { priceFormat, sum } from "~/helper";
 import { useAxios } from "~/hooks";
 import type { IMenu } from "~/interfaces/menu.interface";
-import { apis } from "~/services";
+import { menu } from "~/services";
 
 export default function MenusPage() {
-  const { execute, data } = useAxios(apis.getMenus);
+  const { execute, data } = useAxios(menu.getMenus);
 
   const navigation = useNavigate();
 

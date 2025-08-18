@@ -1,2 +1,3 @@
 export { default as service } from "./service-instance";
-export { default as apis } from "./apis";
+export { default as menu } from "./menu";
+export { default as payment } from "./payment";

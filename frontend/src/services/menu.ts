@@ -1,7 +1,6 @@
 import type { IMenu, IVariation } from "~/interfaces/menu.interface";
 import { service as svc } from ".";
-
-type Response<Data = unknown> = { code: number; data: Data };
+import type { Response } from "./service-instance";
 
 const prefix = "menu";
 
@@ -10,7 +9,7 @@ const getMenus = async () => {
   return data;
 };
 
-export const getVariations = async <T extends object>(params: T) => {
+const getVariations = async <T extends object>(params: T) => {
   const { data } = await svc.get<Response<IVariation[]>>(
     `${prefix}/variation`,
     { params }
