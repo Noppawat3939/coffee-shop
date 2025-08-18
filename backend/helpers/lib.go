@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,13 +17,13 @@ func ParamToInt(c *gin.Context, key string) int {
 
 }
 
-func IdStringToInts(s, splitter string) []int {
+func StringsToInts(strs []string) []int {
 	var result []int
 
-	for _, str := range strings.Split(s, splitter) {
-		id := ToInt(str)
+	for _, s := range strs {
+		n := ToInt(s)
 
-		result = append(result, id)
+		result = append(result, n)
 	}
 
 	return result

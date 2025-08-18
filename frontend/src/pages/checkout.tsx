@@ -1,21 +1,35 @@
-import { Code, Flex, Stack, Typography } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Flex,
+  Image,
+  Loader,
+  Stack,
+  Typography,
+} from "@mantine/core";
 import { useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MainLayout } from "~/components";
 import { priceFormat, sum } from "~/helper";
-import { useAxios } from "~/hooks";
+import { useAxios, useNotification } from "~/hooks";
 import type { IVariation } from "~/interfaces/menu.interface";
-import { menu } from "~/services";
+import { menu, payment } from "~/services";
 
 type Order = IVariation & { amount: number };
 
 export default function CheckoutPage() {
   const search = useSearch({ strict: false }) as Record<string, number>;
 
-  const { execute } = useAxios(menu.getVariations);
+  const { execute: genVariations } = useAxios(menu.getVariations);
+  const { execute: genQR, loading } = useAxios(payment.generatePromptpayQR);
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [qrPromptpayBase64, setQrPromptpayBase64] = useState<
+    string | undefined
+  >();
+
+  const [md, ctx] = useNotification();
 
   const handleMappingOrders = async () => {
     const variationIdAmountMap = new Map();
@@ -26,8 +40,8 @@ export default function CheckoutPage() {
       variationIdAmountMap.set(+idString, value);
     }
 
-    const res = await execute({
-      id: [...variationIdAmountMap.keys()].join(","),
+    const res = await genVariations({
+      id: [...variationIdAmountMap.keys()],
     });
 
     const mappedOrders =
@@ -44,9 +58,14 @@ export default function CheckoutPage() {
       res.data.map((od) => od.price * variationIdAmountMap.get(od.id));
 
     const sumPrice = priceOrders ? sum(priceOrders) : 0;
+    const qrRes = await genQR({ amount: sumPrice });
+
+    if (sumPrice && qrRes?.data.qr) {
+      setTotalPrice(sumPrice);
+      setQrPromptpayBase64(`data:image/png;base64,${qrRes?.data.qr}`);
+    }
 
     setOrders(mappedOrders || []);
-    setTotalPrice(sumPrice);
   };
 
   useEffect(() => {
@@ -75,7 +94,39 @@ export default function CheckoutPage() {
         </Flex>
       </Stack>
 
-      <Code mt={20}>QR Code generate is here</Code>
+      {qrPromptpayBase64 && (
+        <Flex justify="center" my={60}>
+          <Card p={4} withBorder radius={12}>
+            {loading ? (
+              <Loader />
+            ) : (
+              <Image
+                loading="lazy"
+                alt="qr-promptpay"
+                src={qrPromptpayBase64}
+                w={120}
+              />
+            )}
+          </Card>
+        </Flex>
+      )}
+
+      <Flex hidden={!loading} justify="center" columnGap={12}>
+        <Button
+          w={120}
+          bg="teal"
+          onClick={() =>
+            md.open({ title: "updated order to paid", color: "teal" })
+          }
+        >
+          {"Paid"}
+        </Button>
+        <Button w={120} variant="outline">
+          {"Cancel"}
+        </Button>
+      </Flex>
+
+      {ctx}
     </MainLayout>
   );
 }

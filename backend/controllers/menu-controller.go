@@ -32,12 +32,12 @@ func (c *menuController) GetMenus(ctx *gin.Context) {
 }
 
 func (mc *menuController) GetMenuVariations(c *gin.Context) {
-	id := c.Query("id")
+	idParams := c.QueryArray("id[]")
 
 	var ids []int
 
-	if id != "" {
-		ids = hlp.IdStringToInts(id, ",")
+	if len(idParams) != 0 {
+		ids = hlp.StringsToInts(idParams)
 	}
 
 	data, err := mc.repo.FindVariationAll(ids)
