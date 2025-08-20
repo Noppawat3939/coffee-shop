@@ -19,6 +19,15 @@ Table menu_price_logs {
   created_at timestamp
 }
 
+Table members {
+  id int [pk]
+  phone_number text
+  provider text [note: "line"]
+  profile text [note: "encrypt"]
+  created_at timestamp
+  updated_at timestamp
+}
+
 
 Ref: menu_variations.menu_id > menus.id
 Ref: menu_price_logs.menu_variation_id > menu_variations.id
