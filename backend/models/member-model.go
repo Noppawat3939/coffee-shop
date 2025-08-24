@@ -4,7 +4,7 @@ import "time"
 
 type Member struct {
 	ID          uint      `json:"id" gorm:"primaryKey"`
-	PhoneNumber string    `json:"phone_number"`
+	PhoneNumber string    `json:"phone_number" gorm:"uniqueIndex:idx_phone_number"`
 	Provider    string    `json:"provider"`
 	FullName    string    `json:"full_name"`
 	CreatedAt   time.Time `json:"created_at"`
