@@ -2,7 +2,7 @@ import type { IMenu, IVariation } from "~/interfaces/menu.interface";
 import { service as svc } from ".";
 import type { Response } from "./service-instance";
 
-const prefix = "menu";
+const prefix = "menus";
 
 const getMenus = async () => {
   const { data } = await svc.get<Response<IMenu[]>>(prefix);
