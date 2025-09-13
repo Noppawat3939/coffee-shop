@@ -10,6 +10,9 @@ type Order struct {
 	Total       float64   `json:"total"`
 	CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+	// Relation to OrderStatusLog
+	StatusLogs []OrderStatusLog `gorm:"foreignKey:OrderID" json:"status_logs"`
 }
 
 type OrderStatusLog struct {
