@@ -60,15 +60,10 @@ Table payment_order_transaction_logs {
   transaction_number text [not null]
   amount number [not null]
   status payment_order_transaction_log_status
+  payment_code text
+  expired_at timestamp [increment]
   created_at timestamp [increment]
 }
-
-Enum payment_transaction_log_status {
-  pending
-  completed
-  cancelled
-}
-
 
 Enum order_status {
   to_pay
