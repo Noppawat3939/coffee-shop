@@ -18,7 +18,11 @@ type OrderRepo interface {
 
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
-	FindOneTransaction(txNo string) (models.PaymentOrderTransactionLog, error)
+	FindOneTransaction(txn string) (models.PaymentOrderTransactionLog, error)
+
+	// Update one
+	UpdateOrderByID(id int, order models.Order) (models.Order, error)
+	UpdatePaymentLogByTransaction(txn string, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
 }
 
 type orderRepo struct {
@@ -81,10 +85,34 @@ func (r *orderRepo) FindOneOrder(id int) (models.Order, error) {
 	return order, err
 }
 
-func (r *orderRepo) FindOneTransaction(tx string) (models.PaymentOrderTransactionLog, error) {
+func (r *orderRepo) FindOneTransaction(txn string) (models.PaymentOrderTransactionLog, error) {
 	var txLog models.PaymentOrderTransactionLog
 
-	err := r.db.Where("transaction_number = ?", tx).First(&txLog).Error
+	err := r.db.Where("transaction_number = ?", txn).First(&txLog).Error
+
+	return txLog, err
+}
+
+func (r *orderRepo) UpdateOrderByID(id int, order models.Order) (models.Order, error) {
+	var data models.Order
+
+	if err := r.db.First(&data, id).Error; err != nil {
+		return data, err
+	}
+
+	err := r.db.Model(&data).Updates(order).Error
+
+	return data, err
+}
+
+func (r *orderRepo) UpdatePaymentLogByTransaction(txn string, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error) {
+	var data models.PaymentOrderTransactionLog
+
+	if err := r.db.Where("transaction_number = ?", txn).First(&data).Error; err != nil {
+		return data, err
+	}
+
+	err := r.db.Model(&txLog).Updates(txLog).Error
 
 	return txLog, err
 }
