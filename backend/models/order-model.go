@@ -12,7 +12,8 @@ type Order struct {
 	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
 	// Relation to OrderStatusLog
-	StatusLogs []OrderStatusLog `gorm:"foreignKey:OrderID" json:"status_logs"`
+	StatusLogs          []OrderStatusLog     `gorm:"foreignKey:OrderID" json:"status_logs"`
+	OrderMenuVariations []OrderMenuVariation `gorm:"foreignKey:OrderID" json:"order_menu_variations"`
 }
 
 type OrderStatusLog struct {
@@ -20,9 +21,6 @@ type OrderStatusLog struct {
 	OrderID   uint      `json:"order_id"`
 	Status    string    `gorm:"type:text" json:"status"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
-
-	// Relation to Order
-	Order Order `gorm:"foreignKey:OrderID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"order"`
 }
 
 type OrderMenuVariation struct {
@@ -32,9 +30,8 @@ type OrderMenuVariation struct {
 	Amount          int     `json:"amount"`
 	Price           float64 `json:"price"`
 
-	// Relations
-	Order         Order         `gorm:"foreignKey:OrderID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"order"`
-	MenuVariation MenuVariation `gorm:"foreignKey:MenuVariationID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"menu_variation"`
+	// Associations
+	MenuVariation *MenuVariation `gorm:"foreignKey:MenuVariationID" json:"menu_variation,omitempty"`
 }
 
 type PaymentOrderTransactionLog struct {

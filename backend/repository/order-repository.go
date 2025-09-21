@@ -82,7 +82,7 @@ func (r *orderRepo) FindAllOrders() ([]models.Order, error) {
 func (r *orderRepo) FindOneOrder(id int) (models.Order, error) {
 	var order models.Order
 
-	err := r.db.Preload("StatusLogs").First(&order, id).Error
+	err := r.db.Preload("StatusLogs").Preload("OrderMenuVariations.MenuVariation.Menu").First(&order, id).Error
 	return order, err
 }
 

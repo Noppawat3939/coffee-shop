@@ -7,7 +7,6 @@ import (
 	"backend/repository"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -56,7 +55,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			// check order variation id invalid
 			mv, err := oc.repo.FindOneMenuVariation(int(v.MenuVariationID))
 			if err != nil {
-				invalidMenuVariationIDs = append(invalidMenuVariationIDs, strconv.Itoa(int(v.MenuVariationID)))
+				invalidMenuVariationIDs = append(invalidMenuVariationIDs, hlp.IntToString(int(v.MenuVariationID)))
 				continue
 			}
 
@@ -112,6 +111,19 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 
 	if err != nil {
 		hlp.Error(c, errStatus, errMsg)
+		return
+	}
+
+	hlp.Success(c, order)
+}
+
+func (oc *orderController) GetOrderByID(c *gin.Context) {
+	id := hlp.ParamToInt(c, "id")
+
+	order, err := oc.repo.FindOneOrder(id)
+	if err != nil {
+		hlp.ErrorNotFound(c)
+
 		return
 	}
 
