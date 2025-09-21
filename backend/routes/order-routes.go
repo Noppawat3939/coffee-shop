@@ -16,5 +16,6 @@ func IntialOrderRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	{
 		order.POST("", controller.CreateOrder)
 		order.GET("/:id", controller.GetOrderByID)
+		order.PATCH("/:id/cancelled", controller.UpdateOrderToCancelled)
 	}
 }

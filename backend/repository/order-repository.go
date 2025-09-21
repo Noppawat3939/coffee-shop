@@ -22,7 +22,7 @@ type OrderRepo interface {
 	FindOneMenuVariation(id int) (models.MenuVariation, error)
 
 	// Update one
-	UpdateOrderByID(id int, order models.Order) (models.Order, error)
+	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
 	UpdatePaymentLogByTransaction(txn string, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
 }
 
@@ -101,10 +101,12 @@ func (r *orderRepo) FindOneTransaction(txn string) (models.PaymentOrderTransacti
 	return txLog, err
 }
 
-func (r *orderRepo) UpdateOrderByID(id int, order models.Order) (models.Order, error) {
+func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error) {
+	db := r.getDB(tx)
+
 	var data models.Order
 
-	if err := r.db.First(&data, id).Error; err != nil {
+	if err := db.First(&data, id).Error; err != nil {
 		return data, err
 	}
 

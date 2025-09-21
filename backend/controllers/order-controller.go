@@ -129,3 +129,51 @@ func (oc *orderController) GetOrderByID(c *gin.Context) {
 
 	hlp.Success(c, order)
 }
+
+func (oc *orderController) UpdateOrderToCancelled(c *gin.Context) {
+	id := hlp.ParamToInt(c, "id")
+
+	order, err := oc.repo.FindOneOrder(id)
+	if err != nil {
+		hlp.ErrorNotFound(c)
+
+		return
+	}
+
+	// check status not allowed to update
+	if order.Status != OrderStatus.ToPay {
+		hlp.Error(c, http.StatusNotAcceptable, "current status not allowed")
+
+		return
+	}
+
+	var newStatus = OrderStatus.Cancelled
+
+	err = oc.db.Transaction(func(tx *gorm.DB) error {
+		_, err := oc.repo.UpdateOrderByID(id, models.Order{
+			Status: newStatus,
+		}, tx)
+
+		if err != nil {
+			return err
+		}
+
+		// TODO find and update transaction_log to cancelled
+
+		if _, err := oc.repo.CreateOrderStatusLog(models.OrderStatusLog{
+			OrderID: order.ID,
+			Status:  newStatus,
+		}, tx); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		hlp.Error(c, http.StatusConflict, "failed update order status to cancelled")
+		return
+	}
+
+	hlp.Success(c)
+}
