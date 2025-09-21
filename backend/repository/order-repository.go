@@ -19,6 +19,7 @@ type OrderRepo interface {
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
 	FindOneTransaction(txn string) (models.PaymentOrderTransactionLog, error)
+	FindOneMenuVariation(id int) (models.MenuVariation, error)
 
 	// Update one
 	UpdateOrderByID(id int, order models.Order) (models.Order, error)
@@ -83,6 +84,13 @@ func (r *orderRepo) FindOneOrder(id int) (models.Order, error) {
 
 	err := r.db.Preload("StatusLogs").First(&order, id).Error
 	return order, err
+}
+
+func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
+	var menuVariation models.MenuVariation
+
+	err := r.db.First(&menuVariation, id).Error
+	return menuVariation, err
 }
 
 func (r *orderRepo) FindOneTransaction(txn string) (models.PaymentOrderTransactionLog, error) {

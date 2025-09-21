@@ -20,15 +20,15 @@ func NewMenuController(repo repository.MenuRepo, db *gorm.DB) *menuController {
 	return &menuController{repo, db}
 }
 
-func (c *menuController) GetMenus(ctx *gin.Context) {
-	menus, err := c.repo.FindAll()
+func (mc *menuController) GetMenus(c *gin.Context) {
+	menus, err := mc.repo.FindAll()
 	if err != nil {
-		hlp.ErrorNotFound(ctx)
+		hlp.ErrorNotFound(c)
 
 		return
 	}
 
-	hlp.Success(ctx, menus)
+	hlp.Success(c, menus)
 }
 
 func (mc *menuController) GetMenuVariations(c *gin.Context) {
