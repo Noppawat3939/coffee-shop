@@ -10,7 +10,7 @@ import (
 func IntialPaymentRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	controller := controllers.NewPaymentController()
 
-	payment := r.Group("/payment")
+	payment := r.Group("/Payment")
 	{
 		payment.POST("/generate-promptpay-qr", controller.GeneratePromptPayQR)
 	}

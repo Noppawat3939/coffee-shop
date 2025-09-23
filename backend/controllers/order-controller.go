@@ -7,6 +7,7 @@ import (
 	"backend/repository"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -20,10 +21,10 @@ type orderController struct {
 }
 
 var OrderStatus = struct {
-	ToPay     string
-	Paid      string
-	Cancelled string
-}{ToPay: "to_pay", Paid: "paid", Cancelled: "cancelled"}
+	ToPay    string
+	Paid     string
+	Canceled string
+}{ToPay: "to_pay", Paid: "paid", Canceled: "canceled"}
 
 func NewOrderController(repo repository.OrderRepo, db *gorm.DB) *orderController {
 	return &orderController{repo, db}
@@ -130,7 +131,7 @@ func (oc *orderController) GetOrderByID(c *gin.Context) {
 	hlp.Success(c, order)
 }
 
-func (oc *orderController) UpdateOrderToCancelled(c *gin.Context) {
+func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate string) {
 	id := hlp.ParamToInt(c, "id")
 
 	order, err := oc.repo.FindOneOrder(id)
@@ -141,28 +142,33 @@ func (oc *orderController) UpdateOrderToCancelled(c *gin.Context) {
 	}
 
 	// check status not allowed to update
-	if order.Status != OrderStatus.ToPay {
-		hlp.Error(c, http.StatusNotAcceptable, "current status not allowed")
+	allowed, ok := allowedUpdateStatus[order.Status]
+	if !ok || !slices.Contains(allowed, statusToUpdate) {
+		hlp.Error(c, http.StatusNotAcceptable, "current status not allowed to update to "+statusToUpdate)
 
 		return
 	}
 
-	var newStatus = OrderStatus.Cancelled
-
 	err = oc.db.Transaction(func(tx *gorm.DB) error {
 		_, err := oc.repo.UpdateOrderByID(id, models.Order{
-			Status: newStatus,
+			Status: statusToUpdate,
 		}, tx)
 
 		if err != nil {
 			return err
 		}
 
-		// TODO find and update transaction_log to cancelled
+		// update payment_order_transaction_log (if needed)
+		switch statusToUpdate {
+		case OrderStatus.Paid:
+			// TODO: update payment_order_transaction_log to
+		case OrderStatus.Canceled:
+			// TODO: update payment_order_transaction_log to canceled
+		}
 
 		if _, err := oc.repo.CreateOrderStatusLog(models.OrderStatusLog{
 			OrderID: order.ID,
-			Status:  newStatus,
+			Status:  statusToUpdate,
 		}, tx); err != nil {
 			return err
 		}
@@ -171,9 +177,13 @@ func (oc *orderController) UpdateOrderToCancelled(c *gin.Context) {
 	})
 
 	if err != nil {
-		hlp.Error(c, http.StatusConflict, "failed update order status to cancelled")
+		hlp.Error(c, http.StatusConflict, "failed update order status to paid")
 		return
 	}
 
 	hlp.Success(c)
+}
+
+var allowedUpdateStatus = map[string][]string{
+	OrderStatus.ToPay: {OrderStatus.Paid, OrderStatus.Canceled},
 }

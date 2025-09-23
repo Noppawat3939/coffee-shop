@@ -18,7 +18,7 @@ type OrderRepo interface {
 
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
-	FindOneTransaction(txn string) (models.PaymentOrderTransactionLog, error)
+	FindOneTransaction(filter map[string]interface{}) (models.PaymentOrderTransactionLog, error)
 	FindOneMenuVariation(id int) (models.MenuVariation, error)
 
 	// Update one
@@ -93,10 +93,10 @@ func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
 	return menuVariation, err
 }
 
-func (r *orderRepo) FindOneTransaction(txn string) (models.PaymentOrderTransactionLog, error) {
+func (r *orderRepo) FindOneTransaction(filter map[string]interface{}) (models.PaymentOrderTransactionLog, error) {
 	var txLog models.PaymentOrderTransactionLog
 
-	err := r.db.Where("transaction_number = ?", txn).First(&txLog).Error
+	err := r.db.Where(filter).First(&txLog).Error
 
 	return txLog, err
 }

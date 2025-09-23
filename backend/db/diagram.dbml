@@ -68,11 +68,11 @@ Table payment_order_transaction_logs {
 Enum order_status {
   to_pay
   paid
-  cancelled
+  canceled
 }
 
 Enum payment_order_transaction_log_status {
   to_pay
   paid
-  cancelled
+  canceled
 }

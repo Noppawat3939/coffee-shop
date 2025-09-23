@@ -12,10 +12,15 @@ func IntialOrderRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	repo := repository.NewOrderRepository(db)
 	controller := controllers.NewOrderController(repo, db)
 
-	order := r.Group("/orders")
+	order := r.Group("/Orders")
 	{
 		order.POST("", controller.CreateOrder)
 		order.GET("/:id", controller.GetOrderByID)
-		order.PATCH("/:id/cancelled", controller.UpdateOrderToCancelled)
+		order.PATCH("/:id/paid", func(ctx *gin.Context) {
+			controller.UpdateOrderStatus(ctx, controllers.OrderStatus.Paid)
+		})
+		order.PATCH("/:id/canceled", func(ctx *gin.Context) {
+			controller.UpdateOrderStatus(ctx, controllers.OrderStatus.Canceled)
+		})
 	}
 }
