@@ -23,7 +23,7 @@ type OrderRepo interface {
 
 	// Update one
 	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
-	UpdatePaymentLogByTransaction(txn string, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
+	UpdatePaymentLog(filter map[string]interface{}, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
 }
 
 type orderRepo struct {
@@ -115,10 +115,10 @@ func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (mo
 	return data, err
 }
 
-func (r *orderRepo) UpdatePaymentLogByTransaction(txn string, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error) {
+func (r *orderRepo) UpdatePaymentLog(filter map[string]interface{}, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error) {
 	var data models.PaymentOrderTransactionLog
 
-	if err := r.db.Where("transaction_number = ?", txn).First(&data).Error; err != nil {
+	if err := r.db.Where(filter).First(&data).Error; err != nil {
 		return data, err
 	}
 

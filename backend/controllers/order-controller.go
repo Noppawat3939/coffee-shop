@@ -159,11 +159,19 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 		}
 
 		// update payment_order_transaction_log (if needed)
-		switch statusToUpdate {
-		case OrderStatus.Paid:
-			// TODO: update payment_order_transaction_log to
-		case OrderStatus.Canceled:
-			// TODO: update payment_order_transaction_log to canceled
+		filter := map[string]interface{}{
+			"order_id": id,
+			"status":   OrderStatus.ToPay,
+		}
+
+		updateLog := models.PaymentOrderTransactionLog{
+			Status: statusToUpdate,
+		}
+
+		if statusToUpdate == OrderStatus.Paid || statusToUpdate == OrderStatus.Canceled {
+			if _, err := oc.repo.UpdatePaymentLog(filter, updateLog); err != nil {
+				return err
+			}
 		}
 
 		if _, err := oc.repo.CreateOrderStatusLog(models.OrderStatusLog{
