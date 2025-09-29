@@ -30,6 +30,8 @@ type MenuVariation struct {
 	MenuPriceLogs []MenuPriceLog `json:"menu_price_logs,omitempty" gorm:"foreignKey:MenuVariationID"`
 
 	Menu Memu `json:"menu" gorm:"foreignKey:MenuID;references:ID"`
+
+	OrderMenuVariations []OrderMenuVariation `gorm:"foreignKey:MenuVariationID" json:"order_menu_variations,omitempty"`
 }
 
 type MenuPriceLog struct {

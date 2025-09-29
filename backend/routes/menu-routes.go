@@ -12,7 +12,7 @@ func IntialMenuRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	repo := repository.NewMenuRepository(db)
 	controller := controllers.NewMenuController(repo, db)
 
-	menu := r.Group("/menus")
+	menu := r.Group("/Menus")
 	{
 		menu.GET("", controller.GetMenus)
 		menu.GET("/:id", controller.GetMenu)

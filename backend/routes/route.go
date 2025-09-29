@@ -16,4 +16,5 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	IntialMenuRoutes(api, db)
 	IntialPaymentRoutes(api, db)
 	InitialMemberRoutes(api, db)
+	IntialOrderRoutes(api, db)
 }

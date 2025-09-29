@@ -1,0 +1,78 @@
+Table menus {
+  id int [pk]
+  name text [not null]
+  description text
+  is_available bool
+}
+
+Table menu_variations {
+  id int [pk]
+  menu_id int [ref: > menus.id]
+  type text [note: "hot,ice,frappe"]
+  price number
+}
+
+Table menu_price_logs {
+  id int [pk]
+  menu_variation_id int [ref: > menu_variations.id]
+  price number
+  created_at timestamp [increment]
+}
+
+Table members {
+  id int [pk]
+  phone_number text
+  provider text [note: "line"]
+  profile text [note: "encrypt"]
+  created_at timestamp [increment]
+  updated_at timestamp
+}
+
+// Checkout
+Table orders {
+  id int [pk]
+  order_number text [unique, note: '']
+  status order_status [default: 'to_pay']
+  customer text [default: 'guest', note: 'members.full_name']
+  total number [not null]
+  created_at timestamp [increment]
+  updated_at timestamp
+}
+
+Table order_status_logs {
+  id int [pk]
+  order_id number [not null, ref: > orders.id]
+  status text [not null]
+  created_at timestamp [increment]
+}
+
+Table order_menu_variation {
+   id int [pk]
+   order_id int [ref: > orders.id]
+   menu_variation_id number [not null , ref: > menu_variations.id]
+   amount number [not null]
+   price number [not null]
+}
+
+Table payment_order_transaction_logs {
+  id int [pk]
+  order_id int [not null ,ref: > orders.id]
+  transaction_number text [not null]
+  amount number [not null]
+  status payment_order_transaction_log_status
+  payment_code text
+  expired_at timestamp [increment]
+  created_at timestamp [increment]
+}
+
+Enum order_status {
+  to_pay
+  paid
+  canceled
+}
+
+Enum payment_order_transaction_log_status {
+  to_pay
+  paid
+  canceled
+}
