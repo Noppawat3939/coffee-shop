@@ -1,19 +1,10 @@
-import {
-  Button,
-  Card,
-  Flex,
-  Image,
-  Loader,
-  Stack,
-  Typography,
-} from "@mantine/core";
+import { Button, Flex, Stack, Typography } from "@mantine/core";
 import { useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MainLayout } from "~/components";
-import { priceFormat, sum } from "~/helper";
 import { useAxios, useNotification } from "~/hooks";
 import type { IVariation } from "~/interfaces/menu.interface";
-import { menu, payment } from "~/services";
+import { menu } from "~/services";
 
 type Order = IVariation & { amount: number };
 
@@ -21,13 +12,9 @@ export default function CheckoutPage() {
   const search = useSearch({ strict: false }) as Record<string, number>;
 
   const { execute: genVariations } = useAxios(menu.getVariations);
-  const { execute: genQR, loading } = useAxios(payment.generatePromptpayQR);
+  // const { execute: genQR, loading } = useAxios(payment.generatePromptpayQR);
 
   const [orders, setOrders] = useState<Order[]>([]);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [qrPromptpayBase64, setQrPromptpayBase64] = useState<
-    string | undefined
-  >();
 
   const [md, ctx] = useNotification();
 
@@ -53,17 +40,17 @@ export default function CheckoutPage() {
         }))
         .sort((a, b) => (a.menu?.name || "").localeCompare(b.menu?.name || ""));
 
-    const priceOrders =
-      res?.data &&
-      res.data.map((od) => od.price * variationIdAmountMap.get(od.id));
+    // const priceOrders =
+    //   res?.data &&
+    //   res.data.map((od) => od.price * variationIdAmountMap.get(od.id));
 
-    const sumPrice = priceOrders ? sum(priceOrders) : 0;
-    const qrRes = await genQR({ amount: sumPrice });
+    // const sumPrice = priceOrders ? sum(priceOrders) : 0;
+    // const qrRes = await genQR({ amount: sumPrice });
 
-    if (sumPrice && qrRes?.data.qr) {
-      setTotalPrice(sumPrice);
-      setQrPromptpayBase64(`data:image/png;base64,${qrRes?.data.qr}`);
-    }
+    // if (sumPrice && qrRes?.data.qr) {
+    //   setTotalPrice(sumPrice);
+    //   setQrPromptpayBase64(`data:image/png;base64,${qrRes?.data.qr}`);
+    // }
 
     setOrders(mappedOrders || []);
   };
@@ -90,11 +77,10 @@ export default function CheckoutPage() {
         ))}
         <Flex justify="space-between">
           <Typography>{"Total"}</Typography>
-          <Typography>{priceFormat(totalPrice)}</Typography>
         </Flex>
       </Stack>
 
-      {qrPromptpayBase64 && (
+      {/* {qrPromptpayBase64 && (
         <Flex justify="center" my={60}>
           <Card p={4} withBorder radius={12}>
             {loading ? (
@@ -109,9 +95,9 @@ export default function CheckoutPage() {
             )}
           </Card>
         </Flex>
-      )}
+      )} */}
 
-      <Flex hidden={!loading} justify="center" columnGap={12}>
+      <Flex justify="center" columnGap={12}>
         <Button
           w={120}
           bg="teal"

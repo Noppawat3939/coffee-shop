@@ -4,8 +4,14 @@ type AsyncFunc<Args extends unknown[], Return> = (
   ...args: Args
 ) => Promise<Return>;
 
+type Options = {
+  onSuccess?: <Return>(data: Return) => void;
+  onFinish?: () => void;
+};
+
 export default function useAxios<Args extends unknown[], Return>(
-  fn: AsyncFunc<Args, Return>
+  fn: AsyncFunc<Args, Return>,
+  options?: Options
 ) {
   const [data, setData] = useState<Return | null>(null);
   const [loading, setLoading] = useState(false);
@@ -17,11 +23,14 @@ export default function useAxios<Args extends unknown[], Return>(
         const result = await fn(...args);
 
         setData(result);
+        options?.onSuccess?.(result);
+
         return result;
       } catch (err) {
         return null;
       } finally {
         setLoading(false);
+        options?.onFinish?.();
       }
     },
     [fn]

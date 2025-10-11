@@ -1,3 +1,5 @@
+import dayjs, { Dayjs } from "dayjs";
+
 /**
  * Format a number or string as Thai Baht currency.
  *
@@ -30,3 +32,6 @@ export const priceFormat = (amount: number | string) => {
 export const sum = (nums: number[]): number => {
   return nums.reduce((total, cur) => total + cur, 0);
 };
+
+export const dateFormat = (date?: string | number | Dayjs, format?: string) =>
+  dayjs(date).format(format);

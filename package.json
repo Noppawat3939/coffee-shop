@@ -2,5 +2,8 @@
   "scripts": {
     "dev:backend": "cd backend && go run ./cmd/main.go",
     "dev:frontend": "cd frontend && bun run dev"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.18"
   }
 }

@@ -11,9 +11,15 @@ import { useDisclosure, useMap } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
 import { Coffee } from "lucide-react";
 import { Fragment, useEffect, useMemo } from "react";
-import { BillOrders, IncreaseDecreaseInput, MainLayout } from "~/components";
+import {
+  BillOrders,
+  IncreaseDecreaseInput,
+  MainLayout,
+  MemberChecker,
+} from "~/components";
 import { priceFormat, sum } from "~/helper";
 import { useAxios } from "~/hooks";
+import type { IMember } from "~/interfaces/member.interface";
 import type { IMenu } from "~/interfaces/menu.interface";
 import { menu } from "~/services";
 
@@ -24,7 +30,14 @@ export default function MenusPage() {
 
   const orderMap: Map<string, number> = useMap();
 
-  const [opened, { open, close }] = useDisclosure();
+  const [
+    openedBillOrders,
+    { open: onOpenBillOrders, close: onCloseBillOrders },
+  ] = useDisclosure(false);
+  const [
+    openedMemberChecker,
+    { open: onOpenMemberChecker, close: onCloseMemberChecker },
+  ] = useDisclosure(false);
 
   useEffect(() => {
     return () => {
@@ -58,9 +71,10 @@ export default function MenusPage() {
       .filter(Boolean) as IMenu[];
   }, [data?.data, orderMap.size]);
 
-  const goToCheckout = () => {
+  const goToCheckout = (member?: IMember) => {
+    // console.log(member);
     const searchParams = {} as Record<string, number>;
-
+    console.log(orderMap.entries());
     for (const [key, amount] of orderMap.entries()) {
       const [, variationId] = key.split("_");
 
@@ -69,14 +83,18 @@ export default function MenusPage() {
       }
     }
 
-    navigation({ to: "/checkout", search: searchParams });
+    // navigation({ to: "/checkout", search: searchParams });
   };
 
   return (
     <MainLayout
       title={"Menu"}
       extra={
-        <ActionIcon variant={"filled"} onClick={open} disabled={!sumOrders}>
+        <ActionIcon
+          variant={"filled"}
+          onClick={onOpenBillOrders}
+          disabled={!sumOrders}
+        >
           <Coffee width={14} />
         </ActionIcon>
       }
@@ -132,8 +150,8 @@ export default function MenusPage() {
       </Accordion>
 
       <Modal
-        opened={opened}
-        onClose={close}
+        opened={openedBillOrders}
+        onClose={onCloseBillOrders}
         overlayProps={{ blur: 2 }}
         title={
           <Typography fz="h4" fw={500}>
@@ -150,8 +168,31 @@ export default function MenusPage() {
           />
         </Modal.Body>
         <Flex justify="center">
-          <Button onClick={goToCheckout}>{"Continue"}</Button>
+          <Button
+            onClick={() => {
+              onCloseBillOrders();
+              onOpenMemberChecker();
+            }}
+          >
+            {"Continue"}
+          </Button>
         </Flex>
+      </Modal>
+
+      <Modal
+        opened={openedMemberChecker}
+        onClose={onCloseMemberChecker}
+        overlayProps={{ blur: 2 }}
+        title={
+          <Typography fz="h4" fw={500}>
+            {"You have membership ?"}
+          </Typography>
+        }
+      >
+        <MemberChecker
+          withMemberClick={goToCheckout}
+          noMemberClick={goToCheckout}
+        />
       </Modal>
     </MainLayout>
   );
