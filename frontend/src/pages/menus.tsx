@@ -20,15 +20,24 @@ import {
 import { priceFormat, sum } from "~/helper";
 import { useAxios } from "~/hooks";
 import type { IMember } from "~/interfaces/member.interface";
-import type { IMenu } from "~/interfaces/menu.interface";
-import { menu } from "~/services";
+import type { IMenu, IVariation } from "~/interfaces/menu.interface";
+import type { ICreateOrders } from "~/interfaces/order.interface";
+import { menu, order } from "~/services";
+
+type OrderKey = `${IMenu["id"]}_${IVariation["id"]}` | string;
 
 export default function MenusPage() {
   const { execute, data } = useAxios(menu.getMenus);
 
+  const { execute: createOrder, loading } = useAxios(order.createOrder, {
+    onSuccess: (res) => {
+      console.log("res", res);
+    },
+  });
+
   const navigation = useNavigate();
 
-  const orderMap: Map<string, number> = useMap();
+  const orderMap: Map<OrderKey, number> = useMap(); // expected: {menuId_menuVariationId ==> amount}
 
   const [
     openedBillOrders,
@@ -72,17 +81,23 @@ export default function MenusPage() {
   }, [data?.data, orderMap.size]);
 
   const goToCheckout = (member?: IMember) => {
-    // console.log(member);
-    const searchParams = {} as Record<string, number>;
-    console.log(orderMap.entries());
+    const variations: ICreateOrders["variations"] = [];
+
     for (const [key, amount] of orderMap.entries()) {
       const [, variationId] = key.split("_");
 
-      if (amount > 0) {
-        searchParams[`variation_id_${variationId}`] = amount;
-      }
+      const menu_variation_id = +variationId;
+
+      variations.push({ menu_variation_id, amount });
     }
 
+    const params: ICreateOrders = {
+      variations,
+      ...(member?.full_name && { customer: member.full_name }),
+    };
+
+    console.log(params);
+    createOrder(params);
     // navigation({ to: "/checkout", search: searchParams });
   };
 
@@ -190,6 +205,7 @@ export default function MenusPage() {
         }
       >
         <MemberChecker
+          loading={loading}
           withMemberClick={goToCheckout}
           noMemberClick={goToCheckout}
         />

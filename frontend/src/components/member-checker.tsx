@@ -10,11 +10,13 @@ import type { IMember } from "~/interfaces/member.interface";
 type MemberCheckerProps = {
   withMemberClick?: (data?: IMember) => void;
   noMemberClick?: () => void;
+  loading?: boolean;
 };
 
 export default function MemberChecker({
   withMemberClick,
   noMemberClick,
+  loading = false,
 }: MemberCheckerProps) {
   const [display, { close: onHide, open: onDisplay }] = useDisclosure(false);
 
@@ -49,11 +51,18 @@ export default function MemberChecker({
         <Typography c="gray">{"No member"}</Typography>
       )}
       {haveMember && (
-        <Button onClick={() => withMemberClick?.(memberRes?.data)}>
+        <Button
+          loading={loading}
+          onClick={() => withMemberClick?.(memberRes?.data)}
+        >
           {"Continue"}
         </Button>
       )}
-      <Button variant="outline" onClick={noMemberClick}>
+      <Button
+        loading={loading}
+        variant="outline"
+        onClick={() => noMemberClick?.()}
+      >
         {"No member"}
       </Button>
     </Flex>
