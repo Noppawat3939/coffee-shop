@@ -21,21 +21,27 @@ import { priceFormat, sum } from "~/helper";
 import { useAxios } from "~/hooks";
 import type { IMember } from "~/interfaces/member.interface";
 import type { IMenu, IVariation } from "~/interfaces/menu.interface";
-import type { ICreateOrders } from "~/interfaces/order.interface";
+import type { ICreateOrders, IOrder } from "~/interfaces/order.interface";
 import { menu, order } from "~/services";
+import type { Response } from "~/services/service-instance";
 
 type OrderKey = `${IMenu["id"]}_${IVariation["id"]}` | string;
 
 export default function MenusPage() {
+  const navigation = useNavigate();
+
   const { execute, data } = useAxios(menu.getMenus);
 
   const { execute: createOrder, loading } = useAxios(order.createOrder, {
     onSuccess: (res) => {
-      console.log("res", res);
+      const response = res as Response<IOrder>;
+      const orderNumber = response.data.order_number;
+
+      if (orderNumber) {
+        navigation({ to: `/checkout?order_number=${orderNumber}` });
+      }
     },
   });
-
-  const navigation = useNavigate();
 
   const orderMap: Map<OrderKey, number> = useMap(); // expected: {menuId_menuVariationId ==> amount}
 
@@ -96,9 +102,7 @@ export default function MenusPage() {
       ...(member?.full_name && { customer: member.full_name }),
     };
 
-    console.log(params);
     createOrder(params);
-    // navigation({ to: "/checkout", search: searchParams });
   };
 
   return (

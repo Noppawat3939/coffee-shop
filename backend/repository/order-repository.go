@@ -8,7 +8,7 @@ import (
 
 type OrderRepo interface {
 	// Create repositories
-	CreateOrder(order models.Order, tx *gorm.DB) (models.Order, error)
+	CreateOrder(order *models.Order, tx *gorm.DB) (models.Order, error)
 	CreateOrderStatusLog(odLog models.OrderStatusLog, tx *gorm.DB) (models.OrderStatusLog, error)
 	CreateOrderMenuVariation(odVaria models.OrderMenuVariation, tx *gorm.DB) (models.OrderMenuVariation, error)
 	CreatePaymentLog(paymentOdLog models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
@@ -18,6 +18,7 @@ type OrderRepo interface {
 
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
+	FindOneOrderByOrderNumber(odNo string) (models.Order, error)
 	FindOneTransaction(filter map[string]interface{}) (models.PaymentOrderTransactionLog, error)
 	FindOneMenuVariation(id int) (models.MenuVariation, error)
 
@@ -40,12 +41,12 @@ func (r *orderRepo) getDB(tx *gorm.DB) *gorm.DB {
 	return r.db
 }
 
-func (r *orderRepo) CreateOrder(order models.Order, tx *gorm.DB) (models.Order, error) {
+func (r *orderRepo) CreateOrder(order *models.Order, tx *gorm.DB) (models.Order, error) {
 	db := r.getDB(tx)
-	if err := db.Create(&order).Error; err != nil {
+	if err := db.Create(order).Error; err != nil {
 		return models.Order{}, err
 	}
-	return order, nil
+	return *order, nil
 }
 
 func (r *orderRepo) CreateOrderStatusLog(odLog models.OrderStatusLog, tx *gorm.DB) (models.OrderStatusLog, error) {
@@ -83,6 +84,13 @@ func (r *orderRepo) FindOneOrder(id int) (models.Order, error) {
 	var order models.Order
 
 	err := r.db.Preload("StatusLogs").Preload("OrderMenuVariations.MenuVariation.Menu").First(&order, id).Error
+	return order, err
+}
+
+func (r *orderRepo) FindOneOrderByOrderNumber(odNo string) (models.Order, error) {
+	var order models.Order
+
+	err := r.db.Preload("StatusLogs").Preload("OrderMenuVariations.MenuVariation.Menu").Where("order_number = ?", odNo).First(&order).Error
 	return order, err
 }
 

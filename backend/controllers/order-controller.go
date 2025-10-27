@@ -87,7 +87,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			Total:       total,
 		}
 
-		if _, err := oc.repo.CreateOrder(order, tx); err != nil {
+		if _, err := oc.repo.CreateOrder(&order, tx); err != nil {
 			return err
 		}
 
@@ -122,6 +122,19 @@ func (oc *orderController) GetOrderByID(c *gin.Context) {
 	id := hlp.ParamToInt(c, "id")
 
 	order, err := oc.repo.FindOneOrder(id)
+	if err != nil {
+		hlp.ErrorNotFound(c)
+
+		return
+	}
+
+	hlp.Success(c, order)
+}
+
+func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
+	order_number := c.Param("order_number")
+
+	order, err := oc.repo.FindOneOrderByOrderNumber(order_number)
 	if err != nil {
 		hlp.ErrorNotFound(c)
 

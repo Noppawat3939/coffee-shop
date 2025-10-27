@@ -1,103 +1,60 @@
-import { Button, Flex, Stack, Typography } from "@mantine/core";
+import { Button, Card, Divider, Flex, Stack, Typography } from "@mantine/core";
 import { useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MainLayout } from "~/components";
 import { useAxios, useNotification } from "~/hooks";
-import type { IVariation } from "~/interfaces/menu.interface";
-import { menu } from "~/services";
+import type { IOrder } from "~/interfaces/order.interface";
+import { order } from "~/services";
 
-type Order = IVariation & { amount: number };
+type SearchParams = Partial<{ order_number: string }>;
 
 export default function CheckoutPage() {
-  const search = useSearch({ strict: false }) as Record<string, number>;
+  const search = useSearch({ strict: false }) satisfies SearchParams;
 
-  const { execute: genVariations } = useAxios(menu.getVariations);
-  // const { execute: genQR, loading } = useAxios(payment.generatePromptpayQR);
+  const { execute: getOrderByOrderNumber, data } = useAxios(
+    order.getOrderByOrderNumber
+  );
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const orderData = data?.data as IOrder;
 
   const [md, ctx] = useNotification();
 
-  const handleMappingOrders = async () => {
-    const variationIdAmountMap = new Map();
-
-    for (const [key, value] of Object.entries(search)) {
-      const idString = key.replace("variation_id_", "");
-
-      variationIdAmountMap.set(+idString, value);
-    }
-
-    const res = await genVariations({
-      id: [...variationIdAmountMap.keys()],
-    });
-
-    const mappedOrders =
-      res?.data &&
-      res.data
-        .map((od) => ({
-          ...od,
-          amount: variationIdAmountMap.get(od.id),
-        }))
-        .sort((a, b) => (a.menu?.name || "").localeCompare(b.menu?.name || ""));
-
-    // const priceOrders =
-    //   res?.data &&
-    //   res.data.map((od) => od.price * variationIdAmountMap.get(od.id));
-
-    // const sumPrice = priceOrders ? sum(priceOrders) : 0;
-    // const qrRes = await genQR({ amount: sumPrice });
-
-    // if (sumPrice && qrRes?.data.qr) {
-    //   setTotalPrice(sumPrice);
-    //   setQrPromptpayBase64(`data:image/png;base64,${qrRes?.data.qr}`);
-    // }
-
-    setOrders(mappedOrders || []);
-  };
-
   useEffect(() => {
-    if (search) {
-      handleMappingOrders();
+    if (search?.order_number) {
+      getOrderByOrderNumber(search.order_number);
     }
-  }, [search]);
+  }, [search?.order_number]);
 
   return (
     <MainLayout title="Checkout">
       <Stack gap={12} mt={10}>
-        {orders.map((order, oIdx) => (
-          <Flex key={`order-${oIdx}`} direction="column">
+        <Card withBorder>
+          <Typography fw={500} c="gray" fz="sm">
+            {"Customer infomation"}
+          </Typography>
+          <Typography>{`Customer: ${orderData?.customer}`}</Typography>
+        </Card>
+        {orderData?.order_menu_variations?.map((item, itemIdx) => (
+          <Flex key={`item-${itemIdx}`} direction="column">
             <Flex justify="space-between" align="center">
               <Flex align="center" columnGap={8}>
-                <Typography tt="capitalize">{`${order.menu?.name} ${order.type}`}</Typography>
-                <Typography fz="sm">{`x ${order.amount}`}</Typography>
+                <Typography tt="capitalize">
+                  {item.menu_variation.menu?.name}
+                </Typography>
+                <Typography fz="sm">{`x ${item.amount}`}</Typography>
               </Flex>
-              <Typography>{order.price}</Typography>
+              <Typography>{item.price}</Typography>
             </Flex>
           </Flex>
         ))}
+        <Divider />
         <Flex justify="space-between">
           <Typography>{"Total"}</Typography>
+          <Typography>{orderData?.total}</Typography>
         </Flex>
       </Stack>
 
-      {/* {qrPromptpayBase64 && (
-        <Flex justify="center" my={60}>
-          <Card p={4} withBorder radius={12}>
-            {loading ? (
-              <Loader />
-            ) : (
-              <Image
-                loading="lazy"
-                alt="qr-promptpay"
-                src={qrPromptpayBase64}
-                w={120}
-              />
-            )}
-          </Card>
-        </Flex>
-      )} */}
-
-      <Flex justify="center" columnGap={12}>
+      <Flex justify="center" mt={100} columnGap={12}>
         <Button
           w={120}
           bg="teal"
