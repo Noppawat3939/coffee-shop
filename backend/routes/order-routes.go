@@ -15,6 +15,7 @@ func IntialOrderRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	order := r.Group("/Orders")
 	{
 		order.POST("", controller.CreateOrder)
+		order.GET("", controller.GetOrders)
 		order.GET("/:id", controller.GetOrderByID)
 		order.GET("/order-number/:order_number", controller.GetOrderByOrderNumber)
 		order.PATCH("/:id/paid", func(ctx *gin.Context) {

@@ -6,21 +6,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func toInt(s string) int {
+func ToInt(s string) int {
 	value, _ := strconv.Atoi(s)
 
 	return value
 }
 
 func ParamToInt(c *gin.Context, key string) int {
-	return toInt(c.Param(key))
+	return ToInt(c.Param(key))
 }
 
 func StringsToInts(strs []string) []int {
 	var result []int
 
 	for _, s := range strs {
-		n := toInt(s)
+		n := ToInt(s)
 
 		result = append(result, n)
 	}

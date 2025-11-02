@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"backend/helpers"
 	"backend/models"
 
 	"gorm.io/gorm"
@@ -14,7 +15,7 @@ type OrderRepo interface {
 	CreatePaymentLog(paymentOdLog models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
 
 	// Find all
-	FindAllOrders() ([]models.Order, error)
+	FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error)
 
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
@@ -73,9 +74,15 @@ func (r *orderRepo) CreatePaymentLog(paymentOdLog models.PaymentOrderTransaction
 	return paymentOdLog, nil
 }
 
-func (r *orderRepo) FindAllOrders() ([]models.Order, error) {
+func (r *orderRepo) FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error) {
 	var orders []models.Order
-	err := r.db.Find(&orders).Error
+
+	pagination := helpers.Pagination{
+		Page:  page,
+		Limit: limit,
+	}
+
+	err := r.db.Scopes(pagination.GetPaginationResult).Find(&orders).Error
 
 	return orders, err
 }

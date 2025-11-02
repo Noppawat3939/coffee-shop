@@ -205,6 +205,27 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 	hlp.Success(c)
 }
 
+func (oc *orderController) GetOrders(c *gin.Context) {
+	status := c.Param("status")
+	id := hlp.ParamToInt(c, "id")
+	page := hlp.ToInt(c.DefaultQuery("page", fmt.Sprint(hlp.DefaultPage)))
+	limit := hlp.ToInt(c.DefaultQuery("limit", fmt.Sprint(hlp.DefaultLimit)))
+
+	filter := map[string]interface{}{
+		"id":     id,
+		"status": status,
+	}
+
+	orders, err := oc.repo.FindAllOrders(filter, page, limit)
+	if err != nil {
+		hlp.ErrorNotFound(c)
+
+		return
+	}
+
+	hlp.Success(c, orders)
+}
+
 var allowedUpdateStatus = map[string][]string{
 	OrderStatus.ToPay: {OrderStatus.Paid, OrderStatus.Canceled},
 }
