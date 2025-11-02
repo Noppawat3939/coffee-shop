@@ -28,6 +28,17 @@ Table members {
   updated_at timestamp
 }
 
+Table employees {
+  id int [pk]
+  username text [unique, not null]
+  password text [not null]
+  name text [not null]
+  active bool [default: true]
+  role text [note: "admin, staff"]
+  created_at timestamp [increment]
+  updated_at timestamp
+}
+
 // Checkout
 Table orders {
   id int [pk]
@@ -35,9 +46,12 @@ Table orders {
   status order_status [default: 'to_pay']
   customer text [default: 'guest', note: 'members.full_name']
   total number [not null]
+  employee_id int [not null]
   created_at timestamp [increment]
   updated_at timestamp
 }
+
+Ref: orders.employee_id > employees.id
 
 Table order_status_logs {
   id int [pk]
@@ -64,6 +78,13 @@ Table payment_order_transaction_logs {
   expired_at timestamp [increment]
   created_at timestamp [increment]
 }
+
+Enum payment_transaction_log_status {
+  pending
+  completed
+  canceled
+}
+
 
 Enum order_status {
   to_pay
