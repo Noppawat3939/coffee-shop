@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"backend/dto"
-	hlp "backend/helpers"
 	"backend/models"
 	"backend/repository"
+	"backend/util"
 	"fmt"
 	"net/http"
 	"slices"
@@ -34,7 +34,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 	var req dto.CreateOrderRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		hlp.ErrorBodyInvalid(c)
+		util.ErrorBodyInvalid(c)
 		return
 	}
 
@@ -56,7 +56,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			// check order variation id invalid
 			mv, err := oc.repo.FindOneMenuVariation(int(v.MenuVariationID))
 			if err != nil {
-				invalidMenuVariationIDs = append(invalidMenuVariationIDs, hlp.IntToString(int(v.MenuVariationID)))
+				invalidMenuVariationIDs = append(invalidMenuVariationIDs, util.IntToString(int(v.MenuVariationID)))
 				continue
 			}
 
@@ -111,24 +111,24 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 	})
 
 	if err != nil {
-		hlp.Error(c, errStatus, errMsg)
+		util.Error(c, errStatus, errMsg)
 		return
 	}
 
-	hlp.Success(c, order)
+	util.Success(c, order)
 }
 
 func (oc *orderController) GetOrderByID(c *gin.Context) {
-	id := hlp.ParamToInt(c, "id")
+	id := util.ParamToInt(c, "id")
 
 	order, err := oc.repo.FindOneOrder(id)
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 
 		return
 	}
 
-	hlp.Success(c, order)
+	util.Success(c, order)
 }
 
 func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
@@ -136,20 +136,20 @@ func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
 
 	order, err := oc.repo.FindOneOrderByOrderNumber(order_number)
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 
 		return
 	}
 
-	hlp.Success(c, order)
+	util.Success(c, order)
 }
 
 func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate string) {
-	id := hlp.ParamToInt(c, "id")
+	id := util.ParamToInt(c, "id")
 
 	order, err := oc.repo.FindOneOrder(id)
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 
 		return
 	}
@@ -157,7 +157,7 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 	// check status not allowed to update
 	allowed, ok := allowedUpdateStatus[order.Status]
 	if !ok || !slices.Contains(allowed, statusToUpdate) {
-		hlp.Error(c, http.StatusNotAcceptable, "current status not allowed to update to "+statusToUpdate)
+		util.Error(c, http.StatusNotAcceptable, "current status not allowed to update to "+statusToUpdate)
 
 		return
 	}
@@ -198,18 +198,18 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 	})
 
 	if err != nil {
-		hlp.Error(c, http.StatusConflict, "failed update order status to paid")
+		util.Error(c, http.StatusConflict, "failed update order status to paid")
 		return
 	}
 
-	hlp.Success(c)
+	util.Success(c)
 }
 
 func (oc *orderController) GetOrders(c *gin.Context) {
 	status := c.Param("status")
-	id := hlp.ParamToInt(c, "id")
-	page := hlp.ToInt(c.DefaultQuery("page", fmt.Sprint(hlp.DefaultPage)))
-	limit := hlp.ToInt(c.DefaultQuery("limit", fmt.Sprint(hlp.DefaultLimit)))
+	id := util.ParamToInt(c, "id")
+	page := util.ToInt(c.DefaultQuery("page", fmt.Sprint(util.DefaultPage)))
+	limit := util.ToInt(c.DefaultQuery("limit", fmt.Sprint(util.DefaultLimit)))
 
 	filter := map[string]interface{}{
 		"id":     id,
@@ -218,12 +218,12 @@ func (oc *orderController) GetOrders(c *gin.Context) {
 
 	orders, err := oc.repo.FindAllOrders(filter, page, limit)
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 
 		return
 	}
 
-	hlp.Success(c, orders)
+	util.Success(c, orders)
 }
 
 var allowedUpdateStatus = map[string][]string{

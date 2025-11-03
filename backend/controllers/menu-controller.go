@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"backend/dto"
-	hlp "backend/helpers"
 	"backend/models"
 	"backend/repository"
+	"backend/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,12 +23,12 @@ func NewMenuController(repo repository.MenuRepo, db *gorm.DB) *menuController {
 func (mc *menuController) GetMenus(c *gin.Context) {
 	menus, err := mc.repo.FindAll()
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 
 		return
 	}
 
-	hlp.Success(c, menus)
+	util.Success(c, menus)
 }
 
 func (mc *menuController) GetMenuVariations(c *gin.Context) {
@@ -37,38 +37,38 @@ func (mc *menuController) GetMenuVariations(c *gin.Context) {
 	var ids []int
 
 	if len(idParams) != 0 {
-		ids = hlp.StringsToInts(idParams)
+		ids = util.StringsToInts(idParams)
 	}
 
 	data, err := mc.repo.FindVariationAll(ids)
 
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 		return
 	}
 
-	hlp.Success(c, data)
+	util.Success(c, data)
 }
 
 func (mc *menuController) GetMenu(c *gin.Context) {
-	id := hlp.ParamToInt(c, "id")
+	id := util.ParamToInt(c, "id")
 
 	menu, err := mc.repo.FindOne(id)
 
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 
 		return
 	}
 
-	hlp.Success(c, menu)
+	util.Success(c, menu)
 }
 
 func (mc *menuController) CreateMenu(c *gin.Context) {
 	var req dto.CreateMenuRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		hlp.ErrorBodyInvalid(c)
+		util.ErrorBodyInvalid(c)
 		return
 	}
 
@@ -116,40 +116,40 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 	})
 
 	if err != nil {
-		hlp.Error(c, http.StatusConflict, "failed create menu")
+		util.Error(c, http.StatusConflict, "failed create menu")
 		return
 	}
 
-	hlp.Success(c, data)
+	util.Success(c, data)
 }
 
 func (mc *menuController) UpdateMenuByID(c *gin.Context) {
-	id := hlp.ParamToInt(c, "id")
+	id := util.ParamToInt(c, "id")
 
 	var body models.Memu
 
 	if err := c.ShouldBindJSON(&body); err != nil {
-		hlp.Error(c, http.StatusBadRequest, "body invalid")
+		util.Error(c, http.StatusBadRequest, "body invalid")
 		return
 	}
 
 	menu, err := mc.repo.UpdateByID(id, body)
 
 	if err != nil {
-		hlp.Error(c, http.StatusConflict, "failed update menu id %d ", id)
+		util.Error(c, http.StatusConflict, "failed update menu id %d ", id)
 		return
 	}
 
-	hlp.Success(c, menu)
+	util.Success(c, menu)
 }
 
 func (mc *menuController) UpdateVariationByID(c *gin.Context) {
-	id := hlp.ParamToInt(c, "id")
+	id := util.ParamToInt(c, "id")
 
 	var req models.MenuVariation
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		hlp.ErrorBodyInvalid(c)
+		util.ErrorBodyInvalid(c)
 		return
 	}
 
@@ -182,9 +182,9 @@ func (mc *menuController) UpdateVariationByID(c *gin.Context) {
 	})
 
 	if err != nil {
-		hlp.Error(c, http.StatusConflict, "failed update menu variation id: %d", id)
+		util.Error(c, http.StatusConflict, "failed update menu variation id: %d", id)
 		return
 	}
 
-	hlp.Success(c, data)
+	util.Success(c, data)
 }

@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"backend/helpers"
 	"backend/models"
+	"backend/util"
 
 	"gorm.io/gorm"
 )
@@ -77,7 +77,7 @@ func (r *orderRepo) CreatePaymentLog(paymentOdLog models.PaymentOrderTransaction
 func (r *orderRepo) FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error) {
 	var orders []models.Order
 
-	pagination := helpers.Pagination{
+	pagination := util.Pagination{
 		Page:  page,
 		Limit: limit,
 	}

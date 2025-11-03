@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"backend/dto"
-	hlp "backend/helpers"
 	"backend/models"
 	"backend/repository"
+	"backend/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ func (mc *memberController) GetMember(c *gin.Context) {
 	var req dto.GetMemberRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		hlp.ErrorBodyInvalid(c)
+		util.ErrorBodyInvalid(c)
 		return
 
 	}
@@ -32,18 +32,18 @@ func (mc *memberController) GetMember(c *gin.Context) {
 	member, err := mc.repo.FindOne(req.PhoneNumber)
 
 	if err != nil {
-		hlp.ErrorNotFound(c)
+		util.ErrorNotFound(c)
 		return
 	}
 
-	hlp.Success(c, member)
+	util.Success(c, member)
 }
 
 func (mc *memberController) CreateMember(c *gin.Context) {
 	var req dto.CreateMemberRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		hlp.ErrorBodyInvalid(c)
+		util.ErrorBodyInvalid(c)
 		return
 	}
 
@@ -54,9 +54,9 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 	})
 
 	if err != nil {
-		hlp.Error(c, http.StatusConflict, "failed create member with line")
+		util.Error(c, http.StatusConflict, "failed create member with line")
 		return
 	}
 
-	hlp.Success(c, member)
+	util.Success(c, member)
 }

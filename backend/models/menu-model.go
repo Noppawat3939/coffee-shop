@@ -7,7 +7,6 @@ import (
 )
 
 // Define database schemas
-
 type Memu struct {
 	ID          uint            `json:"id" gorm:"primaryKey"`
 	Name        string          `json:"name"`
