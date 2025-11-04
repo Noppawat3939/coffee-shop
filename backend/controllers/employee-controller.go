@@ -25,7 +25,7 @@ func NewEmployeeController(repo repository.EmployeeRepo, db *gorm.DB) *employeeC
 	return &employeeController{repo, db}
 }
 
-func (ec *employeeController) CreateEmployee(c *gin.Context) {
+func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 	var req dto.CreateEmployeeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -33,9 +33,11 @@ func (ec *employeeController) CreateEmployee(c *gin.Context) {
 		return
 	}
 
+	hash, _ := util.HashPassword(req.Password)
+
 	employee, err := ec.repo.Create(models.Employee{
 		Username: req.Username,
-		Password: req.Password, // hash
+		Password: hash,
 		Name:     req.Name,
 		Role:     req.Role,
 		Active:   true, // default

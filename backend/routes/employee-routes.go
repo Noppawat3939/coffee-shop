@@ -14,7 +14,7 @@ func IntialEmployeeRoues(r *gin.RouterGroup, db *gorm.DB) {
 
 	employee := r.Group("/Employees")
 	{
-		employee.POST("", controller.CreateEmployee)
+		employee.POST("register", controller.RegisterEmployee)
 		employee.GET("", controller.FindAll)
 		employee.GET("/:id", controller.FindOne)
 		employee.PATCH("/:id", controller.UpdateEmployee)

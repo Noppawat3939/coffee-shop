@@ -20,6 +20,7 @@ func StringsToInts(strs []string) []int {
 	var result []int
 
 	for _, s := range strs {
+
 		n := ToInt(s)
 
 		result = append(result, n)
