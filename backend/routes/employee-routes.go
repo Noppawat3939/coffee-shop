@@ -5,12 +5,11 @@ import (
 	"backend/repository"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func IntialEmployeeRoues(r *gin.RouterGroup, db *gorm.DB) {
-	repo := repository.NewEmployeeRepository(db)
-	controller := controllers.NewEmployeeController(repo, db)
+func (cfg *RouterConfig) IntialEmployeeRoues(r *gin.RouterGroup) {
+	repo := repository.NewEmployeeRepository(cfg.DB)
+	controller := controllers.NewEmployeeController(repo, cfg.DB)
 
 	employee := r.Group("/Employees")
 	{

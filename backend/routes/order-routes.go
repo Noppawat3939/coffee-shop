@@ -5,12 +5,11 @@ import (
 	"backend/repository"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func IntialOrderRoutes(r *gin.RouterGroup, db *gorm.DB) {
-	repo := repository.NewOrderRepository(db)
-	controller := controllers.NewOrderController(repo, db)
+func (cfg *RouterConfig) IntialOrderRoutes(r *gin.RouterGroup) {
+	repo := repository.NewOrderRepository(cfg.DB)
+	controller := controllers.NewOrderController(repo, cfg.DB)
 
 	order := r.Group("/Orders")
 	{

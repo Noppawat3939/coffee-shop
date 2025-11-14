@@ -7,15 +7,26 @@ import (
 	"gorm.io/gorm"
 )
 
+type RouterConfig struct {
+	Router *gin.Engine
+	DB     *gorm.DB
+}
+
 func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	r.NoRoute(
 		func(c *gin.Context) { util.ErrorNotFound(c) })
 
+	cfg := RouterConfig{
+		Router: r,
+		DB:     db,
+	}
+
 	api := r.Group("/api")
 
-	IntialMenuRoutes(api, db)
-	IntialPaymentRoutes(api, db)
-	InitialMemberRoutes(api, db)
-	IntialOrderRoutes(api, db)
-	IntialEmployeeRoues(api, db)
+	cfg.IntialMenuRoutes(api)
+	cfg.IntialPaymentRoutes(api)
+	cfg.InitialMemberRoutes(api)
+	cfg.IntialOrderRoutes(api)
+	cfg.IntialEmployeeRoues(api)
+	cfg.InitAuthRoutes(api)
 }

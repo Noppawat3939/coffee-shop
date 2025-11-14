@@ -4,8 +4,8 @@ import "time"
 
 type Employee struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
-	Username  string    `gorm:"type:text;unique;not null" json:"username"`
-	Password  string    `gorm:"type:text;not null" json:"-"` // omit from JSON responses
+	Username  string    `gorm:"type:text;unique;not null" json:"username"` // unique
+	Password  string    `gorm:"type:text;not null" json:"-"`               // omit from JSON responses
 	Name      string    `gorm:"type:text;not null" json:"name"`
 	Active    bool      `gorm:"default:true" json:"active"`
 	Role      string    `gorm:"type:text;not null;comment:'admin, staff'" json:"role"`

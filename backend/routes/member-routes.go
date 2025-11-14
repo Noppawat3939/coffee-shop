@@ -5,12 +5,11 @@ import (
 	"backend/repository"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func InitialMemberRoutes(r *gin.RouterGroup, db *gorm.DB) {
-	repo := repository.NewMemberRepository(db)
-	controller := controllers.NewMemberController(repo, db)
+func (cfg *RouterConfig) InitialMemberRoutes(r *gin.RouterGroup) {
+	repo := repository.NewMemberRepository(cfg.DB)
+	controller := controllers.NewMemberController(repo, cfg.DB)
 
 	member := r.Group("/Members")
 	{

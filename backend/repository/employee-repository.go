@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/models"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -9,8 +10,10 @@ import (
 type EmployeeRepo interface {
 	Create(emp models.Employee) (models.Employee, error)
 	FindOne(id int) (models.Employee, error)
+	FindByUsername(username string) (models.Employee, error)
 	FindAll(q map[string]interface{}) ([]models.Employee, error)
-	UpdateEmployee(id int, emp models.Employee) (models.Employee, error)
+	UpdateEmployeeByID(id int, emp models.Employee) (models.Employee, error)
+	UpdateEmployeeByUsername(username string, emp models.Employee) (models.Employee, error)
 }
 
 type repo struct {
@@ -36,6 +39,15 @@ func (r *repo) FindOne(id int) (models.Employee, error) {
 	return data, err
 }
 
+func (r *repo) FindByUsername(username string) (models.Employee, error) {
+	var data models.Employee
+	err := r.db.Where("username = ?", username).First(&data).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return data, nil
+	}
+	return data, err
+}
+
 func (r *repo) FindAll(q map[string]interface{}) ([]models.Employee, error) {
 	var data []models.Employee
 
@@ -43,10 +55,21 @@ func (r *repo) FindAll(q map[string]interface{}) ([]models.Employee, error) {
 	return data, err
 }
 
-func (r *repo) UpdateEmployee(id int, employee models.Employee) (models.Employee, error) {
+func (r *repo) UpdateEmployeeByID(id int, employee models.Employee) (models.Employee, error) {
 	var data models.Employee
 
 	if err := r.db.First(&data, id).Error; err != nil {
+		return data, err
+	}
+
+	err := r.db.Model(&data).Updates(employee).Error
+	return data, err
+}
+
+func (r *repo) UpdateEmployeeByUsername(username string, employee models.Employee) (models.Employee, error) {
+	var data models.Employee
+
+	if err := r.db.Where("username = ?", username).First(&data).Error; err != nil {
 		return data, err
 	}
 

@@ -1,16 +1,15 @@
 package routes
 
 import (
-	"backend/controllers"
-	"backend/repository"
+	ctl "backend/controllers"
+	repo "backend/repository"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func IntialMenuRoutes(r *gin.RouterGroup, db *gorm.DB) {
-	repo := repository.NewMenuRepository(db)
-	controller := controllers.NewMenuController(repo, db)
+func (cfg *RouterConfig) IntialMenuRoutes(r *gin.RouterGroup) {
+	repo := repo.NewMenuRepository(cfg.DB)
+	controller := ctl.NewMenuController(repo, cfg.DB)
 
 	menu := r.Group("/Menus")
 	{
