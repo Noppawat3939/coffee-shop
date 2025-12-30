@@ -13,6 +13,7 @@ func (cfg *RouterConfig) InitAuthRoutes(r *gin.RouterGroup) {
 
 	auth := r.Group("/Authen")
 	{
-		auth.POST("login", controller.Login)
+		auth.POST("/employee/login", controller.LoginByEmployee)
+		auth.POST("/employee/verification", controller.VerifyJWTByEmployee)
 	}
 }

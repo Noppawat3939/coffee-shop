@@ -1,6 +1,6 @@
 import { Flex, TextInput } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
-import { useCallback, type ChangeEventHandler } from "react";
+import { useCallback } from "react";
 import type { IMember } from "~/interfaces/member.interface";
 
 type RegisterValues = Pick<IMember, "full_name" | "phone_number">;

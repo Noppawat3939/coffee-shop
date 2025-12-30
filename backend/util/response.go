@@ -9,6 +9,7 @@ import (
 const (
 	DataNotFound = "data not found"
 	BodyInvalid  = "body invalid"
+	Unauthorized = "unauthorized"
 )
 
 func Success(c *gin.Context, data ...interface{}) {
@@ -39,6 +40,12 @@ func ErrorNotFound(c *gin.Context) {
 
 func ErrorBodyInvalid(c *gin.Context) {
 	res := gin.H{"code": http.StatusBadRequest, "message": BodyInvalid}
+
+	c.JSON(http.StatusBadRequest, res)
+}
+
+func ErrorUnauthorized(c *gin.Context) {
+	res := gin.H{"code": http.StatusUnauthorized, "message": Unauthorized}
 
 	c.JSON(http.StatusBadRequest, res)
 }

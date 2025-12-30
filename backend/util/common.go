@@ -32,3 +32,7 @@ func StringsToInts(strs []string) []int {
 func IntToString(num int) string {
 	return strconv.Itoa(int(num))
 }
+
+func GetAuthHeader(c *gin.Context) string {
+	return c.GetHeader("Authorization")
+}

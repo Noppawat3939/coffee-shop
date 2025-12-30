@@ -85,6 +85,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			Status:      OrderStatus.ToPay,
 			Customer:    customer,
 			Total:       total,
+			EmployeeID:  1, // get value from token
 		}
 
 		if _, err := oc.repo.CreateOrder(&order, tx); err != nil {
