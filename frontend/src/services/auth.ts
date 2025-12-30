@@ -15,4 +15,9 @@ const employeeLogin = async (body: ILoginEmployee) => {
   return data;
 };
 
-export default { employeeLogin };
+const verifyToken = async () => {
+  const { data } = await svc.post<Response>(`${prefix}/employee/verification`);
+  return data;
+};
+
+export default { employeeLogin, verifyToken };

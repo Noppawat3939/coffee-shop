@@ -1,3 +1,4 @@
+import type { AxiosError } from "axios";
 import { useCallback, useState } from "react";
 
 type AsyncFunc<Args extends unknown[], Return> = (
@@ -6,6 +7,7 @@ type AsyncFunc<Args extends unknown[], Return> = (
 
 type Options = {
   onSuccess?: <Return>(data: Return) => void;
+  onError?: (err?: AxiosError) => void;
   onFinish?: () => void;
 };
 
@@ -27,6 +29,7 @@ export default function useAxios<Args extends unknown[], Return>(
 
         return result;
       } catch (err) {
+        options?.onError?.(err as AxiosError);
         return null;
       } finally {
         setLoading(false);
