@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/controllers"
+	"backend/middleware"
 	"backend/repository"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,6 @@ func (cfg *RouterConfig) InitAuthRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/Authen")
 	{
 		auth.POST("/employee/login", controller.LoginByEmployee)
-		auth.POST("/employee/verification", controller.VerifyJWTByEmployee)
+		auth.POST("/employee/verification", middleware.AuthGuard(), controller.VerifyJWTByEmployee)
 	}
 }

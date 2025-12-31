@@ -5,7 +5,6 @@ import (
 	"backend/repository"
 	"backend/util"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,23 +46,26 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 }
 
 func (s *authController) VerifyJWTByEmployee(c *gin.Context) {
-	authHeader := util.GetAuthHeader(c)
+	user, exists := c.Get("user")
 
-	var authPrefix = "Bearer "
-
-	if authHeader == "" || !strings.HasPrefix(authHeader, authPrefix) {
+	if !exists {
 		util.ErrorUnauthorized(c)
 		return
 	}
 
-	jwt := strings.TrimPrefix(authHeader, authPrefix)
+	claims, _ := user.(*util.JWTClaims)
 
-	_, err := util.ParseJWT(jwt)
+	data := buildUserByClaims(claims)
 
-	if err != nil {
-		util.ErrorUnauthorized(c)
-		return
+	util.Success(c, data)
+}
+
+func buildUserByClaims(claims *util.JWTClaims) map[string]interface{} {
+	data := map[string]interface{}{
+		"id":       claims.EmployeeID,
+		"username": claims.Username,
+		"exp":      claims.ExpiresAt,
 	}
 
-	util.Success(c)
+	return data
 }
