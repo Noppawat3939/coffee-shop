@@ -46,26 +46,15 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 }
 
 func (s *authController) VerifyJWTByEmployee(c *gin.Context) {
-	user, exists := c.Get("user")
 
-	if !exists {
+	data, ok := util.GetUserFromHeader(c)
+
+	if !ok {
+
 		util.ErrorUnauthorized(c)
 		return
+
 	}
-
-	claims, _ := user.(*util.JWTClaims)
-
-	data := buildUserByClaims(claims)
 
 	util.Success(c, data)
-}
-
-func buildUserByClaims(claims *util.JWTClaims) map[string]interface{} {
-	data := map[string]interface{}{
-		"id":       claims.EmployeeID,
-		"username": claims.Username,
-		"exp":      claims.ExpiresAt,
-	}
-
-	return data
 }

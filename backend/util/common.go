@@ -6,6 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type AuthUser struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Exp      uint   `json:"exp"`
+}
+
 func ToInt(s string) int {
 	value, _ := strconv.Atoi(s)
 
@@ -33,6 +39,27 @@ func IntToString(num int) string {
 	return strconv.Itoa(int(num))
 }
 
-func GetAuthHeader(c *gin.Context) string {
-	return c.GetHeader("Authorization")
+func GetUserFromHeader(c *gin.Context) (*AuthUser, bool) {
+	user, exits := c.Get("user")
+
+	if !exits {
+		ErrorUnauthorized(c)
+		c.Abort()
+		return nil, false
+	}
+
+	// build claims
+	claims, ok := user.(*JWTClaims)
+
+	if !ok {
+		ErrorUnauthorized(c)
+		c.Abort()
+		return nil, false
+	}
+
+	return &AuthUser{
+		ID:       uint(claims.EmployeeID),
+		Username: claims.Username,
+		Exp:      uint(claims.ExpiresAt.Time.Unix()),
+	}, true
 }

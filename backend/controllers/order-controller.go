@@ -33,6 +33,13 @@ func NewOrderController(repo repository.OrderRepo, db *gorm.DB) *orderController
 func (oc *orderController) CreateOrder(c *gin.Context) {
 	var req dto.CreateOrderRequest
 
+	user, ok := util.GetUserFromHeader(c)
+
+	if !ok {
+		util.ErrorUnauthorized(c)
+		return
+	}
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
 		return
@@ -85,7 +92,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			Status:      OrderStatus.ToPay,
 			Customer:    customer,
 			Total:       total,
-			EmployeeID:  1, // get value from token
+			EmployeeID:  user.ID,
 		}
 
 		if _, err := oc.repo.CreateOrder(&order, tx); err != nil {

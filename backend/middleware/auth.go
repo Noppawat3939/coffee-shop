@@ -12,7 +12,7 @@ var authPrefix = "Bearer "
 
 func AuthGuard() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := util.GetAuthHeader(c)
+		authHeader := c.GetHeader("Authorization")
 
 		if authHeader == "" || !strings.HasPrefix(authHeader, authPrefix) {
 			util.Error(c, http.StatusUnauthorized, "invalid token")
