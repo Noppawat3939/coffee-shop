@@ -179,7 +179,8 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 			return err
 		}
 
-		// update payment_order_transaction_log (if needed)
+		// update payment_transaction_log where by order_id and status is to_pay
+		// update payment_transaction_log status to body.status
 		filter := map[string]interface{}{
 			"order_id": id,
 			"status":   OrderStatus.ToPay,
