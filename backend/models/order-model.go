@@ -43,6 +43,7 @@ type PaymentOrderTransactionLog struct {
 	Amount            float64   `json:"amount"`
 	Status            string    `gorm:"type:text" json:"status"`
 	PaymentCode       string    `gorm:"type:text" json:"payment_code"`
+	QRSignature       string    `gorm:"type:text" json:"qr_signature"`
 	ExpiredAt         time.Time `json:"expired_at"`
 	CreatedAt         time.Time `gorm:"autoCreateTime" json:"created_at"`
 

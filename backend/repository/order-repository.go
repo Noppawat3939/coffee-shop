@@ -3,6 +3,7 @@ package repository
 import (
 	"backend/models"
 	"backend/util"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -26,6 +27,7 @@ type OrderRepo interface {
 	// Update one
 	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
 	UpdatePaymentLog(filter map[string]interface{}, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
+	CancelAndExpirePaymentLogByID(id int) (models.PaymentOrderTransactionLog, error)
 }
 
 type orderRepo struct {
@@ -137,7 +139,19 @@ func (r *orderRepo) UpdatePaymentLog(filter map[string]interface{}, txLog models
 		return data, err
 	}
 
-	err := r.db.Model(&txLog).Updates(txLog).Error
+	err := r.db.Model(&data).Updates(txLog).Error
 
-	return txLog, err
+	return data, err
+}
+
+func (r *orderRepo) CancelAndExpirePaymentLogByID(id int) (models.PaymentOrderTransactionLog, error) {
+	const status = "canceled"
+	var data models.PaymentOrderTransactionLog
+
+	if err := r.db.Where(id).First(&data).Error; err != nil {
+		return data, err
+	}
+
+	err := r.db.Model(&data).Updates(models.PaymentOrderTransactionLog{Status: status, ExpiredAt: time.Now()}).Error
+	return data, err
 }

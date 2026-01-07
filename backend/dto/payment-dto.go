@@ -5,5 +5,5 @@ type QRRequest struct {
 }
 
 type CreatePaymentTransactionLogRequest struct {
-	OrderID int `json:"order_id" binding:"required"`
+	OrderNumber string `json:"order_number" binding:"required"`
 }
