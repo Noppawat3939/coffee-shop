@@ -1,6 +1,14 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
+func MemberMigrate(db *gorm.DB) error {
+	return db.AutoMigrate(&Member{})
+}
 
 type Member struct {
 	ID          uint      `json:"id" gorm:"primaryKey"`

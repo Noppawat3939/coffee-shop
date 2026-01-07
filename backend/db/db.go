@@ -2,7 +2,7 @@ package db
 
 import (
 	"backend/config"
-	"backend/models"
+	md "backend/models"
 	"fmt"
 	"log"
 
@@ -19,13 +19,18 @@ func Connect(cfg config.Config) *gorm.DB {
 		log.Fatalf("Failed to connect database: %v\n", err)
 	}
 
-	err = db.AutoMigrate(&models.Memu{}, &models.MenuVariation{}, &models.MenuPriceLog{}, &models.Member{}, &models.Order{}, &models.OrderStatusLog{}, &models.OrderMenuVariation{}, &models.PaymentOrderTransactionLog{}, &models.Employee{})
-
-	if err != nil {
-		log.Fatalf("Failed to auto migrate tables: %v\n", err)
-	}
+	RunMigrations(db, md.MenuMigrate, md.EmployMigration, md.OrderMigrate, md.MemberMigrate, md.PaymenMigrate)
 
 	fmt.Println("✅ Connected to database")
 
 	return db
+}
+
+func RunMigrations(db *gorm.DB, migrations ...func(*gorm.DB) error) {
+	for _, migrate := range migrations {
+		if err := migrate(db); err != nil {
+			panic(err)
+		}
+	}
+
 }

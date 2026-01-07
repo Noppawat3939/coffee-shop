@@ -6,6 +6,10 @@ import (
 	"gorm.io/gorm"
 )
 
+func MenuMigrate(db *gorm.DB) error {
+	return db.AutoMigrate(&Memu{}, &MenuVariation{}, &MenuPriceLog{})
+}
+
 // Define database schemas
 type Memu struct {
 	ID          uint            `json:"id" gorm:"primaryKey"`

@@ -74,5 +74,12 @@ require (
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gorm.io/datatypes v1.2.7
 	sigs.k8s.io/yaml v1.6.0 // indirect
+)
+
+require (
+	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	gorm.io/driver/mysql v1.5.6 // indirect
 )

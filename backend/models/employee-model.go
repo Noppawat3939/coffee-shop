@@ -1,6 +1,14 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
+func EmployMigration(db *gorm.DB) error {
+	return db.AutoMigrate(&Employee{})
+}
 
 type Employee struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
