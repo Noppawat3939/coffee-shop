@@ -2,7 +2,10 @@ package middleware
 
 import (
 	"backend/models"
+	"backend/util"
 	"bytes"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +24,9 @@ func IdempotencyMiddleware(db *gorm.DB, ttl time.Duration) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := c.GetHeader(ID_KEY)
 		if key == "" {
-			c.Next()
+			util.Error(c, http.StatusBadRequest, fmt.Sprintf("%s %s", ID_KEY, "requred"))
+
+			c.Abort()
 			return
 		}
 
@@ -31,21 +36,18 @@ func IdempotencyMiddleware(db *gorm.DB, ttl time.Duration) gin.HandlerFunc {
 		err := db.Where("key = ? AND endpoint = ?", key, endpoint).
 			First(&record).Error
 
-		// 🔁 Found → return cached response
 		if err == nil {
-			c.JSON(record.StatusCode, record.Response)
+			util.Error(c, http.StatusConflict, "duplicate request (idempotency key already used)")
 			c.Abort()
 			return
 		}
 
-		// ⏳ Not found → capture response
+		// Not found and then capture response
 		writer := &responseCapture{
 			ResponseWriter: c.Writer,
 			body:           bytes.NewBufferString(""),
 		}
 		c.Writer = writer
-
-		c.Next()
 
 		c.Next()
 
