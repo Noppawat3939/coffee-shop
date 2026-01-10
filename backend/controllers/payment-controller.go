@@ -92,16 +92,16 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 		return
 	}
 
-	result := map[string]interface{}{
-		"transaction_number": log.TransactionNumber,
-		"amount":             log.Amount,
-		"status":             log.Status,
-		"payment_code":       log.PaymentCode,
-		"expired_at":         log.ExpiredAt,
-		"created_at":         log.CreatedAt,
+	res := dto.CreatePaymentTransactionLogResponse{
+		TransactionNumber: log.TransactionNumber,
+		Amount:            log.Amount,
+		Status:            log.Status,
+		PaymentCode:       log.PaymentCode,
+		ExpiredAt:         log.ExpiredAt,
+		CreatedAt:         log.CreatedAt,
 	}
 
-	util.Success(c, result)
+	util.Success(c, res)
 }
 
 func (pc *paymentController) EnquiryPayment(c *gin.Context) {
@@ -126,5 +126,19 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 		return
 	}
 
-	util.Success(c, log)
+	res := dto.EnquiryPaymentTransactionLogResponse{
+		TransactionNumber: log.TransactionNumber,
+		Amount:            log.Amount,
+		Status:            log.Status,
+		ExpiredAt:         log.ExpiredAt,
+		CreatedAt:         log.CreatedAt,
+		Order: dto.EnquiryPaymentTransactionLogWithOrderResponse{
+			ID:          log.Order.ID,
+			OrderNumber: log.Order.OrderNumber,
+			Status:      log.Order.Status,
+			Total:       log.Order.Total,
+		},
+	}
+
+	util.Success(c, res)
 }

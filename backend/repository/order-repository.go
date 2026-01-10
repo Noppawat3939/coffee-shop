@@ -113,7 +113,7 @@ func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
 func (r *orderRepo) FindOneTransaction(filter map[string]interface{}) (models.PaymentOrderTransactionLog, error) {
 	var txLog models.PaymentOrderTransactionLog
 
-	err := r.db.Where(filter).First(&txLog).Error
+	err := r.db.Preload("Order").Where(filter).First(&txLog).Error
 
 	return txLog, err
 }
