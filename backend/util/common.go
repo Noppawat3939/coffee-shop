@@ -1,9 +1,11 @@
 package util
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AuthUser struct {
@@ -62,4 +64,8 @@ func GetUserFromHeader(c *gin.Context) (*AuthUser, bool) {
 		Username: claims.Username,
 		Exp:      uint(claims.ExpiresAt.Time.Unix()),
 	}, true
+}
+
+func GenerateTransactionNumber(orderNumber string) string {
+	return fmt.Sprintf("%s_%s", uuid.NewString(), orderNumber)
 }

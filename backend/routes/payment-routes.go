@@ -15,7 +15,7 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 
 	payment := r.Group("/Payment")
 	{
-		payment.POST("/generate-promptpay-qr", controller.GeneratePromptPayQR)
 		payment.POST("/transaction-log/order", middleware.AuthGuard(), middleware.IdempotencyMiddleware(cfg.DB, 3*time.Minute), controller.CreatePaymentTransactionLog)
+		payment.POST("/transaction-log/enquiry", middleware.AuthGuard(), middleware.IdempotencyMiddleware(cfg.DB, 10*time.Minute), controller.EnquiryPayment)
 	}
 }

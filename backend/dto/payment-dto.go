@@ -7,3 +7,8 @@ type QRRequest struct {
 type CreatePaymentTransactionLogRequest struct {
 	OrderNumber string `json:"order_number" binding:"required"`
 }
+
+type EnquirPaymentTransactionLogRequst struct {
+	TransactionNumber string `json:"transaction_number" binding:"required"`
+	Status            string `json:"status"`
+}

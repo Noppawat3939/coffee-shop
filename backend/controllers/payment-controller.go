@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type paymentController struct {
@@ -81,7 +80,7 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 	log, logErr := pc.repo.CreatePaymentLog(models.PaymentOrderTransactionLog{
 		OrderID:           uint(order.ID),
 		Amount:            order.Total,
-		TransactionNumber: generateTransactionNumber(req.OrderNumber), // auto generate by uuid concat with order_id (unique)
+		TransactionNumber: util.GenerateTransactionNumber(req.OrderNumber), // auto generate by uuid concat with order_id (unique)
 		Status:            OrderStatus.ToPay,
 		PaymentCode:       payload,
 		QRSignature:       signature,
@@ -105,6 +104,27 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 	util.Success(c, result)
 }
 
-func generateTransactionNumber(orderNumber string) string {
-	return fmt.Sprintf("%s_%s", uuid.NewString(), orderNumber)
+func (pc *paymentController) EnquiryPayment(c *gin.Context) {
+	var req dto.EnquirPaymentTransactionLogRequst
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		util.ErrorBodyInvalid(c)
+		return
+	}
+
+	filter := map[string]interface{}{
+		"transaction_number": req.TransactionNumber,
+	}
+
+	if req.Status != "" {
+		filter["status"] = req.Status
+	}
+
+	log, err := pc.repo.FindOneTransaction(filter)
+	if err != nil {
+		util.ErrorNotFound(c)
+		return
+	}
+
+	util.Success(c, log)
 }
