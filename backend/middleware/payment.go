@@ -20,7 +20,7 @@ type responseCapture struct {
 	body *bytes.Buffer
 }
 
-func IdempotencyMiddleware(db *gorm.DB, ttl time.Duration) gin.HandlerFunc {
+func IdempotencyMiddleware(db *gorm.DB, ttlMinutes int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := c.GetHeader(ID_KEY)
 		if key == "" {
@@ -58,7 +58,7 @@ func IdempotencyMiddleware(db *gorm.DB, ttl time.Duration) gin.HandlerFunc {
 			Endpoint:   endpoint,
 			Response:   writer.body.Bytes(),
 			StatusCode: writer.Status(),
-			ExpiredAt:  time.Now().Add(ttl),
+			ExpiredAt:  time.Now().Add(time.Duration(ttlMinutes) * time.Minute),
 		}
 		db.Create(&record)
 	}

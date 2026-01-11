@@ -105,7 +105,7 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 }
 
 func (pc *paymentController) EnquiryPayment(c *gin.Context) {
-	var req dto.EnquirPaymentTransactionLogRequst
+	var req dto.EnquireTxnRequst
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
@@ -126,13 +126,13 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 		return
 	}
 
-	res := dto.EnquiryPaymentTransactionLogResponse{
+	res := dto.EnquireTxnResponse{
 		TransactionNumber: log.TransactionNumber,
 		Amount:            log.Amount,
 		Status:            log.Status,
 		ExpiredAt:         log.ExpiredAt,
 		CreatedAt:         log.CreatedAt,
-		Order: dto.EnquiryPaymentTransactionLogWithOrderResponse{
+		Order: dto.EnquireTxnWithOrderResponse{
 			ID:          log.Order.ID,
 			OrderNumber: log.Order.OrderNumber,
 			Status:      log.Order.Status,
