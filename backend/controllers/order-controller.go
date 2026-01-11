@@ -165,7 +165,8 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 	// check status not allowed to update
 	allowed, ok := allowedUpdateStatus[order.Status]
 	if !ok || !slices.Contains(allowed, statusToUpdate) {
-		util.Error(c, http.StatusNotAcceptable, "current status not allowed to update to "+statusToUpdate)
+		msg := fmt.Sprintf("%s %s", "current status not allowed to update to", statusToUpdate)
+		util.Error(c, http.StatusNotAcceptable, msg)
 
 		return
 	}
