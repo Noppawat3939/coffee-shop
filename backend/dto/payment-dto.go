@@ -8,11 +8,11 @@ type QRRequest struct {
 	Amount float64 `json:"amount" binding:"required"`
 }
 
-type CreatePaymentTransactionLogRequest struct {
+type CreateTxnLogRequest struct {
 	OrderNumber string `json:"order_number" binding:"required"`
 }
 
-type CreatePaymentTransactionLogResponse struct {
+type CreateTxnResponse struct {
 	TransactionNumber string    `json:"transaction_number"`
 	Amount            float64   `json:"amount"`
 	Status            string    `json:"status"`

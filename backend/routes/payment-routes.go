@@ -4,13 +4,15 @@ import (
 	ctl "backend/controllers"
 	"backend/middleware"
 	"backend/repository"
+	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 	repo := repository.NewOrderRepository(cfg.DB)
-	controller := ctl.NewPaymentController(repo)
+	svc := services.NewPaymentService(repo)
+	controller := ctl.NewPaymentController(repo, svc)
 
 	payment := r.Group("/Payment", middleware.AuthGuard())
 	{

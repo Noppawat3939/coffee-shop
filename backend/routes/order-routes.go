@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/controllers"
+	"backend/models"
 	"backend/repository"
 
 	"github.com/gin-gonic/gin"
@@ -18,10 +19,10 @@ func (cfg *RouterConfig) IntialOrderRoutes(r *gin.RouterGroup) {
 		order.GET("/:id", controller.GetOrderByID)
 		order.GET("/order-number/:order_number", controller.GetOrderByOrderNumber)
 		order.PATCH("/:id/paid", func(ctx *gin.Context) {
-			controller.UpdateOrderStatus(ctx, controllers.OrderStatus.Paid)
+			controller.UpdateOrderStatus(ctx, models.OrderStatus.Paid)
 		})
 		order.PATCH("/:id/canceled", func(ctx *gin.Context) {
-			controller.UpdateOrderStatus(ctx, controllers.OrderStatus.Canceled)
+			controller.UpdateOrderStatus(ctx, models.OrderStatus.Canceled)
 		})
 	}
 }

@@ -28,6 +28,7 @@ type OrderRepo interface {
 	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
 	UpdatePaymentLog(filter map[string]interface{}, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
 	CancelAndExpirePaymentLogByID(id int) (models.PaymentOrderTransactionLog, error)
+	CancelActivePaymentLog(id int) error
 }
 
 type orderRepo struct {
@@ -145,13 +146,23 @@ func (r *orderRepo) UpdatePaymentLog(filter map[string]interface{}, txLog models
 }
 
 func (r *orderRepo) CancelAndExpirePaymentLogByID(id int) (models.PaymentOrderTransactionLog, error) {
-	const status = "canceled"
 	var data models.PaymentOrderTransactionLog
 
 	if err := r.db.Where(id).First(&data).Error; err != nil {
 		return data, err
 	}
 
-	err := r.db.Model(&data).Updates(models.PaymentOrderTransactionLog{Status: status, ExpiredAt: time.Now()}).Error
+	err := r.db.Model(&data).Updates(models.PaymentOrderTransactionLog{Status: models.OrderStatus.Canceled, ExpiredAt: time.Now()}).Error
 	return data, err
+}
+
+func (r *orderRepo) CancelActivePaymentLog(id int) error {
+	if err := r.db.Model(&models.PaymentOrderTransactionLog{}).Where("order_id = ? AND status = ?", id, models.OrderStatus.ToPay).Updates(map[string]interface{}{
+		"status":     models.OrderStatus.Canceled,
+		"expired_at": time.Now(),
+	}).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

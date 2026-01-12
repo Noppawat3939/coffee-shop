@@ -20,12 +20,6 @@ type orderController struct {
 	db   *gorm.DB
 }
 
-var OrderStatus = struct {
-	ToPay    string
-	Paid     string
-	Canceled string
-}{ToPay: "to_pay", Paid: "paid", Canceled: "canceled"}
-
 func NewOrderController(repo repository.OrderRepo, db *gorm.DB) *orderController {
 	return &orderController{repo, db}
 }
@@ -89,7 +83,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 		// create orders
 		order = models.Order{
 			OrderNumber: uuid.NewString(),
-			Status:      OrderStatus.ToPay,
+			Status:      models.OrderStatus.ToPay,
 			Customer:    customer,
 			Total:       total,
 			EmployeeID:  user.ID,
@@ -184,14 +178,14 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 		// update payment_transaction_log status to body.status
 		filter := map[string]interface{}{
 			"order_id": id,
-			"status":   OrderStatus.ToPay,
+			"status":   models.OrderStatus.ToPay,
 		}
 
 		updateLog := models.PaymentOrderTransactionLog{
 			Status: statusToUpdate,
 		}
 
-		if statusToUpdate == OrderStatus.Paid || statusToUpdate == OrderStatus.Canceled {
+		if statusToUpdate == models.OrderStatus.Paid || statusToUpdate == models.OrderStatus.Canceled {
 			if _, err := oc.repo.UpdatePaymentLog(filter, updateLog); err != nil {
 				return err
 			}
@@ -237,5 +231,5 @@ func (oc *orderController) GetOrders(c *gin.Context) {
 }
 
 var allowedUpdateStatus = map[string][]string{
-	OrderStatus.ToPay: {OrderStatus.Paid, OrderStatus.Canceled},
+	models.OrderStatus.ToPay: {models.OrderStatus.Paid, models.OrderStatus.Canceled},
 }

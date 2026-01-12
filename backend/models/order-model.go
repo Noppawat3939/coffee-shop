@@ -10,6 +10,12 @@ func OrderMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(&Order{}, &OrderMenuVariation{}, &OrderStatusLog{})
 }
 
+var OrderStatus = struct {
+	ToPay    string
+	Paid     string
+	Canceled string
+}{ToPay: "to_pay", Paid: "paid", Canceled: "canceled"}
+
 type Order struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
 	OrderNumber string    `gorm:"uniqueIndex;type:text" json:"order_number"`
