@@ -35,3 +35,6 @@ export const sum = (nums: number[]): number => {
 
 export const dateFormat = (date?: string | number | Dayjs, format?: string) =>
   dayjs(date).format(format);
+
+export const randomUniqueID = () =>
+  (Math.floor(Math.random() * 100) + Date.now()).toString();
