@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/types"
 	"backend/repository"
 	"backend/util"
 	"fmt"
@@ -176,7 +177,7 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 
 		// update payment_transaction_log where by order_id and status is to_pay
 		// update payment_transaction_log status to body.status
-		filter := map[string]interface{}{
+		filter := types.Filter{
 			"order_id": id,
 			"status":   models.OrderStatus.ToPay,
 		}
@@ -215,7 +216,7 @@ func (oc *orderController) GetOrders(c *gin.Context) {
 	page := util.ToInt(c.DefaultQuery("page", fmt.Sprint(util.DefaultPage)))
 	limit := util.ToInt(c.DefaultQuery("limit", fmt.Sprint(util.DefaultLimit)))
 
-	filter := map[string]interface{}{
+	filter := types.Filter{
 		"id":     id,
 		"status": status,
 	}

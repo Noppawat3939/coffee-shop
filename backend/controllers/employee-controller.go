@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/types"
 	"backend/repository"
 	"backend/util"
 	"net/http"
@@ -52,7 +53,7 @@ func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 }
 
 func (ec *employeeController) FindAll(c *gin.Context) {
-	filter := make(map[string]interface{})
+	filter := make(types.Filter)
 
 	if username := c.Query("username"); username != "" {
 		filter["username"] = username

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/models"
+	"backend/pkg/types"
 	"errors"
 
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ type EmployeeRepo interface {
 	Create(emp models.Employee) (models.Employee, error)
 	FindOne(id int) (models.Employee, error)
 	FindByUsername(username string) (models.Employee, error)
-	FindAll(q map[string]interface{}) ([]models.Employee, error)
+	FindAll(q types.Filter) ([]models.Employee, error)
 	UpdateEmployeeByID(id int, emp models.Employee) (models.Employee, error)
 	UpdateEmployeeByUsername(username string, emp models.Employee) (models.Employee, error)
 }
@@ -48,7 +49,7 @@ func (r *repo) FindByUsername(username string) (models.Employee, error) {
 	return data, err
 }
 
-func (r *repo) FindAll(q map[string]interface{}) ([]models.Employee, error) {
+func (r *repo) FindAll(q types.Filter) ([]models.Employee, error) {
 	var data []models.Employee
 
 	err := r.db.Where(q).Find(&data).Error

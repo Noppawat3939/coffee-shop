@@ -2,6 +2,7 @@ package repository
 
 import (
 	"backend/models"
+	"backend/pkg/types"
 	"backend/util"
 	"time"
 
@@ -16,18 +17,17 @@ type OrderRepo interface {
 	CreatePaymentLog(paymentOdLog models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
 
 	// Find all
-	FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error)
+	FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error)
 
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
 	FindOneOrderByOrderNumber(odNo string) (models.Order, error)
-	FindOneTransaction(filter map[string]interface{}) (models.PaymentOrderTransactionLog, error)
+	FindOneTransaction(filter types.Filter) (models.PaymentOrderTransactionLog, error)
 	FindOneMenuVariation(id int) (models.MenuVariation, error)
 
 	// Update one
 	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
-	UpdatePaymentLog(filter map[string]interface{}, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
-	CancelAndExpirePaymentLogByID(id int) (models.PaymentOrderTransactionLog, error)
+	UpdatePaymentLog(filter types.Filter, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
 	CancelActivePaymentLog(id int) error
 }
 
@@ -77,7 +77,7 @@ func (r *orderRepo) CreatePaymentLog(paymentOdLog models.PaymentOrderTransaction
 	return paymentOdLog, nil
 }
 
-func (r *orderRepo) FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error) {
+func (r *orderRepo) FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error) {
 	var orders []models.Order
 
 	pagination := util.Pagination{
@@ -111,7 +111,7 @@ func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
 	return menuVariation, err
 }
 
-func (r *orderRepo) FindOneTransaction(filter map[string]interface{}) (models.PaymentOrderTransactionLog, error) {
+func (r *orderRepo) FindOneTransaction(filter types.Filter) (models.PaymentOrderTransactionLog, error) {
 	var txLog models.PaymentOrderTransactionLog
 
 	err := r.db.Preload("Order").Where(filter).First(&txLog).Error
@@ -133,7 +133,7 @@ func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (mo
 	return data, err
 }
 
-func (r *orderRepo) UpdatePaymentLog(filter map[string]interface{}, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error) {
+func (r *orderRepo) UpdatePaymentLog(filter types.Filter, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error) {
 	var data models.PaymentOrderTransactionLog
 
 	if err := r.db.Where(filter).First(&data).Error; err != nil {
@@ -145,21 +145,11 @@ func (r *orderRepo) UpdatePaymentLog(filter map[string]interface{}, txLog models
 	return data, err
 }
 
-func (r *orderRepo) CancelAndExpirePaymentLogByID(id int) (models.PaymentOrderTransactionLog, error) {
-	var data models.PaymentOrderTransactionLog
-
-	if err := r.db.Where(id).First(&data).Error; err != nil {
-		return data, err
-	}
-
-	err := r.db.Model(&data).Updates(models.PaymentOrderTransactionLog{Status: models.OrderStatus.Canceled, ExpiredAt: time.Now()}).Error
-	return data, err
-}
-
 func (r *orderRepo) CancelActivePaymentLog(id int) error {
-	if err := r.db.Model(&models.PaymentOrderTransactionLog{}).Where("order_id = ? AND status = ?", id, models.OrderStatus.ToPay).Updates(map[string]interface{}{
+	if err := r.db.Model(&models.PaymentOrderTransactionLog{}).Where("order_id = ? AND status = ?", id, models.OrderStatus.ToPay).Updates(types.Filter{
 		"status":     models.OrderStatus.Canceled,
 		"expired_at": time.Now(),
+		"updated_at": time.Now(),
 	}).Error; err != nil {
 		return err
 	}

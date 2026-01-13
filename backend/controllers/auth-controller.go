@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/dto"
+	"backend/pkg/types"
 	"backend/repository"
 	"backend/util"
 	"net/http"
@@ -39,7 +40,7 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 
 	jwt, _ := util.GenerateJWT(emp.ID, emp.Username)
 
-	data := make(map[string]interface{})
+	data := make(types.Filter)
 	data["access_token"] = jwt
 
 	util.Success(c, data)

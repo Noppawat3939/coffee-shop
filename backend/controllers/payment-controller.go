@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/dto"
+	"backend/pkg/types"
 	"backend/repository"
 	"backend/services"
 	"backend/util"
@@ -45,7 +46,7 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 		return
 	}
 
-	filter := map[string]interface{}{
+	filter := types.Filter{
 		"transaction_number": req.TransactionNumber,
 	}
 
