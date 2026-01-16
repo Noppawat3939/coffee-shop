@@ -18,6 +18,7 @@ type PaymentService interface {
 	CreatePaymentTransactionLog(
 		req dto.CreateTxnLogRequest,
 	) (*dto.CreateTxnResponse, error)
+	GeneratePaymentCodePromptPayment(amount float64) (string, error)
 }
 
 type paymentService struct {
@@ -43,7 +44,7 @@ func (s *paymentService) CreatePaymentTransactionLog(
 		return nil, err
 	}
 
-	payload, err := generatePaymentCodePromptPayment(order.Total)
+	payload, err := s.GeneratePaymentCodePromptPayment(order.Total)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +97,7 @@ func (s *paymentService) CreatePaymentTransactionLog(
 // 	return result, nil
 // }
 
-func generatePaymentCodePromptPayment(amount float64) (string, error) {
+func (s *paymentService) GeneratePaymentCodePromptPayment(amount float64) (string, error) {
 	paymentInfo := pp.PromptPay{
 		PromptPayID: os.Getenv("PROMPTPAY_PHONE"),
 		Amount:      amount,
