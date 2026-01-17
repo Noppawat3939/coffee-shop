@@ -53,21 +53,21 @@ func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 }
 
 func (ec *employeeController) FindAll(c *gin.Context) {
-	filter := make(types.Filter)
+	q := make(types.Filter)
 
 	if username := c.Query("username"); username != "" {
-		filter["username"] = username
+		q["username"] = username
 	}
 
 	if name := c.Query("name"); name != "" {
-		filter["name"] = name
+		q["name"] = name
 	}
 
 	if id := c.Query("id"); id != "" {
-		filter["id"] = util.ToInt(id)
+		q["id"] = util.ToInt(id)
 	}
 
-	employees, err := ec.repo.FindAll(filter)
+	employees, err := ec.repo.FindAll(q)
 	if err != nil {
 		util.ErrorNotFound(c)
 		return

@@ -4,17 +4,16 @@ import (
 	"backend/models"
 	"backend/pkg/types"
 	"backend/util"
-	"time"
 
 	"gorm.io/gorm"
 )
 
 type OrderRepo interface {
+
 	// Create repositories
 	CreateOrder(order *models.Order, tx *gorm.DB) (models.Order, error)
 	CreateOrderStatusLog(odLog models.OrderStatusLog, tx *gorm.DB) (models.OrderStatusLog, error)
 	CreateOrderMenuVariation(odVaria models.OrderMenuVariation, tx *gorm.DB) (models.OrderMenuVariation, error)
-	CreatePaymentLog(paymentOdLog models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
 
 	// Find all
 	FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error)
@@ -22,13 +21,10 @@ type OrderRepo interface {
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
 	FindOneOrderByOrderNumber(odNo string) (models.Order, error)
-	FindOneTransaction(filter types.Filter) (models.PaymentOrderTransactionLog, error)
 	FindOneMenuVariation(id int) (models.MenuVariation, error)
 
 	// Update one
 	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
-	UpdatePaymentLog(filter types.Filter, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
-	CancelActivePaymentLog(id int) error
 }
 
 type orderRepo struct {
@@ -38,6 +34,7 @@ type orderRepo struct {
 func NewOrderRepository(db *gorm.DB) OrderRepo {
 	return &orderRepo{db}
 }
+
 func (r *orderRepo) getDB(tx *gorm.DB) *gorm.DB {
 	if tx != nil {
 		return tx
@@ -67,14 +64,6 @@ func (r *orderRepo) CreateOrderMenuVariation(odVaria models.OrderMenuVariation, 
 		return models.OrderMenuVariation{}, err
 	}
 	return odVaria, nil
-}
-
-func (r *orderRepo) CreatePaymentLog(paymentOdLog models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error) {
-	db := r.getDB(tx)
-	if err := db.Create(&paymentOdLog).Error; err != nil {
-		return models.PaymentOrderTransactionLog{}, err
-	}
-	return paymentOdLog, nil
 }
 
 func (r *orderRepo) FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error) {
@@ -111,14 +100,6 @@ func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
 	return menuVariation, err
 }
 
-func (r *orderRepo) FindOneTransaction(filter types.Filter) (models.PaymentOrderTransactionLog, error) {
-	var log models.PaymentOrderTransactionLog
-
-	err := r.db.Preload("Order").Where(filter).First(&log).Error
-
-	return log, err
-}
-
 func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error) {
 	db := r.getDB(tx)
 
@@ -131,29 +112,4 @@ func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (mo
 	err := r.db.Model(&data).Updates(order).Error
 
 	return data, err
-}
-
-func (r *orderRepo) UpdatePaymentLog(filter types.Filter, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error) {
-	var data models.PaymentOrderTransactionLog
-	db := r.getDB(tx)
-
-	if err := db.Where(filter).First(&data).Error; err != nil {
-		return data, err
-	}
-
-	err := r.db.Model(&data).Updates(log).Error
-
-	return data, err
-}
-
-func (r *orderRepo) CancelActivePaymentLog(id int) error {
-	if err := r.db.Model(&models.PaymentOrderTransactionLog{}).Where("order_id = ? AND status = ?", id, models.OrderStatus.ToPay).Updates(types.Filter{
-		"status":     models.OrderStatus.Canceled,
-		"expired_at": time.Now(),
-		"updated_at": time.Now(),
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
 }

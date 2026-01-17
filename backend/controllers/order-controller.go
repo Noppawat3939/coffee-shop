@@ -3,12 +3,10 @@ package controllers
 import (
 	"backend/dto"
 	"backend/models"
-	"backend/pkg/types"
 	"backend/repository"
 	"backend/util"
 	"fmt"
 	"net/http"
-	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -147,68 +145,69 @@ func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
 	util.Success(c, order)
 }
 
-func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate string) {
-	id := util.ParamToInt(c, "id")
+// TODO: implement logic cancel order to order-service
+// func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate string) {
+// 	id := util.ParamToInt(c, "id")
 
-	order, err := oc.repo.FindOneOrder(id)
-	if err != nil {
-		util.ErrorNotFound(c)
+// 	order, err := oc.repo.FindOneOrder(id)
+// 	if err != nil {
+// 		util.ErrorNotFound(c)
 
-		return
-	}
+// 		return
+// 	}
 
-	// check status not allowed to update
-	allowed, ok := allowedUpdateStatus[order.Status]
-	if !ok || !slices.Contains(allowed, statusToUpdate) {
-		msg := fmt.Sprintf("%s %s", "current status not allowed to update to", statusToUpdate)
-		util.Error(c, http.StatusNotAcceptable, msg)
+// 	// check status not allowed to update
+// 	allowed, ok := allowedUpdateStatus[order.Status]
+// 	if !ok || !slices.Contains(allowed, statusToUpdate) {
+// 		msg := fmt.Sprintf("%s %s", "current status not allowed to update to", statusToUpdate)
+// 		util.Error(c, http.StatusNotAcceptable, msg)
 
-		return
-	}
+// 		return
+// 	}
 
-	err = oc.db.Transaction(func(tx *gorm.DB) error {
-		_, err := oc.repo.UpdateOrderByID(id, models.Order{
-			Status: statusToUpdate,
-		}, tx)
+// 	err = oc.db.Transaction(func(tx *gorm.DB) error {
+// 		_, err := oc.repo.UpdateOrderByID(id, models.Order{
+// 			Status: statusToUpdate,
+// 		}, tx)
 
-		if err != nil {
-			return err
-		}
+// 		if err != nil {
+// 			return err
+// 		}
 
-		// update payment_transaction_log where by order_id and status is to_pay
-		// update payment_transaction_log status to body.status
-		filter := types.Filter{
-			"order_id": id,
-			"status":   models.OrderStatus.ToPay,
-		}
+// 		// update payment_transaction_log where by order_id and status is to_pay
+// 		// update payment_transaction_log status to body.status
+// 		q := types.Filter{
+// 			"order_id": id,
+// 			"status":   models.OrderStatus.ToPay,
+// 		}
 
-		updateLog := models.PaymentOrderTransactionLog{
-			Status: statusToUpdate,
-		}
+// 		updateLog := models.PaymentOrderTransactionLog{
+// 			Status: statusToUpdate,
+// 		}
 
-		if statusToUpdate == models.OrderStatus.Paid || statusToUpdate == models.OrderStatus.Canceled {
-			if _, err := oc.repo.UpdatePaymentLog(filter, updateLog, tx); err != nil {
-				return err
-			}
-		}
+// 		if statusToUpdate == models.OrderStatus.Paid || statusToUpdate == models.OrderStatus.Canceled {
+// 			// if _, err := oc.repo.UpdatePaymentLog(q, updateLog, tx); err != nil {
+// 			// 	return err
+// 			// }
+// 		}
 
-		if _, err := oc.repo.CreateOrderStatusLog(models.OrderStatusLog{
-			OrderID: order.ID,
-			Status:  statusToUpdate,
-		}, tx); err != nil {
-			return err
-		}
+// 		if _, err := oc.repo.CreateOrderStatusLog(models.OrderStatusLog{
+// 			OrderID: order.ID,
+// 			Status:  statusToUpdate,
+// 		}, tx); err != nil {
+// 			return err
+// 		}
 
-		return nil
-	})
+// 		return nil
+// 	})
 
-	if err != nil {
-		util.Error(c, http.StatusConflict, "failed update order status to paid")
-		return
-	}
+// 	if err != nil {
+// 		util.Error(c, http.StatusConflict, "failed update order status to paid")
+// 		return
+// 	}
 
-	util.Success(c)
-}
+// 	util.Success(c)
+// }
 
 func (oc *orderController) GetOrders(c *gin.Context) {
 	status := c.Param("status")
@@ -216,12 +215,12 @@ func (oc *orderController) GetOrders(c *gin.Context) {
 	page := util.ToInt(c.DefaultQuery("page", fmt.Sprint(util.DefaultPage)))
 	limit := util.ToInt(c.DefaultQuery("limit", fmt.Sprint(util.DefaultLimit)))
 
-	filter := types.Filter{
+	q := map[string]interface{}{
 		"id":     id,
 		"status": status,
 	}
 
-	orders, err := oc.repo.FindAllOrders(filter, page, limit)
+	orders, err := oc.repo.FindAllOrders(q, page, limit)
 	if err != nil {
 		util.ErrorNotFound(c)
 
@@ -231,6 +230,6 @@ func (oc *orderController) GetOrders(c *gin.Context) {
 	util.Success(c, orders)
 }
 
-var allowedUpdateStatus = map[string][]string{
-	models.OrderStatus.ToPay: {models.OrderStatus.Paid, models.OrderStatus.Canceled},
-}
+// var allowedUpdateStatus = map[string][]string{
+// 	models.OrderStatus.ToPay: {models.OrderStatus.Paid, models.OrderStatus.Canceled},
+// }

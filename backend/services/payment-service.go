@@ -3,7 +3,6 @@ package services
 import (
 	"backend/dto"
 	"backend/models"
-	"backend/pkg/types"
 	"backend/repository"
 	"backend/util"
 	"crypto/hmac"
@@ -21,30 +20,30 @@ type PaymentService interface {
 		req dto.CreateTxnLogRequest,
 	) (*dto.CreateTxnResponse, error)
 	GeneratePaymentCodePromptPayment(amount float64) (string, error)
-	FindOnePaymentLog(filter types.Filter) (*dto.EnquireTxnResponse, error)
+	FindOnePaymentLog(q map[string]interface{}) (*dto.EnquireTxnResponse, error)
 	UpdatePaymentStatus(odNumber, status string, tx *gorm.DB) (bool, error)
 }
 
 type paymentService struct {
-	repo repository.OrderRepo
+	odRepo  repository.OrderRepo
+	payRepo repository.PaymentRepo
 }
 
-func NewPaymentService(repo repository.OrderRepo) PaymentService {
-	return &paymentService{
-		repo: repo,
-	}
+func NewPaymentService(odRepo repository.OrderRepo, payRepo repository.PaymentRepo) PaymentService {
+	return &paymentService{odRepo, payRepo}
 }
 
 func (s *paymentService) CreatePaymentTransactionLog(
 	req dto.CreateTxnLogRequest,
 ) (*dto.CreateTxnResponse, error) {
 
-	order, err := s.repo.FindOneOrderByOrderNumber(req.OrderNumber)
+	order, err := s.odRepo.FindOneOrderByOrderNumber(req.OrderNumber)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := s.repo.CancelActivePaymentLog(int(order.ID)); err != nil {
+	err = s.payRepo.CancelActivePaymentLog(order.OrderNumber, nil)
+	if err != nil {
 		return nil, err
 	}
 
@@ -55,7 +54,7 @@ func (s *paymentService) CreatePaymentTransactionLog(
 
 	signature := signPayload(payload)
 
-	log, err := s.repo.CreatePaymentLog(models.PaymentOrderTransactionLog{
+	log, err := s.payRepo.CreatePaymentLog(models.PaymentOrderTransactionLog{
 		OrderID:           order.ID,
 		OrderNumberRef:    order.OrderNumber,
 		Amount:            order.Total,
@@ -78,11 +77,10 @@ func (s *paymentService) CreatePaymentTransactionLog(
 		ExpiredAt:         log.ExpiredAt,
 		CreatedAt:         log.CreatedAt,
 	}, nil
-
 }
 
-func (s *paymentService) FindOnePaymentLog(filter types.Filter) (*dto.EnquireTxnResponse, error) {
-	log, err := s.repo.FindOneTransaction(filter)
+func (s *paymentService) FindOnePaymentLog(q map[string]interface{}) (*dto.EnquireTxnResponse, error) {
+	log, err := s.payRepo.FindOneTransaction(q)
 	if err != nil {
 		return nil, err
 	}
@@ -104,9 +102,12 @@ func (s *paymentService) FindOnePaymentLog(filter types.Filter) (*dto.EnquireTxn
 }
 
 func (s *paymentService) UpdatePaymentStatus(odNumber, status string, tx *gorm.DB) (bool, error) {
-	// Find tnx by order_number_ref
-	filter := types.Filter{"order_number_ref": odNumber}
-	_, err := s.repo.UpdatePaymentLog(filter, models.PaymentOrderTransactionLog{
+	q := map[string]interface{}{
+		"order_number_ref": odNumber,
+		"status":           models.OrderStatus.ToPay,
+	}
+
+	_, err := s.payRepo.UpdatePaymentLog(q, models.PaymentOrderTransactionLog{
 		Status:    status,
 		ExpiredAt: time.Now(),
 	}, tx)
