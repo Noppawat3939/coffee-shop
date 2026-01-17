@@ -70,11 +70,14 @@ Table payment_order_transaction_logs {
   id int [pk]
   order_id int [not null ,ref: > orders.id]
   transaction_number text [not null]
-  amount number [not null]
   status payment_order_transaction_log_status
   payment_code text
+  qr_signature text
+  order_number_ref text
+  amount number [not null]
   expired_at timestamp [increment]
   created_at timestamp [increment]
+
 }
 
 Enum payment_transaction_log_status {

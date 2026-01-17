@@ -20,6 +20,7 @@ type PaymentOrderTransactionLog struct {
 	Status            string    `gorm:"type:text" json:"status"`
 	PaymentCode       string    `gorm:"type:text" json:"payment_code"`
 	QRSignature       string    `gorm:"type:text" json:"qr_signature"`
+	OrderNumberRef    string    `gorm:"type:text" json:"order_number_ref"`
 	ExpiredAt         time.Time `json:"expired_at"`
 	CreatedAt         time.Time `gorm:"autoCreateTime" json:"created_at"`
 
