@@ -27,7 +27,7 @@ type OrderRepo interface {
 
 	// Update one
 	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
-	UpdatePaymentLog(filter types.Filter, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error)
+	UpdatePaymentLog(filter types.Filter, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
 	CancelActivePaymentLog(id int) error
 }
 
@@ -112,11 +112,11 @@ func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
 }
 
 func (r *orderRepo) FindOneTransaction(filter types.Filter) (models.PaymentOrderTransactionLog, error) {
-	var txLog models.PaymentOrderTransactionLog
+	var log models.PaymentOrderTransactionLog
 
-	err := r.db.Preload("Order").Where(filter).First(&txLog).Error
+	err := r.db.Preload("Order").Where(filter).First(&log).Error
 
-	return txLog, err
+	return log, err
 }
 
 func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error) {
@@ -133,14 +133,15 @@ func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (mo
 	return data, err
 }
 
-func (r *orderRepo) UpdatePaymentLog(filter types.Filter, txLog models.PaymentOrderTransactionLog) (models.PaymentOrderTransactionLog, error) {
+func (r *orderRepo) UpdatePaymentLog(filter types.Filter, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error) {
 	var data models.PaymentOrderTransactionLog
+	db := r.getDB(tx)
 
-	if err := r.db.Where(filter).First(&data).Error; err != nil {
+	if err := db.Where(filter).First(&data).Error; err != nil {
 		return data, err
 	}
 
-	err := r.db.Model(&data).Updates(txLog).Error
+	err := r.db.Model(&data).Updates(log).Error
 
 	return data, err
 }

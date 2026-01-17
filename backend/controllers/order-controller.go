@@ -187,7 +187,7 @@ func (oc *orderController) UpdateOrderStatus(c *gin.Context, statusToUpdate stri
 		}
 
 		if statusToUpdate == models.OrderStatus.Paid || statusToUpdate == models.OrderStatus.Canceled {
-			if _, err := oc.repo.UpdatePaymentLog(filter, updateLog); err != nil {
+			if _, err := oc.repo.UpdatePaymentLog(filter, updateLog, tx); err != nil {
 				return err
 			}
 		}

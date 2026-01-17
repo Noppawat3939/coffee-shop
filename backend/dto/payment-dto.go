@@ -28,6 +28,7 @@ type EnquireTxnRequst struct {
 
 type EnquireTxnResponse struct {
 	TransactionNumber string                      `json:"transaction_number"`
+	OrderNumberRef    string                      `json:"order_number_ref"`
 	Amount            float64                     `json:"amount"`
 	Status            string                      `json:"status"`
 	ExpiredAt         time.Time                   `json:"expired_at"`

@@ -3,6 +3,7 @@ package services
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/types"
 	"backend/repository"
 	"backend/util"
 	"crypto/hmac"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	pp "github.com/Frontware/promptpay"
+	"gorm.io/gorm"
 )
 
 type PaymentService interface {
@@ -19,6 +21,8 @@ type PaymentService interface {
 		req dto.CreateTxnLogRequest,
 	) (*dto.CreateTxnResponse, error)
 	GeneratePaymentCodePromptPayment(amount float64) (string, error)
+	FindOnePaymentLog(filter types.Filter) (*dto.EnquireTxnResponse, error)
+	UpdatePaymentStatus(odNumber, status string, tx *gorm.DB) (bool, error)
 }
 
 type paymentService struct {
@@ -53,6 +57,7 @@ func (s *paymentService) CreatePaymentTransactionLog(
 
 	log, err := s.repo.CreatePaymentLog(models.PaymentOrderTransactionLog{
 		OrderID:           order.ID,
+		OrderNumberRef:    order.OrderNumber,
 		Amount:            order.Total,
 		TransactionNumber: util.GenerateTransactionNumber(req.OrderNumber),
 		Status:            models.OrderStatus.ToPay, // initial status
@@ -74,6 +79,43 @@ func (s *paymentService) CreatePaymentTransactionLog(
 		CreatedAt:         log.CreatedAt,
 	}, nil
 
+}
+
+func (s *paymentService) FindOnePaymentLog(filter types.Filter) (*dto.EnquireTxnResponse, error) {
+	log, err := s.repo.FindOneTransaction(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.EnquireTxnResponse{
+		TransactionNumber: log.TransactionNumber,
+		OrderNumberRef:    log.OrderNumberRef,
+		Amount:            log.Amount,
+		Status:            log.Status,
+		ExpiredAt:         log.ExpiredAt,
+		CreatedAt:         log.CreatedAt,
+		Order: dto.EnquireTxnWithOrderResponse{
+			ID:          log.Order.ID,
+			OrderNumber: log.Order.OrderNumber,
+			Status:      log.Order.Status,
+			Total:       log.Order.Total,
+		},
+	}, nil
+}
+
+func (s *paymentService) UpdatePaymentStatus(odNumber, status string, tx *gorm.DB) (bool, error) {
+	// Find tnx by order_number_ref
+	filter := types.Filter{"order_number_ref": odNumber}
+	_, err := s.repo.UpdatePaymentLog(filter, models.PaymentOrderTransactionLog{
+		Status:    status,
+		ExpiredAt: time.Now(),
+	}, tx)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // func GeneratePromptPayQR(amount float64) (string, error) {

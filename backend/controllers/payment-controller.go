@@ -49,29 +49,15 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 	filter := types.Filter{
 		"transaction_number": req.TransactionNumber,
 	}
-
 	if req.Status != "" {
 		filter["status"] = req.Status
 	}
 
-	log, err := pc.repo.FindOneTransaction(filter)
+	res, err := pc.service.FindOnePaymentLog(filter)
+
 	if err != nil {
 		util.ErrorNotFound(c)
 		return
-	}
-
-	res := dto.EnquireTxnResponse{
-		TransactionNumber: log.TransactionNumber,
-		Amount:            log.Amount,
-		Status:            log.Status,
-		ExpiredAt:         log.ExpiredAt,
-		CreatedAt:         log.CreatedAt,
-		Order: dto.EnquireTxnWithOrderResponse{
-			ID:          log.Order.ID,
-			OrderNumber: log.Order.OrderNumber,
-			Status:      log.Order.Status,
-			Total:       log.Order.Total,
-		},
 	}
 
 	util.Success(c, res)
