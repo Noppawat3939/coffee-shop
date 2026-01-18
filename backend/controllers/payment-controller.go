@@ -13,14 +13,14 @@ import (
 )
 
 type paymentController struct {
-	repo        repository.OrderRepo
 	paymentRepo repository.PaymentRepo
-	service     services.PaymentService
+	paymentSvc  services.PaymentService
+	odSvc       services.OrderService
 	db          *gorm.DB
 }
 
-func NewPaymentController(r repository.OrderRepo, pr repository.PaymentRepo, s services.PaymentService, d *gorm.DB) *paymentController {
-	return &paymentController{r, pr, s, d}
+func NewPaymentController(paymentRepo repository.PaymentRepo, paymentSvc services.PaymentService, odSvc services.OrderService, db *gorm.DB) *paymentController {
+	return &paymentController{paymentRepo, paymentSvc, odSvc, db}
 }
 
 func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
@@ -31,7 +31,7 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 		return
 	}
 
-	res, err := pc.service.CreatePaymentTransactionLog(req)
+	res, err := pc.paymentSvc.CreatePaymentTransactionLog(req)
 
 	if err != nil {
 		util.Error(c, http.StatusConflict, "failed create payment transaction log")
@@ -57,7 +57,7 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 		q["status"] = req.Status
 	}
 
-	res, err := pc.service.FindOnePaymentLog(q)
+	res, err := pc.paymentSvc.FindOnePaymentLog(q)
 
 	if err != nil {
 		util.ErrorNotFound(c)
@@ -68,10 +68,16 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 }
 
 func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status string) {
-	ref := c.Param("order_number")
+	odNumber := c.Param("order_number")
 	err := pc.db.Transaction(func(tx *gorm.DB) error {
-		_, err := pc.service.UpdatePaymentStatus(ref, status, tx)
+		// update payment log not expired
+		_, err := pc.paymentSvc.UpdatePaymentStatus(odNumber, status, tx)
 		if err != nil {
+			return err
+		}
+
+		// update order and create order_status_log
+		if _, err := pc.odSvc.UpdateOrderStatusAndLog(odNumber, status, tx); err != nil {
 			return err
 		}
 
@@ -79,7 +85,7 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 	})
 
 	if err != nil {
-		util.Error(c, http.StatusNotFound, fmt.Sprintf("order number %s already status %s", ref, status))
+		util.Error(c, http.StatusNotFound, fmt.Sprintf("order number %s already status %s", odNumber, status))
 		return
 	}
 

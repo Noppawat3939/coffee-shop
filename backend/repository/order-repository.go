@@ -24,7 +24,7 @@ type OrderRepo interface {
 	FindOneMenuVariation(id int) (models.MenuVariation, error)
 
 	// Update one
-	UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error)
+	UpdateOrder(q map[string]interface{}, order models.Order, tx *gorm.DB) (models.Order, error)
 }
 
 type orderRepo struct {
@@ -100,16 +100,17 @@ func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
 	return menuVariation, err
 }
 
-func (r *orderRepo) UpdateOrderByID(id int, order models.Order, tx *gorm.DB) (models.Order, error) {
+func (r *orderRepo) UpdateOrder(q map[string]interface{}, order models.Order, tx *gorm.DB) (models.Order, error) {
+	var data models.Order
 	db := r.getDB(tx)
 
-	var data models.Order
-
-	if err := db.First(&data, id).Error; err != nil {
+	if err := db.Where(q).First(&data).Error; err != nil {
 		return data, err
 	}
 
-	err := r.db.Model(&data).Updates(order).Error
+	if err := db.Model(&data).Updates(order).Error; err != nil {
+		return data, nil
+	}
 
-	return data, err
+	return data, nil
 }

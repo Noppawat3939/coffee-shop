@@ -14,7 +14,8 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 	odRepo := repository.NewOrderRepository(cfg.DB)
 	payRepo := repository.NewPaymentRepository(cfg.DB)
 	svc := services.NewPaymentService(odRepo, payRepo)
-	controller := ctl.NewPaymentController(odRepo, payRepo, svc, cfg.DB)
+	odSvc := services.NewOrderService(odRepo)
+	controller := ctl.NewPaymentController(payRepo, svc, odSvc, cfg.DB)
 
 	payment := r.Group("/Payment", middleware.AuthGuard())
 	{

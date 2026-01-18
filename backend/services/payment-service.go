@@ -101,6 +101,7 @@ func (s *paymentService) FindOnePaymentLog(q map[string]interface{}) (*dto.Enqui
 	}, nil
 }
 
+// TODO >> separate UpdatePaymentStatusPAID and CANCELED , it should be check not expired before update
 func (s *paymentService) UpdatePaymentStatus(odNumber, status string, tx *gorm.DB) (bool, error) {
 	q := map[string]interface{}{
 		"order_number_ref": odNumber,
