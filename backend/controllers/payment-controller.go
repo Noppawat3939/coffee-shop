@@ -68,16 +68,16 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 }
 
 func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status string) {
-	odNumber := c.Param("order_number")
+	odNo := c.Param("order_number")
 	err := pc.db.Transaction(func(tx *gorm.DB) error {
 		// update payment log not expired
-		_, err := pc.paymentSvc.UpdatePaymentStatus(odNumber, status, tx)
+		_, err := pc.paymentSvc.UpdatePaymentStatus(odNo, status, tx)
 		if err != nil {
 			return err
 		}
 
 		// update order and create order_status_log
-		if _, err := pc.odSvc.UpdateOrderStatusAndLog(odNumber, status, tx); err != nil {
+		if _, err := pc.odSvc.UpdateOrderStatusAndLog(odNo, status, tx); err != nil {
 			return err
 		}
 
@@ -85,7 +85,7 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 	})
 
 	if err != nil {
-		util.Error(c, http.StatusNotFound, fmt.Sprintf("order number %s already status %s", odNumber, status))
+		util.Error(c, http.StatusNotFound, fmt.Sprintf("order number %s already status %s", odNo, status))
 		return
 	}
 

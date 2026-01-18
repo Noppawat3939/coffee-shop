@@ -34,7 +34,7 @@ func main() {
 
 	routes.SetupRoutes(r, database)
 
-	fmt.Println("🚀 Starting server in port::", cfg.ServerPort)
+	fmt.Println("✅ Starting server in port ", cfg.ServerPort)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
