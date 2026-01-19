@@ -3,6 +3,8 @@ package services
 import (
 	"backend/models"
 	"backend/repository"
+	"fmt"
+	"slices"
 
 	"gorm.io/gorm"
 )
@@ -23,7 +25,17 @@ func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm
 	q := map[string]interface{}{"order_number": odNumber}
 	data := models.Order{Status: status}
 
-	order, err := s.repo.UpdateOrder(q, data, tx)
+	order, err := s.repo.FindOneOrderByOrderNumber(odNumber)
+	if err != nil {
+		return false, err
+	}
+
+	allowed, ok := mappingAllowedStatusToUpdate[order.Status]
+	if !ok || !slices.Contains(allowed, status) {
+		return false, fmt.Errorf("current status not allowed to update")
+	}
+
+	_, err = s.repo.UpdateOrder(q, data, tx)
 	if err != nil {
 		return false, err
 	}
@@ -34,4 +46,10 @@ func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm
 	}
 
 	return true, nil
+}
+
+var mappingAllowedStatusToUpdate = map[string][]string{
+	models.OrderStatus.ToPay:    {models.OrderStatus.Paid, models.OrderStatus.Canceled},
+	models.OrderStatus.Paid:     {models.OrderStatus.Paid},
+	models.OrderStatus.Canceled: {models.OrderStatus.Canceled},
 }
