@@ -62,7 +62,7 @@ func (s *paymentService) CreatePaymentTransactionLog(
 		Status:            models.OrderStatus.ToPay, // initial status
 		PaymentCode:       payload,
 		QRSignature:       signature,
-		ExpiredAt:         time.Now().Add(2 * time.Minute), // expired in 2 min
+		ExpiredAt:         time.Now().Add(10 * time.Minute), // expired in 10 min
 	}, nil)
 
 	if err != nil {
