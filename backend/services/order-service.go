@@ -10,6 +10,8 @@ import (
 )
 
 type OrderService interface {
+	CreateMenuVariations(data []models.OrderMenuVariation, order models.Order, tx *gorm.DB) (bool, error)
+	CreateLog(order models.Order, tx *gorm.DB) (bool, error)
 	UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (bool, error)
 }
 
@@ -19,6 +21,28 @@ type orderService struct {
 
 func NewOrderService(repo repository.OrderRepo) OrderService {
 	return &orderService{repo}
+}
+
+func (s *orderService) CreateMenuVariations(data []models.OrderMenuVariation, order models.Order, tx *gorm.DB) (bool, error) {
+	for i := range data {
+		data[i].OrderID = order.ID
+		if _, err := s.repo.CreateOrderMenuVariation(data[i], tx); err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func (s *orderService) CreateLog(order models.Order, tx *gorm.DB) (bool, error) {
+	if _, err := s.repo.CreateOrderStatusLog(models.OrderStatusLog{
+		OrderID: order.ID,
+		Status:  order.Status,
+	}, tx); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (bool, error) {

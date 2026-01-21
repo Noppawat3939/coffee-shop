@@ -1,6 +1,11 @@
 package util
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
 
 type Pagination struct {
 	Limit int
@@ -36,4 +41,11 @@ func (p *Pagination) GetPaginationResult(db *gorm.DB) *gorm.DB {
 	pageSize := p.getLimit()
 
 	return db.Offset(offet).Limit(pageSize)
+}
+
+func BuildPagination(c *gin.Context) (int, int) {
+	page := ToInt(c.DefaultQuery("page", fmt.Sprint(DefaultPage)))
+	limit := ToInt(c.DefaultQuery("limit", fmt.Sprint(DefaultLimit)))
+
+	return page, limit
 }

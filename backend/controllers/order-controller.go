@@ -4,6 +4,7 @@ import (
 	"backend/dto"
 	"backend/models"
 	"backend/repository"
+	"backend/services"
 	"backend/util"
 	"fmt"
 	"net/http"
@@ -15,12 +16,13 @@ import (
 )
 
 type orderController struct {
-	repo repository.OrderRepo
-	db   *gorm.DB
+	repo  repository.OrderRepo
+	odSvc services.OrderService
+	db    *gorm.DB
 }
 
-func NewOrderController(repo repository.OrderRepo, db *gorm.DB) *orderController {
-	return &orderController{repo, db}
+func NewOrderController(repo repository.OrderRepo, odSvc services.OrderService, db *gorm.DB) *orderController {
+	return &orderController{repo, odSvc, db}
 }
 
 func (oc *orderController) CreateOrder(c *gin.Context) {
@@ -92,19 +94,11 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			return err
 		}
 
-		// create order_menu_variations
-		for i := range odVariations {
-			odVariations[i].OrderID = order.ID
-			if _, err := oc.repo.CreateOrderMenuVariation(odVariations[i], tx); err != nil {
-				return err
-			}
+		if _, err := oc.odSvc.CreateMenuVariations(odVariations, order, tx); err != nil {
+			return err
 		}
 
-		// create order_status_logs
-		if _, err := oc.repo.CreateOrderStatusLog(models.OrderStatusLog{
-			OrderID: order.ID,
-			Status:  order.Status,
-		}, tx); err != nil {
+		if _, err := oc.odSvc.CreateLog(order, tx); err != nil {
 			return err
 		}
 
@@ -125,7 +119,6 @@ func (oc *orderController) GetOrderByID(c *gin.Context) {
 	order, err := oc.repo.FindOneOrder(id)
 	if err != nil {
 		util.ErrorNotFound(c)
-
 		return
 	}
 
@@ -138,7 +131,6 @@ func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
 	order, err := oc.repo.FindOneOrderByOrderNumber(order_number)
 	if err != nil {
 		util.ErrorNotFound(c)
-
 		return
 	}
 
@@ -148,8 +140,7 @@ func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
 func (oc *orderController) GetOrders(c *gin.Context) {
 	status := c.Param("status")
 	id := util.ParamToInt(c, "id")
-	page := util.ToInt(c.DefaultQuery("page", fmt.Sprint(util.DefaultPage)))
-	limit := util.ToInt(c.DefaultQuery("limit", fmt.Sprint(util.DefaultLimit)))
+	page, limit := util.BuildPagination(c)
 
 	q := map[string]interface{}{
 		"id":     id,
@@ -159,13 +150,8 @@ func (oc *orderController) GetOrders(c *gin.Context) {
 	orders, err := oc.repo.FindAllOrders(q, page, limit)
 	if err != nil {
 		util.ErrorNotFound(c)
-
 		return
 	}
 
 	util.Success(c, orders)
 }
-
-// var allowedUpdateStatus = map[string][]string{
-// 	models.OrderStatus.ToPay: {models.OrderStatus.Paid, models.OrderStatus.Canceled},
-// }
