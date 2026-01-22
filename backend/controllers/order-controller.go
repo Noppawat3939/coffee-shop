@@ -72,13 +72,12 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			})
 		}
 
-		// return error if any invalid menu_variations
 		if len(invalidMenuVariationIDs) > 0 {
-			idStr := strings.Join(invalidMenuVariationIDs, ",")
+			ids := strings.Join(invalidMenuVariationIDs, ",")
 			errStatus = http.StatusNotAcceptable
-			errMsg = "invalid menu_variation_ids: " + idStr
+			errMsg = "invalid menu_variation_ids: " + ids
 
-			return fmt.Errorf("invalid menu_variation_ids: %s", idStr)
+			return fmt.Errorf("invalid menu_variation_ids: %s", ids)
 		}
 
 		// create orders
