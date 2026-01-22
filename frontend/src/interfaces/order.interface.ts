@@ -37,3 +37,9 @@ export interface IOrderStatusLog {
   status: string;
   created_at: string;
 }
+
+export enum OrderStatus {
+  ToPaid = "to_paid",
+  Paid = "paid",
+  Canceled = "canceled",
+}

@@ -17,11 +17,11 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 	odSvc := services.NewOrderService(odRepo)
 	controller := ctl.NewPaymentController(payRepo, svc, odSvc, cfg.DB)
 
-	payment := r.Group("/Payment", middleware.AuthGuard())
+	payment := r.Group("/Payment/txn", middleware.AuthGuard())
 	{
-		payment.POST("/txn/order", middleware.IdempotencyMiddleware(cfg.DB), controller.CreatePaymentTransactionLog)
-		payment.POST("/txn/enquiry", controller.EnquiryPayment)
-		payment.POST("txn/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Paid) })
-		payment.POST("txn/:order_number/canceled", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Canceled) })
+		payment.POST("/order", middleware.IdempotencyMiddleware(cfg.DB), controller.CreatePaymentTransactionLog)
+		payment.POST("/enquiry", controller.EnquiryPayment)
+		payment.POST("/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Paid) })
+		payment.POST("/:order_number/canceled", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Canceled) })
 	}
 }
