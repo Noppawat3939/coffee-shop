@@ -20,11 +20,11 @@ type responseCapture struct {
 	body *bytes.Buffer
 }
 
-func IdempotencyMiddleware(db *gorm.DB, ttlMinutes int) gin.HandlerFunc {
+func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := c.GetHeader(ID_KEY)
 		if key == "" {
-			util.Error(c, http.StatusBadRequest, fmt.Sprintf("%s %s", ID_KEY, "requred"))
+			util.Error(c, http.StatusBadRequest, fmt.Sprintf("%s %s", ID_KEY, "required"))
 
 			c.Abort()
 			return
@@ -42,7 +42,7 @@ func IdempotencyMiddleware(db *gorm.DB, ttlMinutes int) gin.HandlerFunc {
 			return
 		}
 
-		// Not found and then capture response
+		// not found and then capture response
 		writer := &responseCapture{
 			ResponseWriter: c.Writer,
 			body:           bytes.NewBufferString(""),
@@ -51,14 +51,13 @@ func IdempotencyMiddleware(db *gorm.DB, ttlMinutes int) gin.HandlerFunc {
 
 		c.Next()
 
-		// Save response
 		record = models.IdempotencyKey{
 			ID:         uuid.New(),
 			Key:        key,
 			Endpoint:   endpoint,
 			Response:   writer.body.Bytes(),
 			StatusCode: writer.Status(),
-			ExpiredAt:  time.Now().Add(time.Duration(ttlMinutes) * time.Minute),
+			ExpiredAt:  time.Now().Add(time.Duration(2) * time.Minute),
 		}
 		db.Create(&record)
 	}
