@@ -1,8 +1,12 @@
-import type { OrderStatus } from "~/interfaces/order.interface";
 import { service as svc } from ".";
 import type { Response } from "./service-instance";
 import { randomUniqueID } from "~/helper";
 import type { AxiosRequestConfig } from "axios";
+import type {
+  ICreateTransaction,
+  IEnquiryTransaction,
+  IUpdateTransaction,
+} from "~/interfaces/payment.interface";
 
 const prefix = "Payment";
 
@@ -10,7 +14,7 @@ const buildHeaders = (): AxiosRequestConfig => ({
   headers: { ["X-Idempotency-Key"]: randomUniqueID() },
 });
 
-const createTransaction = async (body: { order_number: string }) => {
+const createTransaction = async (body: ICreateTransaction) => {
   const { data } = await svc.post<Response>(
     `${prefix}/txn/order`,
     body,
@@ -19,7 +23,7 @@ const createTransaction = async (body: { order_number: string }) => {
   return data;
 };
 
-const enquireTransaction = async (body: { transaction_number: string }) => {
+const enquireTransaction = async (body: IEnquiryTransaction) => {
   const { data } = await svc.post<Response>(
     `${prefix}/txn/enquiry`,
     body,
@@ -28,10 +32,7 @@ const enquireTransaction = async (body: { transaction_number: string }) => {
   return data;
 };
 
-const updateTransaction = async (body: {
-  orderNumber: string;
-  status: OrderStatus;
-}) => {
+const updateTransaction = async (body: IUpdateTransaction) => {
   const { data } = await svc.post<Response>(
     `${prefix}/txn/${body.orderNumber}/${body.status}`,
     buildHeaders()
