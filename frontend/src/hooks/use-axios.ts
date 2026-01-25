@@ -5,15 +5,19 @@ type AsyncFunc<Args extends unknown[], Return> = (
   ...args: Args
 ) => Promise<Return>;
 
-type Options = {
-  onSuccess?: <Return>(data: Return) => void;
-  onError?: (err?: AxiosError) => void;
+export type OveridedAxiosError = Readonly<
+  AxiosError<Partial<{ message: string; code: number }>>
+>;
+
+type Options<Arg> = {
+  onSuccess?: <Return>(data: Return, arg?: Arg) => void;
+  onError?: (err?: OveridedAxiosError) => void;
   onFinish?: () => void;
 };
 
 export default function useAxios<Args extends unknown[], Return>(
   fn: AsyncFunc<Args, Return>,
-  options?: Options
+  options?: Options<Args>
 ) {
   const [data, setData] = useState<Return | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,11 +29,12 @@ export default function useAxios<Args extends unknown[], Return>(
         const result = await fn(...args);
 
         setData(result);
-        options?.onSuccess?.(result);
+
+        options?.onSuccess?.(result, args);
 
         return result;
       } catch (err) {
-        options?.onError?.(err as AxiosError);
+        options?.onError?.(err as OveridedAxiosError);
         return null;
       } finally {
         setLoading(false);

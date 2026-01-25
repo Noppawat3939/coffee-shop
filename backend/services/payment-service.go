@@ -90,6 +90,7 @@ func (s *paymentService) FindOnePaymentLog(q map[string]interface{}) (*dto.Enqui
 		OrderNumberRef:    log.OrderNumberRef,
 		Amount:            log.Amount,
 		Status:            log.Status,
+		PaymentCode:       log.PaymentCode,
 		ExpiredAt:         log.ExpiredAt,
 		CreatedAt:         log.CreatedAt,
 		Order: dto.EnquireTxnWithOrderResponse{

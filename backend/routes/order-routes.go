@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/controllers"
+	"backend/middleware"
 	"backend/repository"
 	"backend/services"
 
@@ -15,7 +16,7 @@ func (cfg *RouterConfig) IntialOrderRoutes(r *gin.RouterGroup) {
 
 	order := r.Group("/Orders")
 	{
-		order.POST("", controller.CreateOrder)
+		order.POST("", middleware.AuthGuard(), controller.CreateOrder)
 		order.GET("", controller.GetOrders)
 		order.GET("/:id", controller.GetOrderByID)
 		order.GET("/order-number/:order_number", controller.GetOrderByOrderNumber)

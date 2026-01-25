@@ -4,7 +4,9 @@ import { randomUniqueID } from "~/helper";
 import type { AxiosRequestConfig } from "axios";
 import type {
   ICreateTransaction,
+  ICreateTransactionResponse,
   IEnquiryTransaction,
+  IEnquiryTransactionResponse,
   IUpdateTransaction,
 } from "~/interfaces/payment.interface";
 
@@ -15,7 +17,7 @@ const buildHeaders = (): AxiosRequestConfig => ({
 });
 
 const createTransaction = async (body: ICreateTransaction) => {
-  const { data } = await svc.post<Response>(
+  const { data } = await svc.post<Response<ICreateTransactionResponse>>(
     `${prefix}/txn/order`,
     body,
     buildHeaders()
@@ -24,7 +26,7 @@ const createTransaction = async (body: ICreateTransaction) => {
 };
 
 const enquireTransaction = async (body: IEnquiryTransaction) => {
-  const { data } = await svc.post<Response>(
+  const { data } = await svc.post<Response<IEnquiryTransactionResponse>>(
     `${prefix}/txn/enquiry`,
     body,
     buildHeaders()

@@ -19,7 +19,7 @@ func GenerateJWT(employeeID uint, username string) (string, error) {
 		EmployeeID: employeeID,
 		Username:   username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)), // 1d
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 1d
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "access_token",

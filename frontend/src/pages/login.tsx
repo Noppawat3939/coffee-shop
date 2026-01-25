@@ -1,14 +1,14 @@
 import { Button, Image, PasswordInput, Stack, TextInput } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
-import { useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { MainLayout } from "~/components";
+import { ACCESS_TOKEN_COOKIE_KEY } from "~/helper/constant";
 import { useAxios, useCookie } from "~/hooks";
+import type { OveridedAxiosError } from "~/hooks/use-axios";
 import type { IEmployeeLoggedIn } from "~/interfaces/auth.interface";
 import { auth } from "~/services";
 import type { Response } from "~/services/service-instance";
-
-export const ACCESS_TOKEN_COOKIE_KEY = "cofshop_session";
 
 export default function LoginPage() {
   const navigation = useNavigate();
@@ -19,6 +19,14 @@ export default function LoginPage() {
 
   const [username, setUsername] = useInputState("");
   const [password, setPassword] = useInputState("");
+  const [errorLogin, setErrorLogin] = useState<string | null>(null);
+
+  const onLoginFailed = useCallback((err?: OveridedAxiosError) => {
+    const errMsg = err?.response?.data?.message;
+    if (errMsg) {
+      setErrorLogin(errMsg);
+    }
+  }, []);
 
   const { execute: login, loading } = useAxios(auth.employeeLogin, {
     onSuccess: (res) => {
@@ -29,8 +37,9 @@ export default function LoginPage() {
         secure: true,
       });
 
-      startTransition(() => navigation({ to: "/menus" }));
+      startTransition(() => navigation({ to: "/menus", reloadDocument: true }));
     },
+    onError: onLoginFailed,
   });
 
   return (
@@ -51,6 +60,7 @@ export default function LoginPage() {
             placeholder="Your username"
             value={username}
             onChange={setUsername}
+            error={errorLogin}
           />
           <PasswordInput
             required
@@ -58,6 +68,7 @@ export default function LoginPage() {
             placeholder="Your password"
             value={password}
             onChange={setPassword}
+            error={errorLogin}
           />
           <Button loading={loading || pending} type="submit">
             {"Login"}

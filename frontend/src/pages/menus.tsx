@@ -10,7 +10,7 @@ import {
 import { useDisclosure, useMap } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
 import { Coffee } from "lucide-react";
-import { Fragment, useEffect, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useRef } from "react";
 import {
   BillOrders,
   IncreaseDecreaseInput,
@@ -22,7 +22,8 @@ import { useAxios } from "~/hooks";
 import type { IMember } from "~/interfaces/member.interface";
 import type { IMenu, IVariation } from "~/interfaces/menu.interface";
 import type { ICreateOrders, IOrder } from "~/interfaces/order.interface";
-import { menu, order } from "~/services";
+import type { ICreateTransactionResponse } from "~/interfaces/payment.interface";
+import { menu, order, payment } from "~/services";
 import type { Response } from "~/services/service-instance";
 
 type OrderKey = `${IMenu["id"]}_${IVariation["id"]}` | string;
@@ -30,15 +31,30 @@ type OrderKey = `${IMenu["id"]}_${IVariation["id"]}` | string;
 export default function MenusPage() {
   const navigation = useNavigate();
 
+  const orderNumberRef = useRef<string | null>(null);
+
   const { execute, data } = useAxios(menu.getMenus);
+
+  const { execute: createTxnLog } = useAxios(payment.createTransaction, {
+    onSuccess: (res, params) => {
+      const order_number = params?.[0]?.order_number ?? "";
+      const response = res as Response<ICreateTransactionResponse>;
+
+      navigation({
+        to: `/checkout?order_number=${order_number}&transaction_number=${response.data.transaction_number}`,
+        reloadDocument: true,
+      });
+    },
+  });
 
   const { execute: createOrder, loading } = useAxios(order.createOrder, {
     onSuccess: (res) => {
       const response = res as Response<IOrder>;
-      const orderNumber = response.data.order_number;
+      const { order_number } = response.data;
 
-      if (orderNumber) {
-        navigation({ to: `/checkout?order_number=${orderNumber}` });
+      if (order_number) {
+        orderNumberRef.current = order_number;
+        createTxnLog({ order_number });
       }
     },
   });

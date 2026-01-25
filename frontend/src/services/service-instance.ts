@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { ACCESS_TOKEN_COOKIE_KEY } from "~/pages/login";
+import { ACCESS_TOKEN_COOKIE_KEY } from "~/helper/constant";
 
 export type Response<Data = unknown> = { code: number; data: Data };
 

@@ -4,9 +4,12 @@ import { useEffect } from "react";
 import { MainLayout } from "~/components";
 import { useAxios, useNotification } from "~/hooks";
 import type { IOrder } from "~/interfaces/order.interface";
-import { order } from "~/services";
+import { order, payment } from "~/services";
 
-type SearchParams = Partial<{ order_number: string }>;
+type SearchParams = Partial<{
+  order_number: string;
+  transaction_number: string;
+}>;
 
 export default function CheckoutPage() {
   const search = useSearch({ strict: false }) satisfies SearchParams;
@@ -14,6 +17,8 @@ export default function CheckoutPage() {
   const { execute: getOrderByOrderNumber, data } = useAxios(
     order.getOrderByOrderNumber
   );
+
+  const { execute: enquireTxn } = useAxios(payment.enquireTransaction);
 
   const orderData = data?.data as IOrder;
 
@@ -23,7 +28,10 @@ export default function CheckoutPage() {
     if (search?.order_number) {
       getOrderByOrderNumber(search.order_number);
     }
-  }, [search?.order_number]);
+    if (search?.transaction_number) {
+      enquireTxn({ transaction_number: search.transaction_number });
+    }
+  }, [search?.order_number, search?.transaction_number]);
 
   return (
     <MainLayout title="Checkout">

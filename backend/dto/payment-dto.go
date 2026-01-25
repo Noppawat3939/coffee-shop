@@ -31,6 +31,7 @@ type EnquireTxnResponse struct {
 	OrderNumberRef    string                      `json:"order_number_ref"`
 	Amount            float64                     `json:"amount"`
 	Status            string                      `json:"status"`
+	PaymentCode       string                      `json:"payment_code"`
 	ExpiredAt         time.Time                   `json:"expired_at"`
 	CreatedAt         time.Time                   `json:"created_at"`
 	Order             EnquireTxnWithOrderResponse `json:"order"`
