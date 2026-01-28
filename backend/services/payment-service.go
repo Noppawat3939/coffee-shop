@@ -8,6 +8,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"math"
 	"os"
 	"time"
 
@@ -144,7 +145,7 @@ func (s *paymentService) UpdatePaymentStatus(odNumber, status string, tx *gorm.D
 func (s *paymentService) GeneratePaymentCodePromptPayment(amount float64) (string, error) {
 	paymentInfo := pp.PromptPay{
 		PromptPayID: os.Getenv("PROMPTPAY_PHONE"),
-		Amount:      amount,
+		Amount:      math.Round(amount*100) / 100,
 	}
 
 	qrStr, err := paymentInfo.Gen()
