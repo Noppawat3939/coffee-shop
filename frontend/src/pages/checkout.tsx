@@ -1,6 +1,6 @@
 import { Button, Card, Divider, Flex, Stack, Typography } from "@mantine/core";
 import { useSearch } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { MainLayout } from "~/components";
 import { useAxios, useNotification } from "~/hooks";
 import type { IOrder } from "~/interfaces/order.interface";
@@ -18,9 +18,13 @@ export default function CheckoutPage() {
     order.getOrderByOrderNumber
   );
 
-  const { execute: enquireTxn } = useAxios(payment.enquireTransaction);
+  const { execute: enquireTxn, data: txn } = useAxios(
+    payment.enquireTransaction
+  );
 
   const orderData = data?.data as IOrder;
+
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [md, ctx] = useNotification();
 
@@ -32,6 +36,21 @@ export default function CheckoutPage() {
       enquireTxn({ transaction_number: search.transaction_number });
     }
   }, [search?.order_number, search?.transaction_number]);
+
+  useEffect(() => {
+    if (!canvasRef.current || !txn?.data?.payment_code) return;
+
+    (async () => {
+      const QRCode = (await import("qrcode")).default;
+      const qr = txn.data.payment_code;
+
+      await QRCode.toCanvas(canvasRef.current, qr, {
+        width: 206,
+        margin: 2,
+        errorCorrectionLevel: "M",
+      });
+    })().catch(console.error);
+  }, [txn?.code]);
 
   return (
     <MainLayout title="Checkout">
@@ -61,6 +80,8 @@ export default function CheckoutPage() {
           <Typography>{orderData?.total}</Typography>
         </Flex>
       </Stack>
+
+      <canvas ref={canvasRef} />
 
       <Flex justify="center" mt={100} columnGap={12}>
         <Button
