@@ -1,10 +1,16 @@
 import { Button, Card, Divider, Flex, Stack, Typography } from "@mantine/core";
-import { useSearch } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
-import { MainLayout } from "~/components";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
+import { MainLayout, PromptpayQrcode } from "~/components";
+import { isExpired } from "~/helper";
 import { useAxios, useNotification } from "~/hooks";
 import type { IOrder } from "~/interfaces/order.interface";
+import type {
+  ICreateTransactionResponse,
+  IEnquiryTransactionResponse,
+} from "~/interfaces/payment.interface";
 import { order, payment } from "~/services";
+import type { Response } from "~/services/service-instance";
 
 type SearchParams = Partial<{
   order_number: string;
@@ -14,43 +20,67 @@ type SearchParams = Partial<{
 export default function CheckoutPage() {
   const search = useSearch({ strict: false }) satisfies SearchParams;
 
+  const navigate = useNavigate();
+
+  const [paymentExpired, setPaymentExpired] = useState(false);
+
   const { execute: getOrderByOrderNumber, data } = useAxios(
     order.getOrderByOrderNumber
   );
 
-  const { execute: enquireTxn, data: txn } = useAxios(
-    payment.enquireTransaction
+  const {
+    execute: enquireTxn,
+    data: txn,
+    loading: fetchingTxn,
+  } = useAxios(payment.enquireTransaction, {
+    onSuccess: (res) => {
+      const { data } = res as Response<IEnquiryTransactionResponse>;
+
+      setPaymentExpired(isExpired(data?.expired_at));
+    },
+  });
+
+  const { execute: createTransaction, loading: creating } = useAxios(
+    payment.createTransaction,
+    {
+      onSuccess: (res) => {
+        const { data } = res as Response<ICreateTransactionResponse>;
+
+        if (!search.transaction_number) return;
+
+        navigate({
+          to: "/checkout",
+          search: {
+            order_number: search.order_number,
+            transaction_number: data.transaction_number,
+          },
+          replace: true,
+          reloadDocument: false,
+        });
+
+        enquireTxn({ transaction_number: search.transaction_number });
+      },
+    }
   );
 
   const orderData = data?.data as IOrder;
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
   const [md, ctx] = useNotification();
 
   useEffect(() => {
-    if (search?.order_number) {
+    if (search?.order_number && search?.transaction_number) {
       getOrderByOrderNumber(search.order_number);
-    }
-    if (search?.transaction_number) {
       enquireTxn({ transaction_number: search.transaction_number });
     }
-  }, [search?.order_number, search?.transaction_number]);
+  }, [search?.transaction_number]);
 
-  useEffect(() => {
-    if (!canvasRef.current || !txn?.data?.payment_code) return;
+  const onExpired = useCallback(() => setPaymentExpired(true), []);
 
-    (async () => {
-      const QRCode = (await import("qrcode")).default;
-      const qr = txn.data.payment_code;
-
-      await QRCode.toCanvas(canvasRef.current, qr, {
-        width: 206,
-        margin: 2,
-        errorCorrectionLevel: "M",
-      });
-    })().catch(console.error);
-  }, [txn?.code]);
+  const onReCreateQR = useCallback(() => {
+    if (search.order_number) {
+      createTransaction({ order_number: search.order_number });
+    }
+  }, [search?.order_number]);
 
   return (
     <MainLayout title="Checkout">
@@ -81,12 +111,19 @@ export default function CheckoutPage() {
         </Flex>
       </Stack>
 
-      <canvas ref={canvasRef} />
+      <PromptpayQrcode
+        {...txn?.data}
+        onReCreateQR={onReCreateQR}
+        paymentExpired={paymentExpired}
+        onExpired={onExpired}
+      />
 
       <Flex justify="center" mt={100} columnGap={12}>
         <Button
+          loading={creating || fetchingTxn}
+          disabled={paymentExpired}
           w={120}
-          bg="teal"
+          {...(!paymentExpired && { bg: "teal" })}
           onClick={() =>
             md.open({ title: "updated order to paid", color: "teal" })
           }

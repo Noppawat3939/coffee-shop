@@ -38,3 +38,5 @@ export const dateFormat = (date?: string | number | Dayjs, format?: string) =>
 
 export const randomUniqueID = () =>
   (Math.floor(Math.random() * 100) + Date.now()).toString();
+
+export const isExpired = <T>(day: T) => dayjs().isAfter(dayjs(day as Dayjs));
