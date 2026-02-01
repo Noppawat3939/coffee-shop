@@ -45,7 +45,6 @@ func (r *paymentRepo) CreatePaymentLog(data models.PaymentOrderTransactionLog, t
 	return data, nil
 }
 
-// TODO > change function to UpdateActivePaymentLog
 func (r *paymentRepo) UpdatePaymentLog(q map[string]interface{}, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error) {
 	var data models.PaymentOrderTransactionLog
 	db := r.getDB(tx)
