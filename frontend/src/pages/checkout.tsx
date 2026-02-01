@@ -125,7 +125,11 @@ export default function CheckoutPage() {
           w={120}
           {...(!paymentExpired && { bg: "teal" })}
           onClick={() =>
-            md.open({ title: "updated order to paid", color: "teal" })
+            // md.open({ title: "updated order to paid", color: "teal" })
+            navigate({
+              to: "/bill/$order_number",
+              params: { order_number: search.order_number ?? "" },
+            })
           }
         >
           {"Paid"}

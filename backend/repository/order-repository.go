@@ -89,7 +89,7 @@ func (r *orderRepo) FindOneOrder(id int) (models.Order, error) {
 func (r *orderRepo) FindOneOrderByOrderNumber(odNo string) (models.Order, error) {
 	var order models.Order
 
-	err := r.db.Preload("StatusLogs").Preload("OrderMenuVariations.MenuVariation.Menu").Where("order_number = ?", odNo).First(&order).Error
+	err := r.db.Preload("Employee").Preload("StatusLogs").Preload("OrderMenuVariations.MenuVariation.Menu").Where("order_number = ?", odNo).First(&order).Error
 	return order, err
 }
 
