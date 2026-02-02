@@ -1,44 +1,24 @@
 import { Button, Card, Divider, Flex, Stack, Typography } from "@mantine/core";
-import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useCallback } from "react";
 import { MainLayout, PromptpayQrcode } from "~/components";
-import { isExpired } from "~/helper";
-import { useAxios, useNotification } from "~/hooks";
-import type { IOrder } from "~/interfaces/order.interface";
-import type {
-  ICreateTransactionResponse,
-  IEnquiryTransactionResponse,
-} from "~/interfaces/payment.interface";
-import { order, payment } from "~/services";
+import { useAxios, useQueriesPaymentWithOrder } from "~/hooks";
+import type { ICreateTransactionResponse } from "~/interfaces/payment.interface";
+import { payment } from "~/services";
 import type { Response } from "~/services/service-instance";
 
-type SearchParams = Partial<{
-  order_number: string;
-  transaction_number: string;
-}>;
-
 export default function CheckoutPage() {
-  const search = useSearch({ strict: false }) satisfies SearchParams;
-
   const navigate = useNavigate();
 
-  const [paymentExpired, setPaymentExpired] = useState(false);
-
-  const { execute: getOrderByOrderNumber, data } = useAxios(
-    order.getOrderByOrderNumber
-  );
-
   const {
-    execute: enquireTxn,
-    data: txn,
-    loading: fetchingTxn,
-  } = useAxios(payment.enquireTransaction, {
-    onSuccess: (res) => {
-      const { data } = res as Response<IEnquiryTransactionResponse>;
-
-      setPaymentExpired(isExpired(data?.expired_at));
-    },
-  });
+    search,
+    orderData,
+    txnData,
+    loading,
+    paymentExpired,
+    refetchPayment,
+    onPaymentExpired,
+  } = useQueriesPaymentWithOrder();
 
   const { execute: createTransaction, loading: creating } = useAxios(
     payment.createTransaction,
@@ -58,23 +38,10 @@ export default function CheckoutPage() {
           reloadDocument: false,
         });
 
-        enquireTxn({ transaction_number: search.transaction_number });
+        refetchPayment(search.transaction_number);
       },
     }
   );
-
-  const orderData = data?.data as IOrder;
-
-  const [md, ctx] = useNotification();
-
-  useEffect(() => {
-    if (search?.order_number && search?.transaction_number) {
-      getOrderByOrderNumber(search.order_number);
-      enquireTxn({ transaction_number: search.transaction_number });
-    }
-  }, [search?.transaction_number]);
-
-  const onExpired = useCallback(() => setPaymentExpired(true), []);
 
   const onReCreateQR = useCallback(() => {
     if (search.order_number) {
@@ -112,20 +79,19 @@ export default function CheckoutPage() {
       </Stack>
 
       <PromptpayQrcode
-        {...txn?.data}
+        {...txnData}
         onReCreateQR={onReCreateQR}
         paymentExpired={paymentExpired}
-        onExpired={onExpired}
+        onExpired={onPaymentExpired}
       />
 
       <Flex justify="center" mt={100} columnGap={12}>
         <Button
-          loading={creating || fetchingTxn}
+          loading={creating || loading}
           disabled={paymentExpired}
           w={120}
           {...(!paymentExpired && { bg: "teal" })}
           onClick={() =>
-            // md.open({ title: "updated order to paid", color: "teal" })
             navigate({
               to: "/bill/$order_number",
               params: { order_number: search.order_number ?? "" },
@@ -138,8 +104,6 @@ export default function CheckoutPage() {
           {"Cancel"}
         </Button>
       </Flex>
-
-      {ctx}
     </MainLayout>
   );
 }

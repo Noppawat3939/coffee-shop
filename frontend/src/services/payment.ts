@@ -25,10 +25,10 @@ const createTransaction = async (body: ICreateTransaction) => {
   return data;
 };
 
-const enquireTransaction = async (body: IEnquiryTransaction) => {
+const enquireTransaction = async (transaction_number: string) => {
   const { data } = await svc.post<Response<IEnquiryTransactionResponse>>(
     `${prefix}/txn/enquiry`,
-    body,
+    { transaction_number },
     buildHeaders()
   );
   return data;
