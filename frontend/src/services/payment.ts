@@ -5,7 +5,6 @@ import type { AxiosRequestConfig } from "axios";
 import type {
   ICreateTransaction,
   ICreateTransactionResponse,
-  IEnquiryTransaction,
   IEnquiryTransactionResponse,
   IUpdateTransaction,
 } from "~/interfaces/payment.interface";

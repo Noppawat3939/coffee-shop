@@ -5,17 +5,17 @@ import { useCountdown } from "~/hooks";
 import type { IEnquiryTransactionResponse } from "~/interfaces/payment.interface";
 
 type PromptpayQrcodeProps = Partial<IEnquiryTransactionResponse> & {
-  paymentExpired: boolean;
-  onReCreateQR: () => void;
   onExpired?: () => void;
+  onReCreateQR: () => void;
+  paymentExpired: boolean;
 };
 
 export default function PromptpayQrcode({
-  payment_code,
   expired_at,
-  paymentExpired,
-  onReCreateQR,
   onExpired,
+  onReCreateQR,
+  payment_code,
+  paymentExpired,
 }: PromptpayQrcodeProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 

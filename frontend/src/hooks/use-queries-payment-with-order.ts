@@ -1,10 +1,11 @@
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { Route } from "~/routes/checkout";
 import { useAxios } from ".";
 import { order, payment } from "~/services";
 import type { IEnquiryTransactionResponse } from "~/interfaces/payment.interface";
 import { isExpired } from "~/helper";
 import type { Response } from "~/services/service-instance";
+import { OrderStatus } from "~/interfaces/order.interface";
 
 export default function useQueriesPaymentWithOrder() {
   const search = Route.useSearch();
@@ -47,13 +48,19 @@ export default function useQueriesPaymentWithOrder() {
 
   const onPaymentExpired = useCallback(() => setPaymentExpired(true), []);
 
+  const isPaymentPAID = useMemo(
+    () => txnData?.data?.status === OrderStatus.Paid,
+    [txnData?.data?.status]
+  );
+
   return {
-    search,
+    isPaymentPAID,
     loading: fetchingOrder || fetchingPayment,
+    onPaymentExpired,
     orderData: orderData?.data,
-    txnData: txnData?.data,
     paymentExpired,
     refetchPayment,
-    onPaymentExpired,
+    search,
+    txnData: txnData?.data,
   };
 }

@@ -1,8 +1,10 @@
 import { Button, Card, Divider, Flex, Stack, Typography } from "@mantine/core";
 import { useNavigate } from "@tanstack/react-router";
-import { useCallback } from "react";
+import { CircleCheck } from "lucide-react";
+import { memo, useCallback } from "react";
 import { MainLayout, PromptpayQrcode } from "~/components";
 import { useAxios, useQueriesPaymentWithOrder } from "~/hooks";
+import { OrderStatus } from "~/interfaces/order.interface";
 import type { ICreateTransactionResponse } from "~/interfaces/payment.interface";
 import { payment } from "~/services";
 import type { Response } from "~/services/service-instance";
@@ -11,14 +13,24 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
 
   const {
-    search,
-    orderData,
-    txnData,
+    isPaymentPAID,
     loading,
+    onPaymentExpired,
+    orderData,
     paymentExpired,
     refetchPayment,
-    onPaymentExpired,
+    search,
+    txnData,
   } = useQueriesPaymentWithOrder();
+
+  const goToBill = useCallback(
+    () =>
+      navigate({
+        to: "/bill/$order_number",
+        params: { order_number: search.order_number },
+      }),
+    [search.order_number]
+  );
 
   const { execute: createTransaction, loading: creating } = useAxios(
     payment.createTransaction,
@@ -43,15 +55,21 @@ export default function CheckoutPage() {
     }
   );
 
-  const onReCreateQR = useCallback(() => {
-    if (search.order_number) {
-      createTransaction({ order_number: search.order_number });
+  const { execute: updatePayment, loading: updating } = useAxios(
+    payment.updateTransaction,
+    {
+      onSuccess: goToBill,
     }
-  }, [search?.order_number]);
+  );
+
+  const onReCreateQR = useCallback(
+    () => createTransaction({ order_number: search.order_number }),
+    [search?.order_number]
+  );
 
   return (
     <MainLayout title="Checkout">
-      <Stack gap={12} mt={10}>
+      <Stack gap={12} mt={10} mb={12}>
         <Card withBorder>
           <Typography fw={500} c="gray" fz="sm">
             {"Customer infomation"}
@@ -78,32 +96,66 @@ export default function CheckoutPage() {
         </Flex>
       </Stack>
 
-      <PromptpayQrcode
-        {...txnData}
-        onReCreateQR={onReCreateQR}
-        paymentExpired={paymentExpired}
-        onExpired={onPaymentExpired}
-      />
+      {isPaymentPAID ? (
+        <OrderPaidSection onView={goToBill} />
+      ) : (
+        <PromptpayQrcode
+          {...txnData}
+          onReCreateQR={onReCreateQR}
+          paymentExpired={paymentExpired}
+          onExpired={onPaymentExpired}
+        />
+      )}
 
-      <Flex justify="center" mt={100} columnGap={12}>
+      <Flex
+        {...(isPaymentPAID && { style: { display: "none" } })}
+        justify="center"
+        mt={100}
+        columnGap={12}
+      >
         <Button
-          loading={creating || loading}
+          loading={updating || creating || loading}
           disabled={paymentExpired}
           w={120}
-          {...(!paymentExpired && { bg: "teal" })}
           onClick={() =>
-            navigate({
-              to: "/bill/$order_number",
-              params: { order_number: search.order_number ?? "" },
+            updatePayment({
+              orderNumber: search.order_number,
+              status: OrderStatus.Paid,
             })
           }
+          {...(!paymentExpired && { bg: "teal" })}
         >
           {"Paid"}
         </Button>
-        <Button w={120} variant="outline">
+        <Button
+          disabled={creating}
+          loading={updating}
+          w={120}
+          variant="outline"
+          onClick={() =>
+            updatePayment({
+              orderNumber: search.order_number,
+              status: OrderStatus.Canceled,
+            })
+          }
+        >
           {"Cancel"}
         </Button>
       </Flex>
     </MainLayout>
   );
 }
+
+const OrderPaidSection = memo(function (props: { onView: () => void }) {
+  return (
+    <Stack align="center">
+      <Card w={200} withBorder>
+        <Flex align="center" gap={5} mb={20}>
+          <CircleCheck color="green" />
+          <Typography display="flex">{" Order paid"}</Typography>
+        </Flex>
+        <Button onClick={props.onView}>{"View"}</Button>
+      </Card>
+    </Stack>
+  );
+});
