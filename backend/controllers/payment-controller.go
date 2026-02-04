@@ -91,3 +91,33 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 
 	util.Success(c)
 }
+
+func (pc *paymentController) GetPaymentTransactions(c *gin.Context) {
+	page, limit := util.BuildPagination(c)
+	idStr := c.Param("id")
+	status := c.Param("status")
+	transaction_number := c.Param("transaction_number")
+	order_number_ref := c.Param("order_number_ref")
+
+	var id *int
+	if idStr != "" {
+		v := util.ParamToInt(c, "id")
+		id = &v
+	}
+
+	q := util.CleanNilMap(map[string]interface{}{
+		"id":                 id,
+		"status":             status,
+		"transaction_number": transaction_number,
+		"order_number_ref":   order_number_ref,
+	})
+
+	logs, err := pc.paymentRepo.FindAllTransactions(q, page, limit)
+
+	if err != nil {
+		util.ErrorNotFound(c)
+		return
+	}
+
+	util.Success(c, logs)
+}

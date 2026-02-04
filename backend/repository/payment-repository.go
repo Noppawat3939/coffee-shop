@@ -2,14 +2,20 @@ package repository
 
 import (
 	"backend/models"
+	"backend/util"
 	"time"
 
 	"gorm.io/gorm"
 )
 
 type PaymentRepo interface {
+	// Find all
+	FindAllTransactions(q map[string]interface{}, page, limit int) ([]models.PaymentOrderTransactionLog, error)
+	// Find one
 	FindOneTransaction(q map[string]interface{}) (models.PaymentOrderTransactionLog, error)
+	// Create
 	CreatePaymentLog(data models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
+	// Update
 	UpdatePaymentLog(q map[string]interface{}, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
 	CancelActivePaymentLog(odNumberRef string, tx *gorm.DB) error
 }
@@ -69,4 +75,14 @@ func (r *paymentRepo) CancelActivePaymentLog(odNumberRef string, tx *gorm.DB) er
 		"status":     models.OrderStatus.Canceled,
 		"expired_at": time.Now(),
 	}).Error
+}
+
+func (r *paymentRepo) FindAllTransactions(q map[string]interface{}, page, limit int) ([]models.PaymentOrderTransactionLog, error) {
+	var logs []models.PaymentOrderTransactionLog
+
+	pagination := util.Pagination{Page: page, Limit: limit}
+
+	err := r.db.Scopes(pagination.GetPaginationResult).Find(&logs).Error
+
+	return logs, err
 }

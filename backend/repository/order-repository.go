@@ -9,20 +9,16 @@ import (
 )
 
 type OrderRepo interface {
-
 	// Create repositories
 	CreateOrder(order *models.Order, tx *gorm.DB) (models.Order, error)
 	CreateOrderStatusLog(odLog models.OrderStatusLog, tx *gorm.DB) (models.OrderStatusLog, error)
 	CreateOrderMenuVariation(odVaria models.OrderMenuVariation, tx *gorm.DB) (models.OrderMenuVariation, error)
-
 	// Find all
 	FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error)
-
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
 	FindOneOrderByOrderNumber(odNo string) (models.Order, error)
 	FindOneMenuVariation(id int) (models.MenuVariation, error)
-
 	// Update one
 	UpdateOrder(q map[string]interface{}, order models.Order, tx *gorm.DB) (models.Order, error)
 }

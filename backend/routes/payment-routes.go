@@ -17,8 +17,9 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 	odSvc := services.NewOrderService(odRepo)
 	controller := ctl.NewPaymentController(payRepo, svc, odSvc, cfg.DB)
 
-	payment := r.Group("/Payment/txn", middleware.AuthGuard())
+	payment := r.Group("/Payments/txns", middleware.AuthGuard())
 	{
+		payment.GET("/", controller.GetPaymentTransactions)
 		payment.POST("/order", middleware.IdempotencyMiddleware(cfg.DB), controller.CreatePaymentTransactionLog)
 		payment.POST("/enquiry", controller.EnquiryPayment)
 		payment.POST("/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Paid) })

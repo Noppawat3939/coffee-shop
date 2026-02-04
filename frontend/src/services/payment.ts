@@ -9,7 +9,7 @@ import type {
   IUpdateTransaction,
 } from "~/interfaces/payment.interface";
 
-const prefix = "Payment";
+const prefix = "Payments";
 
 const buildHeaders = (): AxiosRequestConfig => ({
   headers: { ["X-Idempotency-Key"]: randomUniqueID() },
@@ -17,7 +17,7 @@ const buildHeaders = (): AxiosRequestConfig => ({
 
 const createTransaction = async (body: ICreateTransaction) => {
   const { data } = await svc.post<Response<ICreateTransactionResponse>>(
-    `${prefix}/txn/order`,
+    `${prefix}/txns/order`,
     body,
     buildHeaders()
   );
