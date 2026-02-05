@@ -19,7 +19,8 @@ func Connect(cfg config.Config) *gorm.DB {
 		log.Fatalf("Failed to connect database: %v\n", err)
 	}
 
-	RunMigrations(db, md.MenuMigrate, md.EmployMigration, md.OrderMigrate, md.MemberMigrate, md.PaymenMigrate)
+	fmt.Println("✅ Running migration")
+	RunMigrations(db, md.MenuMigrate, md.EmployMigration, md.OrderMigrate, md.MemberMigrate, md.PaymenMigrate, md.MemberPointsMigrate)
 
 	fmt.Println("✅ Connected to database")
 
