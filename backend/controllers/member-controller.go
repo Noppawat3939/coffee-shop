@@ -4,6 +4,7 @@ import (
 	"backend/dto"
 	"backend/models"
 	"backend/repository"
+	"backend/services"
 	"backend/util"
 	"net/http"
 
@@ -12,12 +13,13 @@ import (
 )
 
 type memberController struct {
-	repo repository.MemberRepo
-	db   *gorm.DB
+	repo     repository.MemberRepo
+	pointSvc services.MemberPointService
+	db       *gorm.DB
 }
 
-func NewMemberController(repo repository.MemberRepo, db *gorm.DB) *memberController {
-	return &memberController{repo, db}
+func NewMemberController(repo repository.MemberRepo, pointSvc services.MemberPointService, db *gorm.DB) *memberController {
+	return &memberController{repo, pointSvc, db}
 }
 
 func (mc *memberController) GetMember(c *gin.Context) {
@@ -56,6 +58,12 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 	if err != nil {
 		util.Error(c, http.StatusConflict, "failed create member with line")
 		return
+	}
+
+	_, err = mc.pointSvc.NewMemberPoint(models.MemberPoint{MemberID: member.ID, Member: member})
+
+	if err != nil {
+		util.Error(c, http.StatusConflict, "failed create a new member point")
 	}
 
 	util.Success(c, member)
