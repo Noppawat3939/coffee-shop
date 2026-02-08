@@ -11,7 +11,7 @@ type MemberPointRepo interface {
 	// Member point
 	CreateMemberPoint(data models.MemberPoint, tx *gorm.DB) (models.MemberPoint, error)
 	FindOneMemberPoint(memberId uint) (models.MemberPoint, error)
-	FindMembersPoint(q map[string]interface{}, page, limit int) ([]models.MemberPoint, error)
+	FindAllMembersPoint(q map[string]interface{}, page, limit int) ([]models.MemberPoint, error)
 	IncreaseMemberPoint(memberId uint, point int, tx *gorm.DB) (models.MemberPoint, error)
 	DecreaseMemberPoint(memberId uint, point int, tx *gorm.DB) (models.MemberPoint, error)
 
@@ -54,7 +54,7 @@ func (r *memberPointRepo) FindOneMemberPoint(memberId uint) (models.MemberPoint,
 	return data, nil
 }
 
-func (r *memberPointRepo) FindMembersPoint(q map[string]interface{}, page, limit int) ([]models.MemberPoint, error) {
+func (r *memberPointRepo) FindAllMembersPoint(q map[string]interface{}, page, limit int) ([]models.MemberPoint, error) {
 	var data []models.MemberPoint
 
 	pagination := util.Pagination{Page: page, Limit: limit}

@@ -49,18 +49,19 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 		return
 	}
 
+	// TODO use tx
 	member, err := mc.repo.Create(models.Member{
 		PhoneNumber: req.PhoneNumber,
 		FullName:    req.FullName,
 		Provider:    "line", // default
-	})
+	}, nil)
 
 	if err != nil {
 		util.Error(c, http.StatusConflict, "failed create member with line")
 		return
 	}
 
-	_, err = mc.pointSvc.NewMemberPoint(models.MemberPoint{MemberID: member.ID, Member: member})
+	_, err = mc.pointSvc.NewMemberPoint(models.MemberPoint{MemberID: member.ID, Member: member}, nil)
 
 	if err != nil {
 		util.Error(c, http.StatusConflict, "failed create a new member point")

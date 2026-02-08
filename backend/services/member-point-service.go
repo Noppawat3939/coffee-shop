@@ -3,13 +3,16 @@ package services
 import (
 	"backend/models"
 	"backend/repository"
+	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
 )
 
 const MIN_ORDER_TOTAL = 100
 
 type MemberPointService interface {
-	NewMemberPoint(data models.MemberPoint) (bool, error)
+	NewMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error)
 	CalculateEarnPoint(total float64) int
 	FormatPoint(point int) string
 }
@@ -22,7 +25,23 @@ func NewMemberPointService(pointRepo repository.MemberPointRepo) MemberPointServ
 	return &memberPointService{pointRepo}
 }
 
-func (s *memberPointService) NewMemberPoint(data models.MemberPoint) (bool, error) {
+func (s *memberPointService) NewMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error) {
+	_, err := s.pointRepo.FindOneMemberPoint(data.MemberID)
+
+	if err == nil {
+		// already exists
+		return false, nil
+	}
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		// real DB error
+		return false, err
+	}
+
+	_, err = s.pointRepo.CreateMemberPoint(models.MemberPoint{MemberID: data.MemberID, TotalPoints: data.TotalPoints}, tx)
+	if err != nil {
+		return false, nil
+	}
 
 	return true, nil
 }
