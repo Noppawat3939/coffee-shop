@@ -12,7 +12,7 @@ import (
 const MIN_ORDER_TOTAL = 100
 
 type MemberPointService interface {
-	NewMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error)
+	CreateMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error)
 	CalculateEarnPoint(total float64) int
 	FormatPoint(point int) string
 }
@@ -25,7 +25,7 @@ func NewMemberPointService(pointRepo repository.MemberPointRepo) MemberPointServ
 	return &memberPointService{pointRepo}
 }
 
-func (s *memberPointService) NewMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error) {
+func (s *memberPointService) CreateMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error) {
 	_, err := s.pointRepo.FindOneMemberPoint(data.MemberID)
 
 	if err == nil {

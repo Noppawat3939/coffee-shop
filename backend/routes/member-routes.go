@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend/controllers"
+	"backend/middleware"
 	"backend/repository"
 	"backend/services"
 
@@ -13,12 +14,13 @@ func (cfg *RouterConfig) InitialMemberRoutes(r *gin.RouterGroup) {
 
 	repo := repository.NewMemberRepository(db)
 	pointRepo := repository.NewMemberPointRepository(db)
+	memberSvc := services.NewMemberService(repo)
 	pointSvc := services.NewMemberPointService(pointRepo)
-	controller := controllers.NewMemberController(repo, pointSvc, db)
+	controller := controllers.NewMemberController(memberSvc, pointSvc, db)
 
 	member := r.Group("/Members")
 	{
 		member.POST("/register", controller.CreateMember)
-		member.POST("", controller.GetMember)
+		member.POST("find", middleware.AuthGuard(), controller.GetMember)
 	}
 }

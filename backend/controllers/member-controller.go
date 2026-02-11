@@ -3,23 +3,21 @@ package controllers
 import (
 	"backend/dto"
 	"backend/models"
-	"backend/repository"
 	"backend/services"
 	"backend/util"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type memberController struct {
-	repo     repository.MemberRepo
-	pointSvc services.MemberPointService
-	db       *gorm.DB
+	memberSvc services.MemberService
+	pointSvc  services.MemberPointService
+	db        *gorm.DB
 }
 
-func NewMemberController(repo repository.MemberRepo, pointSvc services.MemberPointService, db *gorm.DB) *memberController {
-	return &memberController{repo, pointSvc, db}
+func NewMemberController(memberSvc services.MemberService, pointSvc services.MemberPointService, db *gorm.DB) *memberController {
+	return &memberController{memberSvc, pointSvc, db}
 }
 
 func (mc *memberController) GetMember(c *gin.Context) {
@@ -27,15 +25,12 @@ func (mc *memberController) GetMember(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
-		return
-
 	}
 
-	member, err := mc.repo.FindOne(req.PhoneNumber)
+	member, err := mc.memberSvc.FindMember(req.PhoneNumber)
 
 	if err != nil {
 		util.ErrorNotFound(c)
-		return
 	}
 
 	util.Success(c, member)
@@ -46,25 +41,19 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
-		return
 	}
 
-	// TODO use tx
-	member, err := mc.repo.Create(models.Member{
-		PhoneNumber: req.PhoneNumber,
-		FullName:    req.FullName,
-		Provider:    "line", // default
-	}, nil)
+	member, err := mc.memberSvc.CreateMember(req)
 
 	if err != nil {
-		util.Error(c, http.StatusConflict, "failed create member with line")
-		return
+		util.ErrorConflict(c)
 	}
 
-	_, err = mc.pointSvc.NewMemberPoint(models.MemberPoint{MemberID: member.ID, Member: member}, nil)
+	data := models.MemberPoint{MemberID: member.ID, Member: member}
+	_, err = mc.pointSvc.CreateMemberPoint(data, nil)
 
 	if err != nil {
-		util.Error(c, http.StatusConflict, "failed create a new member point")
+		util.ErrorConflict(c)
 	}
 
 	util.Success(c, member)

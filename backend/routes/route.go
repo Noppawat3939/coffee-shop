@@ -29,4 +29,5 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	cfg.IntialMenuRoutes(api)
 	cfg.IntialOrderRoutes(api)
 	cfg.IntialPaymentRoutes(api)
+	cfg.InitialMemberPointRoutes(api)
 }
