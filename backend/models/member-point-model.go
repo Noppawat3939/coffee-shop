@@ -27,7 +27,7 @@ var MemberPointLogType = struct {
 type MemberPointLog struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	MemberID  uint      `json:"member_id" gorm:"not null;index"`
-	OrderID   *uint     `json:"order_id" gorm:"index"`
+	OrderID   *uint     `json:"order_id" gorm:"uniqueIndex"`
 	Type      string    `json:"type" gorm:"type:varchar(20);not null"`
 	Points    int       `json:"points" gorm:"not null"` // point * 100
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
