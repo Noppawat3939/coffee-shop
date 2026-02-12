@@ -12,7 +12,7 @@ import (
 type OrderService interface {
 	CreateMenuVariations(data []models.OrderMenuVariation, order models.Order, tx *gorm.DB) (bool, error)
 	CreateLog(order models.Order, tx *gorm.DB) (bool, error)
-	UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (bool, error)
+	UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (models.Order, error)
 }
 
 type orderService struct {
@@ -45,31 +45,31 @@ func (s *orderService) CreateLog(order models.Order, tx *gorm.DB) (bool, error) 
 	return true, nil
 }
 
-func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (bool, error) {
+func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (models.Order, error) {
 	q := map[string]interface{}{"order_number": odNumber}
 	data := models.Order{Status: status}
 
 	order, err := s.repo.FindOneOrderByOrderNumber(odNumber)
 	if err != nil {
-		return false, err
+		return order, err
 	}
 
 	allowed, ok := mappingAllowedStatusToUpdate[order.Status]
 	if !ok || !slices.Contains(allowed, status) {
-		return false, fmt.Errorf("current status not allowed to update")
+		return order, fmt.Errorf("current status not allowed to update")
 	}
 
 	_, err = s.repo.UpdateOrder(q, data, tx)
 	if err != nil {
-		return false, err
+		return order, err
 	}
 
 	// create order status log
 	if _, err := s.repo.CreateOrderStatusLog(models.OrderStatusLog{OrderID: order.ID, Status: status}, tx); err != nil {
-		return false, err
+		return order, err
 	}
 
-	return true, nil
+	return order, nil
 }
 
 var mappingAllowedStatusToUpdate = map[string][]string{

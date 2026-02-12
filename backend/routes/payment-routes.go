@@ -13,9 +13,11 @@ import (
 func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 	odRepo := repository.NewOrderRepository(cfg.DB)
 	payRepo := repository.NewPaymentRepository(cfg.DB)
+	pointRepo := repository.NewMemberPointRepository(cfg.DB)
 	svc := services.NewPaymentService(odRepo, payRepo)
 	odSvc := services.NewOrderService(odRepo)
-	controller := ctl.NewPaymentController(payRepo, svc, odSvc, cfg.DB)
+	pointSvc := services.NewMemberPointService(pointRepo)
+	controller := ctl.NewPaymentController(payRepo, svc, pointSvc, odSvc, cfg.DB)
 
 	payment := r.Group("/Payments/txns", middleware.AuthGuard())
 	{

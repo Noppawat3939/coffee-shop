@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/dto"
+	"backend/models"
 	"backend/repository"
 	"backend/services"
 	"backend/util"
@@ -15,12 +16,13 @@ import (
 type paymentController struct {
 	paymentRepo repository.PaymentRepo
 	paymentSvc  services.PaymentService
+	pointSvc    services.MemberPointService
 	odSvc       services.OrderService
 	db          *gorm.DB
 }
 
-func NewPaymentController(paymentRepo repository.PaymentRepo, paymentSvc services.PaymentService, odSvc services.OrderService, db *gorm.DB) *paymentController {
-	return &paymentController{paymentRepo, paymentSvc, odSvc, db}
+func NewPaymentController(paymentRepo repository.PaymentRepo, paymentSvc services.PaymentService, pointSvc services.MemberPointService, odSvc services.OrderService, db *gorm.DB) *paymentController {
+	return &paymentController{paymentRepo, paymentSvc, pointSvc, odSvc, db}
 }
 
 func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
@@ -65,6 +67,7 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 
 func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status string) {
 	odNo := c.Param("order_number")
+
 	err := pc.db.Transaction(func(tx *gorm.DB) error {
 		// update payment log not expired
 		_, err := pc.paymentSvc.UpdatePaymentStatus(odNo, status, tx)
@@ -73,8 +76,16 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 		}
 
 		// update order and create order_status_log
-		if _, err := pc.odSvc.UpdateOrderStatusAndLog(odNo, status, tx); err != nil {
+		order, err := pc.odSvc.UpdateOrderStatusAndLog(odNo, status, tx)
+		if err != nil {
 			return err
+		}
+
+		// update point earn
+		if status == models.OrderStatus.Paid {
+			if err := pc.pointSvc.EarnPointFromOrder(order, tx); err != nil {
+				return err
+			}
 		}
 
 		return nil

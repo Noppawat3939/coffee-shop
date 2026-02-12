@@ -15,6 +15,7 @@ type MemberPointService interface {
 	CreateMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error)
 	CalculateEarnPoint(total float64) int
 	FormatPoint(point int) string
+	EarnPointFromOrder(order models.Order, tx *gorm.DB) error
 }
 
 type memberPointService struct {
@@ -56,4 +57,28 @@ func (s *memberPointService) CalculateEarnPoint(total float64) int {
 
 func (s *memberPointService) FormatPoint(point int) string {
 	return fmt.Sprintf("%.2f", float64(point)/100)
+}
+
+func (s *memberPointService) EarnPointFromOrder(order models.Order, tx *gorm.DB) error {
+	points := s.CalculateEarnPoint(order.Total)
+
+	log := models.MemberPointLog{
+		MemberID: order.MemberID,
+		OrderID:  &order.ID,
+		Type:     models.MemberPointLogType.Earn,
+		Points:   points,
+	}
+
+	_, err := s.pointRepo.CreatePointLog(log, tx)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = s.pointRepo.IncreaseMemberPoint(log.MemberID, points, tx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

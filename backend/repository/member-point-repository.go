@@ -17,7 +17,7 @@ type MemberPointRepo interface {
 
 	// Member point log
 	CreatePointLog(data models.MemberPointLog, tx *gorm.DB) (models.MemberPointLog, error)
-	UpdatePointLog(id uint, data models.MemberPointLog) (models.MemberPointLog, error)
+	UpdatePointLog(id uint, data models.MemberPointLog, tx *gorm.DB) (models.MemberPointLog, error)
 }
 
 type memberPointRepo struct {
@@ -79,6 +79,7 @@ func (r *memberPointRepo) IncreaseMemberPoint(memberId uint, point int, tx *gorm
 
 	return data, nil
 }
+
 func (r *memberPointRepo) DecreaseMemberPoint(memberId uint, point int, tx *gorm.DB) (models.MemberPoint, error) {
 	var data models.MemberPoint
 
@@ -101,10 +102,11 @@ func (r *memberPointRepo) CreatePointLog(data models.MemberPointLog, tx *gorm.DB
 	return data, nil
 }
 
-func (r *memberPointRepo) UpdatePointLog(id uint, data models.MemberPointLog) (models.MemberPointLog, error) {
+func (r *memberPointRepo) UpdatePointLog(id uint, data models.MemberPointLog, tx *gorm.DB) (models.MemberPointLog, error) {
+	db := r.getDB(tx)
 	var log models.MemberPointLog
 
-	if err := r.db.Model(&log).Updates(data).Error; err != nil {
+	if err := db.Model(&log).Updates(data).Error; err != nil {
 		return log, err
 	}
 
