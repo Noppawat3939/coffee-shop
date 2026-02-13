@@ -45,6 +45,7 @@ Table orders {
   order_number text [unique, note: '']
   status order_status [default: 'to_pay']
   customer text [default: 'guest', note: 'members.full_name']
+  member_id int [ref: > members.id, null]
   total number [not null]
   employee_id int [not null]
   created_at timestamp [increment]
