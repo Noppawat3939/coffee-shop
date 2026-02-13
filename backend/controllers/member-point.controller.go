@@ -26,12 +26,14 @@ func (mc *memberPointController) CreateMemberPoint(c *gin.Context) {
 	member, err := mc.memberSvc.FindMember(phone_number)
 	if err != nil {
 		util.ErrorNotFound(c)
+		return
 	}
 
 	ok, _ := mc.svc.CreateMemberPoint(models.MemberPoint{MemberID: member.ID, TotalPoints: 0}, nil)
 
 	if !ok {
 		util.Error(c, http.StatusConflict, "failed register a new member point")
+		return
 	}
 
 	util.Success(c)

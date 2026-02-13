@@ -3,6 +3,7 @@ import type { IVariation } from "./menu.interface";
 export interface ICreateOrders {
   customer?: string;
   variations: ICreateOrderVariation[];
+  member_id?: number;
 }
 
 interface ICreateOrderVariation {

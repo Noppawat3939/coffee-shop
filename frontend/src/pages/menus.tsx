@@ -1,11 +1,11 @@
 import {
   Accordion,
-  Typography,
+  ActionIcon,
+  Button,
   Flex,
   Image,
-  ActionIcon,
   Modal,
-  Button,
+  Typography,
 } from "@mantine/core";
 import { useDisclosure, useMap } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
@@ -115,7 +115,11 @@ export default function MenusPage() {
 
     const params: ICreateOrders = {
       variations,
-      ...(member?.full_name && { customer: member.full_name }),
+      ...(member?.full_name &&
+        member?.id && {
+          customer: member.full_name,
+          member_id: member.id,
+        }),
     };
 
     createOrder(params);

@@ -24,6 +24,7 @@ func (mc *menuController) GetMenus(c *gin.Context) {
 	menus, err := mc.repo.FindAll()
 	if err != nil {
 		util.ErrorNotFound(c)
+		return
 	}
 
 	util.Success(c, menus)
@@ -42,6 +43,7 @@ func (mc *menuController) GetMenuVariations(c *gin.Context) {
 
 	if err != nil {
 		util.ErrorNotFound(c)
+		return
 	}
 
 	util.Success(c, data)
@@ -54,6 +56,7 @@ func (mc *menuController) GetMenu(c *gin.Context) {
 
 	if err != nil {
 		util.ErrorNotFound(c)
+		return
 	}
 
 	util.Success(c, menu)
@@ -64,6 +67,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
+		return
 	}
 
 	var data models.Memu
@@ -111,6 +115,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 
 	if err != nil {
 		util.ErrorConflict(c)
+		return
 	}
 
 	util.Success(c, data)
@@ -123,12 +128,14 @@ func (mc *menuController) UpdateMenuByID(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		util.Error(c, http.StatusBadRequest, "body invalid")
+		return
 	}
 
 	menu, err := mc.repo.UpdateByID(id, body)
 
 	if err != nil {
 		util.ErrorConflict(c)
+		return
 	}
 
 	util.Success(c, menu)
@@ -141,6 +148,7 @@ func (mc *menuController) UpdateVariationByID(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
+		return
 	}
 
 	var data models.Memu
@@ -173,6 +181,7 @@ func (mc *menuController) UpdateVariationByID(c *gin.Context) {
 
 	if err != nil {
 		util.ErrorConflict(c)
+		return
 	}
 
 	util.Success(c, data)

@@ -26,7 +26,7 @@ const createTransaction = async (body: ICreateTransaction) => {
 
 const enquireTransaction = async (transaction_number: string) => {
   const { data } = await svc.post<Response<IEnquiryTransactionResponse>>(
-    `${prefix}/txn/enquiry`,
+    `${prefix}/txns/enquiry`,
     { transaction_number },
     buildHeaders()
   );
@@ -35,7 +35,7 @@ const enquireTransaction = async (transaction_number: string) => {
 
 const updateTransaction = async (body: IUpdateTransaction) => {
   const { data } = await svc.post<Response>(
-    `${prefix}/txn/${body.orderNumber}/${body.status}`,
+    `${prefix}/txns/${body.orderNumber}/${body.status}`,
     buildHeaders()
   );
   return data;

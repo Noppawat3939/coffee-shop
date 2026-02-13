@@ -25,12 +25,14 @@ func (mc *memberController) GetMember(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
+		return
 	}
 
 	member, err := mc.memberSvc.FindMember(req.PhoneNumber)
 
 	if err != nil {
 		util.ErrorNotFound(c)
+		return
 	}
 
 	util.Success(c, member)
@@ -41,12 +43,14 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
+		return
 	}
 
 	member, err := mc.memberSvc.CreateMember(req)
 
 	if err != nil {
 		util.ErrorConflict(c)
+		return
 	}
 
 	data := models.MemberPoint{MemberID: member.ID, Member: member}
@@ -54,6 +58,7 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 
 	if err != nil {
 		util.ErrorConflict(c)
+		return
 	}
 
 	util.Success(c, member)

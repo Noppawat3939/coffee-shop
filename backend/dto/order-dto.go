@@ -3,6 +3,7 @@ package dto
 type CreateOrderRequest struct {
 	Customer   *string                 `json:"customer,omitempty"` // optional
 	Variations []OrderVariationRequest `json:"variations" binding:"required,dive"`
+	MemberID   uint                    `json:"member_id,omitempty"` //optional
 }
 
 type OrderVariationRequest struct {

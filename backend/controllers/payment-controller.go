@@ -30,12 +30,14 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
+		return
 	}
 
 	res, err := pc.paymentSvc.CreatePaymentTransactionLog(req)
 
 	if err != nil {
 		util.Error(c, http.StatusConflict, "failed create payment transaction log")
+		return
 	}
 
 	util.Success(c, res)
@@ -46,6 +48,7 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
+		return
 	}
 
 	q := map[string]interface{}{
@@ -60,6 +63,7 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 
 	if err != nil {
 		util.ErrorNotFound(c)
+		return
 	}
 
 	util.Success(c, res)
@@ -93,6 +97,7 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 
 	if err != nil {
 		util.Error(c, http.StatusNotFound, fmt.Sprintf("order number %s already status %s", odNo, status))
+		return
 	}
 
 	util.Success(c)
@@ -122,6 +127,7 @@ func (pc *paymentController) GetPaymentTransactions(c *gin.Context) {
 
 	if err != nil {
 		util.ErrorNotFound(c)
+		return
 	}
 
 	util.Success(c, logs)

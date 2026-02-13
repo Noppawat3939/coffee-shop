@@ -31,33 +31,28 @@ func Error(c *gin.Context, status int, msg string, data ...interface{}) {
 	}
 
 	c.JSON(status, res)
-	c.Abort()
 }
 
 func ErrorNotFound(c *gin.Context) {
 	res := gin.H{"code": http.StatusNotFound, "message": DataNotFound}
 
 	c.JSON(http.StatusNotFound, res)
-	c.Abort()
 }
 
 func ErrorBodyInvalid(c *gin.Context) {
 	res := gin.H{"code": http.StatusBadRequest, "message": BodyInvalid}
 
 	c.JSON(http.StatusBadRequest, res)
-	c.Abort()
 }
 
 func ErrorUnauthorized(c *gin.Context) {
 	res := gin.H{"code": http.StatusUnauthorized, "message": Unauthorized}
 
 	c.JSON(http.StatusBadRequest, res)
-	c.Abort()
 }
 
 func ErrorConflict(c *gin.Context) {
 	res := gin.H{"code": http.StatusConflict, "message": Conflict}
 
 	c.JSON(http.StatusConflict, res)
-	c.Abort()
 }
