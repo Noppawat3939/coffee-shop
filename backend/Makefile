@@ -4,8 +4,4 @@ run:
 	go run cmd/server/main.go
 
 migration:
-	go run cmd/migration/main.go $(filter-out $@,$(MAKECMDGOALS))
-
-	# Prevent Make from treating extra args as targets
-%:
-	@:
+	go run cmd/migration/main.go $(name)

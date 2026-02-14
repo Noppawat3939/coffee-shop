@@ -9,6 +9,7 @@ import (
 
 // Migrate orders column customer not guest to member_id
 func migrationOrderCustomerToMember(db *gorm.DB) error {
+	fmt.Println("[migrationOrderCustomerToMember]")
 	var orders []models.Order
 
 	if err := db.Where("member_id IS NULL").Where("customer <> ?", "guest").Find(&orders).Error; err != nil {
@@ -63,6 +64,6 @@ func migrationOrderCustomerToMember(db *gorm.DB) error {
 }
 
 var MigrationOrderCustomerToMember = Migration{
-	Name: "order-customer-to-member",
+	Name: "orders-customer-to-members",
 	Up:   migrationOrderCustomerToMember,
 }

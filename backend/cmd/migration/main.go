@@ -10,10 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-/*
-	How to run migration by makefile
-		cmd: make migration {{migration_name}} + Enter
-*/
+// How to run:
+// - make migration name={name}
 
 func main() {
 	cfg := config.Load()
