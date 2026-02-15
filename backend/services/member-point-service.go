@@ -13,7 +13,7 @@ const MIN_ORDER_TOTAL = 100
 
 type MemberPointService interface {
 	CreateMemberPoint(data models.MemberPoint, tx *gorm.DB) (bool, error)
-	CalculateEarnPoint(total float64) int
+	CalculateEarnPoint(total float64) (bool, int)
 	FormatPoint(point int) string
 	EarnPointFromOrder(order models.Order, tx *gorm.DB) error
 }
@@ -47,12 +47,12 @@ func (s *memberPointService) CreateMemberPoint(data models.MemberPoint, tx *gorm
 	return true, nil
 }
 
-func (s *memberPointService) CalculateEarnPoint(total float64) int {
+func (s *memberPointService) CalculateEarnPoint(total float64) (bool, int) {
 	if total < MIN_ORDER_TOTAL {
-		return 0
+		return false, 0
 	}
 
-	return int(total)
+	return true, int(total)
 }
 
 func (s *memberPointService) FormatPoint(point int) string {
@@ -60,7 +60,11 @@ func (s *memberPointService) FormatPoint(point int) string {
 }
 
 func (s *memberPointService) EarnPointFromOrder(order models.Order, tx *gorm.DB) error {
-	points := s.CalculateEarnPoint(order.Total)
+	ok, points := s.CalculateEarnPoint(order.Total)
+
+	if !ok {
+		return nil
+	}
 
 	log := models.MemberPointLog{
 		MemberID: order.MemberID,
