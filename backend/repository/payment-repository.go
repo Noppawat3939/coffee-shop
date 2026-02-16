@@ -82,7 +82,7 @@ func (r *paymentRepo) FindAllTransactions(q map[string]interface{}, page, limit 
 
 	pagination := util.Pagination{Page: page, Limit: limit}
 
-	err := r.db.Scopes(pagination.GetPaginationResult).Find(&logs).Error
+	err := r.db.Joins("Order").Preload("Order.Employee").Preload("Order.Member").Where(q).Scopes(pagination.GetPaginationResult).Find(&logs).Error
 
 	return logs, err
 }

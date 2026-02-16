@@ -105,23 +105,25 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 
 func (pc *paymentController) GetPaymentTransactions(c *gin.Context) {
 	page, limit := util.BuildPagination(c)
-	idStr := c.Param("id")
-	status := c.Param("status")
-	transaction_number := c.Param("transaction_number")
-	order_number_ref := c.Param("order_number_ref")
+	idStr := c.Query("id")
+	status := c.Query("status")
+	transaction_number := c.Query("transaction_number")
+	order_number_ref := c.Query("order_number_ref")
 
-	var id *int
-	if idStr != "" {
-		v := util.ParamToInt(c, "id")
-		id = &v
+	q := make(map[string]interface{})
+
+	if status != "" {
+		q["status"] = status
 	}
-
-	q := util.CleanNilMap(map[string]interface{}{
-		"id":                 id,
-		"status":             status,
-		"transaction_number": transaction_number,
-		"order_number_ref":   order_number_ref,
-	})
+	if idStr != "" {
+		q["id"] = util.ToInt(idStr)
+	}
+	if transaction_number != "" {
+		q["transaction_number"] = transaction_number
+	}
+	if order_number_ref != "" {
+		q["order_number_ref"] = order_number_ref
+	}
 
 	logs, err := pc.paymentRepo.FindAllTransactions(q, page, limit)
 

@@ -14,6 +14,8 @@ import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TransactionPaymentsRouteImport } from './routes/transaction/payments'
+import { Route as TransactionOrdersRouteImport } from './routes/transaction/orders'
 import { Route as BillOrder_numberRouteImport } from './routes/bill/$order_number'
 
 const MenusRoute = MenusRouteImport.update({
@@ -41,6 +43,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TransactionPaymentsRoute = TransactionPaymentsRouteImport.update({
+  id: '/transaction/payments',
+  path: '/transaction/payments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransactionOrdersRoute = TransactionOrdersRouteImport.update({
+  id: '/transaction/orders',
+  path: '/transaction/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BillOrder_numberRoute = BillOrder_numberRouteImport.update({
   id: '/bill/$order_number',
   path: '/bill/$order_number',
@@ -54,6 +66,8 @@ export interface FileRoutesByFullPath {
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
+  '/transaction/orders': typeof TransactionOrdersRoute
+  '/transaction/payments': typeof TransactionPaymentsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +76,8 @@ export interface FileRoutesByTo {
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
+  '/transaction/orders': typeof TransactionOrdersRoute
+  '/transaction/payments': typeof TransactionPaymentsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +87,8 @@ export interface FileRoutesById {
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
+  '/transaction/orders': typeof TransactionOrdersRoute
+  '/transaction/payments': typeof TransactionPaymentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +99,8 @@ export interface FileRouteTypes {
     | '/membership'
     | '/menus'
     | '/bill/$order_number'
+    | '/transaction/orders'
+    | '/transaction/payments'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +109,8 @@ export interface FileRouteTypes {
     | '/membership'
     | '/menus'
     | '/bill/$order_number'
+    | '/transaction/orders'
+    | '/transaction/payments'
   id:
     | '__root__'
     | '/'
@@ -97,6 +119,8 @@ export interface FileRouteTypes {
     | '/membership'
     | '/menus'
     | '/bill/$order_number'
+    | '/transaction/orders'
+    | '/transaction/payments'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +130,8 @@ export interface RootRouteChildren {
   MembershipRoute: typeof MembershipRoute
   MenusRoute: typeof MenusRoute
   BillOrder_numberRoute: typeof BillOrder_numberRoute
+  TransactionOrdersRoute: typeof TransactionOrdersRoute
+  TransactionPaymentsRoute: typeof TransactionPaymentsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -145,6 +171,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/transaction/payments': {
+      id: '/transaction/payments'
+      path: '/transaction/payments'
+      fullPath: '/transaction/payments'
+      preLoaderRoute: typeof TransactionPaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transaction/orders': {
+      id: '/transaction/orders'
+      path: '/transaction/orders'
+      fullPath: '/transaction/orders'
+      preLoaderRoute: typeof TransactionOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bill/$order_number': {
       id: '/bill/$order_number'
       path: '/bill/$order_number'
@@ -162,6 +202,8 @@ const rootRouteChildren: RootRouteChildren = {
   MembershipRoute: MembershipRoute,
   MenusRoute: MenusRoute,
   BillOrder_numberRoute: BillOrder_numberRoute,
+  TransactionOrdersRoute: TransactionOrdersRoute,
+  TransactionPaymentsRoute: TransactionPaymentsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

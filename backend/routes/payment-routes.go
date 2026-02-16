@@ -21,7 +21,7 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 
 	payment := r.Group("/Payments/txns", middleware.AuthGuard())
 	{
-		payment.GET("/", controller.GetPaymentTransactions)
+		payment.GET("", controller.GetPaymentTransactions)
 		payment.POST("/order", middleware.IdempotencyMiddleware(cfg.DB), controller.CreatePaymentTransactionLog)
 		payment.POST("/enquiry", controller.EnquiryPayment)
 		payment.POST("/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Paid) })

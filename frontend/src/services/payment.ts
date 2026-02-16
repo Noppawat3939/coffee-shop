@@ -9,7 +9,7 @@ import type {
   IUpdateTransaction,
 } from "~/interfaces/payment.interface";
 
-const prefix = "Payments";
+const prefix = "Payments/txns";
 
 const buildHeaders = (): AxiosRequestConfig => ({
   headers: { ["X-Idempotency-Key"]: randomUniqueID() },
@@ -17,7 +17,7 @@ const buildHeaders = (): AxiosRequestConfig => ({
 
 const createTransaction = async (body: ICreateTransaction) => {
   const { data } = await svc.post<Response<ICreateTransactionResponse>>(
-    `${prefix}/txns/order`,
+    `${prefix}/order`,
     body,
     buildHeaders()
   );
@@ -26,7 +26,7 @@ const createTransaction = async (body: ICreateTransaction) => {
 
 const enquireTransaction = async (transaction_number: string) => {
   const { data } = await svc.post<Response<IEnquiryTransactionResponse>>(
-    `${prefix}/txns/enquiry`,
+    `${prefix}/enquiry`,
     { transaction_number },
     buildHeaders()
   );
@@ -35,9 +35,17 @@ const enquireTransaction = async (transaction_number: string) => {
 
 const updateTransaction = async (body: IUpdateTransaction) => {
   const { data } = await svc.post<Response>(
-    `${prefix}/txns/${body.orderNumber}/${body.status}`,
+    `${prefix}/${body.orderNumber}/${body.status}`,
     buildHeaders()
   );
+  return data;
+};
+
+const getTransactions = async <T extends object>(params?: T) => {
+  const { data } = await svc.get(prefix, {
+    params,
+    ...buildHeaders(),
+  });
   return data;
 };
 
@@ -45,4 +53,5 @@ export default {
   createTransaction,
   enquireTransaction,
   updateTransaction,
+  getTransactions,
 };

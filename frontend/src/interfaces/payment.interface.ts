@@ -1,5 +1,19 @@
 import type { OrderStatus } from "./order.interface";
 
+export interface IPaymentTransactionLog {
+  // base payment
+  id: number;
+  order_id: number;
+  amount: number;
+  status: OrderStatus;
+  payment_code: string;
+  qr_signature: string;
+  order_number_ref: string;
+  transaction_number: string;
+  expired_at: string;
+  created_at: string;
+}
+
 export interface ICreateTransaction {
   order_number: string;
 }

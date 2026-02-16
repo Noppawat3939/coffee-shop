@@ -67,7 +67,7 @@ func (s *memberPointService) EarnPointFromOrder(order models.Order, tx *gorm.DB)
 	}
 
 	log := models.MemberPointLog{
-		MemberID: order.MemberID,
+		MemberID: *order.MemberID,
 		OrderID:  &order.ID,
 		Type:     models.MemberPointLogType.Earn,
 		Points:   points,

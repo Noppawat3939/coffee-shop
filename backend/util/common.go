@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -69,23 +68,4 @@ func GetUserFromHeader(c *gin.Context) (*AuthUser, bool) {
 
 func GenerateTransactionNumber(orderNumber string) string {
 	return fmt.Sprintf("%s_%s", uuid.NewString(), orderNumber)
-}
-
-func CleanNilMap(m map[string]interface{}) map[string]interface{} {
-	clean := make(map[string]interface{})
-
-	for k, v := range m {
-		if v == nil {
-			continue
-		}
-
-		val := reflect.ValueOf(v)
-		if val.Kind() == reflect.Pointer && val.IsNil() {
-			continue
-		}
-
-		clean[k] = v
-	}
-
-	return clean
 }

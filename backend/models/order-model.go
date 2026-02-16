@@ -24,14 +24,14 @@ type Order struct {
 	Total       float64   `json:"total"`
 	CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
-	EmployeeID  uint      `json:"employee_id"`
-	MemberID    uint      `gorm:"index" json:"member_id"`
+	EmployeeID  *uint     `json:"employee_id"`
+	MemberID    *uint     `gorm:"index" json:"member_id"`
 
 	// Relation to OrderStatusLog
 	StatusLogs          []OrderStatusLog     `gorm:"foreignKey:OrderID" json:"status_logs"`
 	OrderMenuVariations []OrderMenuVariation `gorm:"foreignKey:OrderID" json:"order_menu_variations"`
-	Employee            Employee             `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignKey:EmployeeID;references:ID" json:"employee"`
-	Member              Member               `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignKey:MemberID;references:ID" json:"member,omitempty"`
+	Employee            *Employee            `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignKey:EmployeeID;references:ID" json:"employee"`
+	Member              *Member              `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignKey:MemberID;references:ID" json:"member,omitempty"`
 }
 
 type OrderStatusLog struct {

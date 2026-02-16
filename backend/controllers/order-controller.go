@@ -86,8 +86,8 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			Status:      models.OrderStatus.ToPay,
 			Customer:    customer,
 			Total:       total,
-			EmployeeID:  user.ID,
-			MemberID:    req.MemberID,
+			EmployeeID:  &user.ID,
+			MemberID:    &req.MemberID,
 		}
 
 		if _, err := oc.repo.CreateOrder(&order, tx); err != nil {
