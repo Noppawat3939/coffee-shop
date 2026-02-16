@@ -98,6 +98,12 @@ Table member_point_logs {
   created_at timestamp [increment]
 }
 
+Table sessions {
+  id int [pk]
+  session text [not null]
+  expired_at timestamp
+}
+
 Enum member_point_log_type {
   earn
   redeem
