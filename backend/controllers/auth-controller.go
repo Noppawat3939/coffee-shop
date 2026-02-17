@@ -50,9 +50,9 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 		jwt = session.Value
 	}
 
-	// not session sign new jwt
+	// not session should be gen new jwt
 	if jwt == "" {
-		exp := time.Now().Add(time.Duration(24) & time.Hour)
+		exp := time.Now().Add(time.Duration(24) * time.Hour)
 
 		value, _ := util.GenerateJWT(emp.ID, emp.Username, exp)
 		s.sessionSvc.CreateSession(models.Session{EmployeeID: &emp.ID, Value: value, Employee: &emp, ExpiredAt: exp})
