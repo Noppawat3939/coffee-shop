@@ -51,7 +51,7 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 	}
 
 	// not session sign new jwt
-	if jwt != "" {
+	if jwt == "" {
 		exp := time.Now().Add(time.Duration(24) & time.Hour)
 
 		value, _ := util.GenerateJWT(emp.ID, emp.Username, exp)
