@@ -101,6 +101,7 @@ Table member_point_logs {
 Table sessions {
   id int [pk]
   session text [not null]
+  employee_id int [ref: > employees.id]
   expired_at timestamp
 }
 

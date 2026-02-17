@@ -17,15 +17,15 @@ type EmployeeRepo interface {
 	UpdateEmployeeByUsername(username string, emp models.Employee) (models.Employee, error)
 }
 
-type repo struct {
+type empRepo struct {
 	db *gorm.DB
 }
 
 func NewEmployeeRepository(db *gorm.DB) EmployeeRepo {
-	return &repo{db}
+	return &empRepo{db}
 }
 
-func (r *repo) Create(employee models.Employee) (models.Employee, error) {
+func (r *empRepo) Create(employee models.Employee) (models.Employee, error) {
 
 	if err := r.db.Create(&employee).Error; err != nil {
 		return models.Employee{}, err
@@ -34,13 +34,13 @@ func (r *repo) Create(employee models.Employee) (models.Employee, error) {
 	return employee, nil
 }
 
-func (r *repo) FindOne(id int) (models.Employee, error) {
+func (r *empRepo) FindOne(id int) (models.Employee, error) {
 	var data models.Employee
 	err := r.db.First(&data, id).Error
 	return data, err
 }
 
-func (r *repo) FindByUsername(username string) (models.Employee, error) {
+func (r *empRepo) FindByUsername(username string) (models.Employee, error) {
 	var data models.Employee
 	err := r.db.Where("username = ?", username).First(&data).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -49,14 +49,14 @@ func (r *repo) FindByUsername(username string) (models.Employee, error) {
 	return data, err
 }
 
-func (r *repo) FindAll(q types.Filter) ([]models.Employee, error) {
+func (r *empRepo) FindAll(q types.Filter) ([]models.Employee, error) {
 	var data []models.Employee
 
 	err := r.db.Where(q).Find(&data).Error
 	return data, err
 }
 
-func (r *repo) UpdateEmployeeByID(id int, employee models.Employee) (models.Employee, error) {
+func (r *empRepo) UpdateEmployeeByID(id int, employee models.Employee) (models.Employee, error) {
 	var data models.Employee
 
 	if err := r.db.First(&data, id).Error; err != nil {
@@ -67,7 +67,7 @@ func (r *repo) UpdateEmployeeByID(id int, employee models.Employee) (models.Empl
 	return data, err
 }
 
-func (r *repo) UpdateEmployeeByUsername(username string, employee models.Employee) (models.Employee, error) {
+func (r *empRepo) UpdateEmployeeByUsername(username string, employee models.Employee) (models.Employee, error) {
 	var data models.Employee
 
 	if err := r.db.Where("username = ?", username).First(&data).Error; err != nil {

@@ -4,13 +4,17 @@ import (
 	"backend/controllers"
 	"backend/middleware"
 	"backend/repository"
+	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (cfg *RouterConfig) InitAuthRoutes(r *gin.RouterGroup) {
+
 	repo := repository.NewEmployeeRepository(cfg.DB)
-	controller := controllers.NewAuthController(repo)
+	sessionRepo := repository.NewSessionRepository(cfg.DB)
+	sessionSvc := services.NewSessionService(sessionRepo)
+	controller := controllers.NewAuthController(repo, sessionSvc)
 
 	auth := r.Group("/Authen")
 	{

@@ -20,7 +20,7 @@ func Connect(cfg config.Config) *gorm.DB {
 	}
 
 	fmt.Println("✅ Running migration")
-	RunMigrations(db, md.MenuMigrate, md.EmployMigration, md.OrderMigrate, md.MemberMigrate, md.PaymenMigrate, md.MemberPointsMigrate)
+	RunMigrations(db, md.MenuMigrate, md.EmployMigration, md.OrderMigrate, md.MemberMigrate, md.PaymenMigrate, md.MemberPointsMigrate, md.SessionMigration)
 
 	fmt.Println("✅ Connected to database")
 
