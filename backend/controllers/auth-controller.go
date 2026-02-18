@@ -7,6 +7,7 @@ import (
 	"backend/repository"
 	"backend/services"
 	"backend/util"
+	"log"
 	"net/http"
 	"time"
 
@@ -22,7 +23,7 @@ func NewAuthController(repo repository.EmployeeRepo, sessionSvc services.Session
 	return &authController{repo, sessionSvc}
 }
 
-func (s *authController) LoginByEmployee(c *gin.Context) {
+func (ac *authController) EmployeeLogin(c *gin.Context) {
 	var req dto.LoginEmployeeRequest
 	var jwt string = ""
 
@@ -31,7 +32,7 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 		return
 	}
 
-	emp, err := s.repo.FindByUsername(req.Username)
+	emp, err := ac.repo.FindByUsername(req.Username)
 	if err != nil {
 		util.ErrorNotFound(c)
 		return
@@ -45,17 +46,19 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 	}
 
 	// check session not expired
-	session, err := s.sessionSvc.FindOneSession(emp.ID)
-	if err == nil {
+	session, found := ac.sessionSvc.FindOneSession(emp.ID)
+
+	if found {
 		jwt = session.Value
 	}
 
 	// not session should be gen new jwt
 	if jwt == "" {
 		exp := time.Now().Add(time.Duration(24) * time.Hour)
-
 		value, _ := util.GenerateJWT(emp.ID, emp.Username, exp)
-		s.sessionSvc.CreateSession(models.Session{EmployeeID: &emp.ID, Value: value, Employee: &emp, ExpiredAt: exp})
+		data := models.Session{EmployeeID: &emp.ID, Value: value, ExpiredAt: exp}
+
+		ac.sessionSvc.CreateSession(data)
 
 		jwt = value
 	}
@@ -66,16 +69,34 @@ func (s *authController) LoginByEmployee(c *gin.Context) {
 	util.Success(c, data)
 }
 
-func (s *authController) VerifyJWTByEmployee(c *gin.Context) {
-
+func (ac *authController) VerifyJWTByEmployee(c *gin.Context) {
 	data, ok := util.GetUserFromHeader(c)
-
 	if !ok {
-
 		util.ErrorUnauthorized(c)
 		return
 
 	}
 
 	util.Success(c, data)
+}
+
+func (ac *authController) EmployeeLogout(c *gin.Context) {
+	var msg string = ""
+
+	data, _ := util.GetUserFromHeader(c)
+
+	if data.ID != 0 {
+		err := ac.sessionSvc.ExpiredByEmployeeID(data.ID)
+		if err != nil {
+			log.Println(err.Error())
+			msg = "user already logged out"
+		} else {
+			msg = "logged out success"
+		}
+	}
+
+	res := make(map[string]interface{})
+	res["message"] = msg
+
+	util.Success(c, res)
 }
