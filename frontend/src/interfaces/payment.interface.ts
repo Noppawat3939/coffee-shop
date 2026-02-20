@@ -1,4 +1,4 @@
-import type { OrderStatus } from "./order.interface";
+import type { IOrder, OrderStatus } from "./order.interface";
 
 export interface IPaymentTransactionLog {
   // base payment
@@ -50,4 +50,9 @@ export interface ICreateTransactionResponse {
   payment_code: string;
   expired_at: string;
   created_at: string;
+}
+
+export interface IPaymentTransactionsWithOrdersResponse
+  extends IPaymentTransactionLog {
+  orders?: IOrder;
 }

@@ -9,11 +9,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
 body {
   margin: 0;
   min-width: 320px;

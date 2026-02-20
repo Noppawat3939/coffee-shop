@@ -7,6 +7,7 @@ import type {
   ICreateTransactionResponse,
   IEnquiryTransactionResponse,
   IUpdateTransaction,
+  IPaymentTransactionsWithOrdersResponse,
 } from "~/interfaces/payment.interface";
 
 const prefix = "Payments/txns";
@@ -42,7 +43,9 @@ const updateTransaction = async (body: IUpdateTransaction) => {
 };
 
 const getTransactions = async <T extends object>(params?: T) => {
-  const { data } = await svc.get(prefix, {
+  const { data } = await svc.get<
+    Response<IPaymentTransactionsWithOrdersResponse[]>
+  >(prefix, {
     params,
     ...buildHeaders(),
   });

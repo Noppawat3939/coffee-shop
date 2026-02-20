@@ -14,10 +14,21 @@ func AuthGuard() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 
-		if authHeader == "" || !strings.HasPrefix(authHeader, authPrefix) {
-			util.Error(c, http.StatusUnauthorized, "invalid token")
+		var msg string = ""
+
+		if authHeader == "" {
+			msg = "missing token"
+		}
+
+		if authHeader != "" && !strings.HasPrefix(authHeader, authPrefix) {
+			msg = "invalid token"
+		}
+
+		if msg != "" {
+			util.Error(c, http.StatusUnauthorized, msg)
 			c.Abort()
 			return
+
 		}
 
 		jwt := strings.TrimPrefix(authHeader, authPrefix)

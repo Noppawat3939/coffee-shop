@@ -12,6 +12,7 @@ interface ICreateOrderVariation {
 }
 
 export interface IOrder {
+  // base order
   id: number;
   order_number: string;
   status: string;

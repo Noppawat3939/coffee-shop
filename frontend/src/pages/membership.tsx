@@ -22,7 +22,6 @@ export default function MembershipPage() {
   const [isOpenRegisterForm, setIsOpenRegisterForm] = useState(false);
 
   const { execute: register, loading } = useAxios(member.register);
-
   const { execute: getMember, data: memberRes } = useAxios(member.getMember);
 
   return (
