@@ -3,12 +3,15 @@ package services
 import (
 	"backend/models"
 	"backend/repository"
+	"backend/util"
+	"time"
 )
 
 type SessionService interface {
 	FindOneSession(employeeID uint) (models.Session, bool)
 	CreateSession(data models.Session) (models.Session, error)
 	ExpiredByEmployeeID(id uint) error
+	GetJWT(employee models.Employee) string
 }
 
 type sessionService struct {
@@ -42,4 +45,26 @@ func (s *sessionService) ExpiredByEmployeeID(id uint) error {
 
 	s.repo.UpdateOne(int(session.ID))
 	return nil
+}
+
+func (s *sessionService) GetJWT(employee models.Employee) string {
+	var jwt string = ""
+
+	// find session not expired
+	session, found := s.FindOneSession(employee.ID)
+	if found {
+		jwt = session.Value
+	}
+
+	// not found session then gen new jwt
+	if !found {
+		exp := time.Now().Add(time.Duration(24) * time.Hour) // 1d
+		value, _ := util.GenerateJWT(employee.ID, employee.Username, exp)
+		data := models.Session{EmployeeID: &employee.ID, Value: value, ExpiredAt: exp, Employee: &employee}
+		s.CreateSession(data)
+
+		jwt = value
+	}
+
+	return jwt
 }

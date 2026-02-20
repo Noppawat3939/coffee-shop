@@ -2,14 +2,12 @@ package controllers
 
 import (
 	"backend/dto"
-	"backend/models"
 	"backend/pkg/types"
 	"backend/repository"
 	"backend/services"
 	"backend/util"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,7 +23,6 @@ func NewAuthController(repo repository.EmployeeRepo, sessionSvc services.Session
 
 func (ac *authController) EmployeeLogin(c *gin.Context) {
 	var req dto.LoginEmployeeRequest
-	var jwt string = ""
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
@@ -45,26 +42,8 @@ func (ac *authController) EmployeeLogin(c *gin.Context) {
 		return
 	}
 
-	// check session not expired
-	session, found := ac.sessionSvc.FindOneSession(emp.ID)
-
-	if found {
-		jwt = session.Value
-	}
-
-	// not session should be gen new jwt
-	if jwt == "" {
-		exp := time.Now().Add(time.Duration(24) * time.Hour)
-		value, _ := util.GenerateJWT(emp.ID, emp.Username, exp)
-		data := models.Session{EmployeeID: &emp.ID, Value: value, ExpiredAt: exp}
-
-		ac.sessionSvc.CreateSession(data)
-
-		jwt = value
-	}
-
 	data := make(types.Filter)
-	data["access_token"] = jwt
+	data["access_token"] = ac.sessionSvc.GetJWT(emp)
 
 	util.Success(c, data)
 }
