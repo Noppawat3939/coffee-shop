@@ -64,7 +64,7 @@ func (r *orderRepo) CreateOrderMenuVariation(odVaria models.OrderMenuVariation, 
 func (r *orderRepo) FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error) {
 	var orders []models.Order
 
-	err := r.db.Preload("Employee").Preload("Member").Limit(limit).Offset(page).Find(&orders).Error
+	err := r.db.Preload("Employee").Preload("Member").Limit(limit).Offset(page).Order("id desc").Find(&orders).Error
 	return orders, err
 }
 

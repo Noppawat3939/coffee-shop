@@ -1,6 +1,5 @@
 import { Box, Flex, Typography } from "@mantine/core";
 import type { PropsWithChildren, ReactNode } from "react";
-import { useAuth } from "~/hooks";
 
 type MainLayoutProps = Readonly<
   PropsWithChildren & Partial<{ title: string; extra: ReactNode }>
@@ -11,8 +10,6 @@ export default function MainLayout({
   title,
   extra,
 }: MainLayoutProps) {
-  useAuth();
-
   return (
     <Box aria-description="main-layout" h={"100dvh"} px={16} py={24}>
       <Flex direction="column">

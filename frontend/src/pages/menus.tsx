@@ -10,7 +10,7 @@ import {
 import { useDisclosure, useMap } from "@mantine/hooks";
 import { useNavigate } from "@tanstack/react-router";
 import { Coffee } from "lucide-react";
-import { Fragment, useEffect, useMemo, useRef } from "react";
+import { Fragment, useMemo, useRef } from "react";
 import {
   BillOrders,
   IncreaseDecreaseInput,
@@ -23,17 +23,18 @@ import type { IMember } from "~/interfaces/member.interface";
 import type { IMenu, IVariation } from "~/interfaces/menu.interface";
 import type { ICreateOrders, IOrder } from "~/interfaces/order.interface";
 import type { ICreateTransactionResponse } from "~/interfaces/payment.interface";
-import { menu, order, payment } from "~/services";
+import { Route } from "~/routes/menus";
+import { order, payment } from "~/services";
 import type { Response } from "~/services/service-instance";
 
 type OrderKey = `${IMenu["id"]}_${IVariation["id"]}` | string;
 
 export default function MenusPage() {
+  const { data } = Route.useLoaderData();
+
   const navigation = useNavigate();
 
   const orderNumberRef = useRef<string | null>(null);
-
-  const { execute, data } = useAxios(menu.getMenus);
 
   const { execute: createTxnLog } = useAxios(payment.createTransaction, {
     onSuccess: (res, params) => {
@@ -70,16 +71,10 @@ export default function MenusPage() {
     { open: onOpenMemberChecker, close: onCloseMemberChecker },
   ] = useDisclosure(false);
 
-  useEffect(() => {
-    return () => {
-      execute();
-    };
-  }, []);
-
   const sumOrders = sum([...orderMap.values()] as number[]);
 
   const getSelectedOrders = useMemo(() => {
-    const menus = data?.data || [];
+    const menus = data || [];
 
     return menus
       .map((menu) => {
@@ -100,7 +95,7 @@ export default function MenusPage() {
         return { ...menu, variations };
       })
       .filter(Boolean) as IMenu[];
-  }, [data?.data, orderMap.size]);
+  }, [data, orderMap.size]);
 
   const goToCheckout = (member?: IMember) => {
     const variations: ICreateOrders["variations"] = [];
@@ -139,8 +134,8 @@ export default function MenusPage() {
       }
     >
       <Accordion mt={12} variant="filled" transitionDuration={300}>
-        {data?.data &&
-          data.data.map((item) => (
+        {data &&
+          data.map((item) => (
             <Accordion.Item key={item.id} value={item.id.toString()}>
               <Accordion.Control fz="h2" tt="capitalize">
                 {item.name}

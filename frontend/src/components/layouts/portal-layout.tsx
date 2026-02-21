@@ -15,29 +15,51 @@ import {
   PORTAL_HEADER_WITH_PATHNAME,
   PORTAL_WITH_PATHNAME,
 } from "~/helper/constant";
-import { useAuth } from "~/hooks";
 
 type TBaseMenu = { label: string; pathname?: string };
 
-type TMenu = TBaseMenu & { children?: TBaseMenu[] };
+type TMenu = TBaseMenu & { children?: (TBaseMenu & { disabled?: boolean })[] };
 
 const MENUS = [
   {
     label: "Transactions",
     children: [
-      { label: "Payments", pathname: PORTAL_WITH_PATHNAME.payments },
-      { label: "Orders", pathname: PORTAL_WITH_PATHNAME.orders },
+      {
+        label: "Payments",
+        pathname: PORTAL_WITH_PATHNAME.payments,
+      },
+      {
+        label: "Orders",
+        pathname: PORTAL_WITH_PATHNAME.orders,
+      },
+    ],
+  },
+  {
+    label: "Accounts",
+    children: [
+      {
+        label: "Employees",
+        pathname: PORTAL_WITH_PATHNAME.employees,
+        disabled: true,
+      },
+      {
+        label: "Members",
+        pathname: PORTAL_WITH_PATHNAME.members,
+        disabled: true,
+      },
     ],
   },
 ] satisfies TMenu[];
 
-type PortalLayoutProps = Readonly<PropsWithChildren & { pathname: string }>;
+type PortalLayoutProps = Readonly<
+  PropsWithChildren & { pathname: string; username?: string }
+>;
 
 export default function PortalLayout({
   children,
   pathname,
+  username,
 }: PortalLayoutProps) {
-  const { username } = useAuth();
   const navigation = useNavigate();
 
   const goTo = useCallback(

@@ -28,4 +28,9 @@ const verifyToken = async () => {
   return data;
 };
 
-export default { employeeLogin, verifyToken };
+const employeeLogout = async () => {
+  const { data } = await svc.post<Response>(`${prefix}/employee/logout`);
+  return data;
+};
+
+export default { employeeLogin, verifyToken, employeeLogout };
