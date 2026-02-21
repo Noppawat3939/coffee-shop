@@ -1,3 +1,5 @@
+import type { IEmployee } from "./employee.interface";
+import type { IMember } from "./member.interface";
 import type { IVariation } from "./menu.interface";
 
 export interface ICreateOrders {
@@ -44,4 +46,9 @@ export enum OrderStatus {
   ToPaid = "to_paid",
   Paid = "paid",
   Canceled = "canceled",
+}
+
+export interface IOrderJoin extends IOrder {
+  member?: IMember;
+  employee?: IEmployee;
 }

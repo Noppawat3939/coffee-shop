@@ -78,10 +78,8 @@ func (r *paymentRepo) CancelActivePaymentLog(odNumberRef string, tx *gorm.DB) er
 
 func (r *paymentRepo) FindAllTransactions(q map[string]interface{}, page, limit int) ([]models.PaymentOrderTransactionLog, error) {
 	var logs []models.PaymentOrderTransactionLog
-	// TODO fix pagination
-	// pagination := util.Pagination{Page: page, Limit: limit}
 
-	err := r.db.Joins("Order").Preload("Order.Employee").Preload("Order.Member").Where(q).Find(&logs).Error
+	err := r.db.Joins("Order").Preload("Order.Employee").Preload("Order.Member").Where(q).Limit(limit).Offset(page).Find(&logs).Error
 
 	return logs, err
 }

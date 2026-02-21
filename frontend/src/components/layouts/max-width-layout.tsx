@@ -1,7 +1,9 @@
 import { Stack } from "@mantine/core";
 import type { PropsWithChildren } from "react";
 
-type MaxWidthLayoutProps = Readonly<PropsWithChildren & { maxWidth?: number }>;
+type MaxWidthLayoutProps = Readonly<
+  PropsWithChildren & { maxWidth?: number; pathname?: string }
+>;
 
 export default function MaxWidthLayout({
   children,

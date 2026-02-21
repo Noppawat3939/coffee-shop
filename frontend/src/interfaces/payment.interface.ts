@@ -1,4 +1,4 @@
-import type { IOrder, OrderStatus } from "./order.interface";
+import type { IOrderJoin, OrderStatus } from "./order.interface";
 
 export interface IPaymentTransactionLog {
   // base payment
@@ -54,5 +54,5 @@ export interface ICreateTransactionResponse {
 
 export interface IPaymentTransactionsWithOrdersResponse
   extends IPaymentTransactionLog {
-  orders?: IOrder;
+  order?: IOrderJoin;
 }

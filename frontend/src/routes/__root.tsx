@@ -6,8 +6,7 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Fragment } from "react/jsx-runtime";
 import { MaxWidthLayout, PortalLayout } from "~/components/layouts";
-
-const PORTAL_WITH_PATHNAME: string[] = ["transaction/payments"];
+import { PORTAL_WITH_PATHNAME } from "~/helper/constant";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -18,13 +17,15 @@ function RootLayout() {
     location: { pathname },
   } = useRouterState();
 
-  const withPortal = PORTAL_WITH_PATHNAME.includes(pathname.slice(1));
+  const pathSliced = pathname.slice(1);
+
+  const withPortal = Object.values(PORTAL_WITH_PATHNAME).includes(pathSliced);
 
   const Layout = withPortal ? PortalLayout : MaxWidthLayout;
 
   return (
     <Fragment>
-      <Layout>
+      <Layout pathname={pathSliced}>
         <Outlet />
       </Layout>
       <TanStackRouterDevtools />

@@ -1,5 +1,7 @@
 import dayjs, { Dayjs } from "dayjs";
 
+type TFormatDay = string | number | Dayjs | null | undefined;
+
 /**
  * Format a number or string as Thai Baht currency.
  *
@@ -33,10 +35,13 @@ export const sum = (nums: number[]): number => {
   return nums.reduce((total, cur) => total + cur, 0);
 };
 
-export const dateFormat = (date?: string | number | Dayjs, format?: string) =>
+export const dateFormat = (date?: TFormatDay, format?: string) =>
   dayjs(date).format(format);
 
 export const randomUniqueID = () =>
   (Math.floor(Math.random() * 100) + Date.now()).toString();
 
 export const isExpired = <T>(day: T) => dayjs().isAfter(dayjs(day as Dayjs));
+
+export const isBeforeToDay = (date?: TFormatDay) =>
+  dayjs(date).isBefore(dayjs());

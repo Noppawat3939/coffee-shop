@@ -5,6 +5,12 @@ import type {
 import { service as svc } from ".";
 import type { Response } from "./service-instance";
 
+export type TVerifyUserResponse = Response<{
+  id: number;
+  exp: number;
+  username: string;
+}>;
+
 const prefix = "Authen";
 
 const employeeLogin = async (body: ILoginEmployee) => {
@@ -16,7 +22,9 @@ const employeeLogin = async (body: ILoginEmployee) => {
 };
 
 const verifyToken = async () => {
-  const { data } = await svc.post<Response>(`${prefix}/employee/verification`);
+  const { data } = await svc.post<TVerifyUserResponse>(
+    `${prefix}/employee/verification`
+  );
   return data;
 };
 

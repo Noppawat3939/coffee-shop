@@ -1,7 +1,11 @@
 import type { IEmployee } from "~/interfaces/employee.interface";
 import { service as svc } from ".";
 import type { Response } from "./service-instance";
-import type { ICreateOrders, IOrder } from "~/interfaces/order.interface";
+import type {
+  ICreateOrders,
+  IOrder,
+  IOrderJoin,
+} from "~/interfaces/order.interface";
 
 type GetOrderByOrderNumberResponse = IOrder & { employee: IEmployee };
 
@@ -19,4 +23,11 @@ export const getOrderByOrderNumber = async (order_number: string) => {
   return data;
 };
 
-export default { createOrder, getOrderByOrderNumber };
+export const getOrders = async <T extends object>(params: T) => {
+  const { data } = await svc.get<Response<IOrderJoin[]>>(`${prefix}`, {
+    params,
+  });
+  return data;
+};
+
+export default { createOrder, getOrderByOrderNumber, getOrders };
