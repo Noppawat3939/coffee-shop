@@ -13,7 +13,7 @@ const register = async (body: Pick<IMember, "full_name" | "phone_number">) => {
 };
 
 const getMember = async (body: Pick<IMember, "phone_number">) => {
-  const { data } = await svc.post<Response<IMember>>(prefix, body);
+  const { data } = await svc.post<Response<IMember>>(`${prefix}/find`, body);
   return data;
 };
 

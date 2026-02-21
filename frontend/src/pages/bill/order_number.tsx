@@ -1,10 +1,12 @@
 import {
+  Button,
   Card,
   Flex,
   Stack,
   Typography,
   type TypographyProps,
 } from "@mantine/core";
+import { useNavigate } from "@tanstack/react-router";
 import { memo } from "react";
 import { dateFormat, priceFormat } from "~/helper";
 import { Route } from "~/routes/bill/$order_number";
@@ -15,6 +17,7 @@ type CustomTextProps = Readonly<
 
 export default function BillByOrderNumber() {
   const { data } = Route.useLoaderData();
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -57,6 +60,12 @@ export default function BillByOrderNumber() {
             <CustomText fw="bold" flex={0.1} text={priceFormat(data.total)} />
           </Flex>
         </Card>
+
+        <Flex justify="center">
+          <Button onClick={() => navigate({ to: "/menus" })} mt={200} w={150}>
+            Back
+          </Button>
+        </Flex>
       </Card>
     </div>
   );
@@ -73,3 +82,5 @@ const CustomText = memo(function ({
     </Typography>
   );
 });
+
+CustomText.displayName = "CustomText";

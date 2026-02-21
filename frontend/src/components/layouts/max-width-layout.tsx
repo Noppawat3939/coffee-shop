@@ -1,4 +1,4 @@
-import { Stack } from "@mantine/core";
+import { Container, Stack } from "@mantine/core";
 import type { PropsWithChildren } from "react";
 
 type MaxWidthLayoutProps = Readonly<
@@ -10,10 +10,10 @@ export default function MaxWidthLayout({
   maxWidth = 520,
 }: MaxWidthLayoutProps) {
   return (
-    <section itemID="max-width-layout" accessKey="">
+    <Container itemID="max-width-layout">
       <Stack styles={{ root: { margin: "0 auto" } }} maw={maxWidth}>
         {children}
       </Stack>
-    </section>
+    </Container>
   );
 }

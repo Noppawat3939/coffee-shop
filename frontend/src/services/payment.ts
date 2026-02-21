@@ -37,6 +37,7 @@ const enquireTransaction = async (transaction_number: string) => {
 const updateTransaction = async (body: IUpdateTransaction) => {
   const { data } = await svc.post<Response>(
     `${prefix}/${body.orderNumber}/${body.status}`,
+    body,
     buildHeaders()
   );
   return data;
