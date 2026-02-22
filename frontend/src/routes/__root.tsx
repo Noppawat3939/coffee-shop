@@ -5,7 +5,6 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { AxiosError, HttpStatusCode } from "axios";
 import { Fragment } from "react/jsx-runtime";
 import { MaxWidthLayout, PortalLayout } from "~/components/layouts";
 import {
@@ -20,7 +19,9 @@ let cacheData: TVerifyUserResponse["data"] | null = null;
 
 export const Route = createRootRoute({
   component: RootLayout,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
+    if (location.pathname === "/login") return;
+
     try {
       if (cacheData === null) {
         const res = await auth.verifyToken();
@@ -30,22 +31,14 @@ export const Route = createRootRoute({
       return { data: cacheData };
     } catch (err) {
       console.error(err);
-      if (
-        err instanceof AxiosError &&
-        [HttpStatusCode.Unauthorized, HttpStatusCode.BadRequest].includes(
-          err?.status as number
-        )
-      ) {
-        // auto logout
-        try {
-          await auth.employeeLogout();
-        } catch (err) {
-          console.error(err);
-        } finally {
-          Cookies.remove(ACCESS_TOKEN_COOKIE_KEY);
-          redirect({ to: "/login" });
-        }
+      // auto logout
+      const hasToken = Cookies.get(ACCESS_TOKEN_COOKIE_KEY);
+      if (hasToken) {
+        await auth.employeeLogout();
+        Cookies.remove(ACCESS_TOKEN_COOKIE_KEY);
       }
+
+      throw redirect({ to: "/login" });
     }
   },
 });
