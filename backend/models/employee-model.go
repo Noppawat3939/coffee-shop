@@ -10,6 +10,11 @@ func EmployMigration(db *gorm.DB) error {
 	return db.AutoMigrate(&Employee{})
 }
 
+var EmployeeRole = struct {
+	SuperAdmin string
+	Admin      string
+}{SuperAdmin: "super_admin", Admin: "admin"}
+
 type Employee struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
 	Username  string    `gorm:"type:text;unique;not null" json:"username"` // unique

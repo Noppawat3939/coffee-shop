@@ -13,8 +13,8 @@ func (cfg *RouterConfig) IntialEmployeeRoues(r *gin.RouterGroup) {
 
 	employee := r.Group("/Employees")
 	{
-		employee.POST("register", controller.RegisterEmployee)
 		employee.GET("", controller.FindAll)
+		employee.POST("register", controller.RegisterEmployee)
 		employee.GET("/:id", controller.FindOne)
 		employee.PATCH("/:id", controller.UpdateEmployee)
 	}

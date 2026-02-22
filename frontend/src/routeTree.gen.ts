@@ -17,6 +17,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TransactionPaymentsRouteImport } from './routes/transaction/payments'
 import { Route as TransactionOrdersRouteImport } from './routes/transaction/orders'
 import { Route as BillOrder_numberRouteImport } from './routes/bill/$order_number'
+import { Route as AccountMembersRouteImport } from './routes/account/members'
+import { Route as AccountEmployeesRouteImport } from './routes/account/employees'
 
 const MenusRoute = MenusRouteImport.update({
   id: '/menus',
@@ -58,6 +60,16 @@ const BillOrder_numberRoute = BillOrder_numberRouteImport.update({
   path: '/bill/$order_number',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountMembersRoute = AccountMembersRouteImport.update({
+  id: '/account/members',
+  path: '/account/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountEmployeesRoute = AccountEmployeesRouteImport.update({
+  id: '/account/employees',
+  path: '/account/employees',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,6 +77,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
+  '/account/employees': typeof AccountEmployeesRoute
+  '/account/members': typeof AccountMembersRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
   '/transaction/orders': typeof TransactionOrdersRoute
   '/transaction/payments': typeof TransactionPaymentsRoute
@@ -75,6 +89,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
+  '/account/employees': typeof AccountEmployeesRoute
+  '/account/members': typeof AccountMembersRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
   '/transaction/orders': typeof TransactionOrdersRoute
   '/transaction/payments': typeof TransactionPaymentsRoute
@@ -86,6 +102,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
+  '/account/employees': typeof AccountEmployeesRoute
+  '/account/members': typeof AccountMembersRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
   '/transaction/orders': typeof TransactionOrdersRoute
   '/transaction/payments': typeof TransactionPaymentsRoute
@@ -98,6 +116,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/membership'
     | '/menus'
+    | '/account/employees'
+    | '/account/members'
     | '/bill/$order_number'
     | '/transaction/orders'
     | '/transaction/payments'
@@ -108,6 +128,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/membership'
     | '/menus'
+    | '/account/employees'
+    | '/account/members'
     | '/bill/$order_number'
     | '/transaction/orders'
     | '/transaction/payments'
@@ -118,6 +140,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/membership'
     | '/menus'
+    | '/account/employees'
+    | '/account/members'
     | '/bill/$order_number'
     | '/transaction/orders'
     | '/transaction/payments'
@@ -129,6 +153,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MembershipRoute: typeof MembershipRoute
   MenusRoute: typeof MenusRoute
+  AccountEmployeesRoute: typeof AccountEmployeesRoute
+  AccountMembersRoute: typeof AccountMembersRoute
   BillOrder_numberRoute: typeof BillOrder_numberRoute
   TransactionOrdersRoute: typeof TransactionOrdersRoute
   TransactionPaymentsRoute: typeof TransactionPaymentsRoute
@@ -192,6 +218,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BillOrder_numberRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/members': {
+      id: '/account/members'
+      path: '/account/members'
+      fullPath: '/account/members'
+      preLoaderRoute: typeof AccountMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/employees': {
+      id: '/account/employees'
+      path: '/account/employees'
+      fullPath: '/account/employees'
+      preLoaderRoute: typeof AccountEmployeesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -201,6 +241,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MembershipRoute: MembershipRoute,
   MenusRoute: MenusRoute,
+  AccountEmployeesRoute: AccountEmployeesRoute,
+  AccountMembersRoute: AccountMembersRoute,
   BillOrder_numberRoute: BillOrder_numberRoute,
   TransactionOrdersRoute: TransactionOrdersRoute,
   TransactionPaymentsRoute: TransactionPaymentsRoute,

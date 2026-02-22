@@ -37,14 +37,14 @@ export default function TransactionPaymentsTable({
       <Table.Td>{i + 1}</Table.Td>
       <Table.Td>
         <Tooltip position="top-start" label={payment.transaction_number}>
-          <Text size="sm" w={150} truncate="end">
+          <Text size="sm" w={350} truncate="end">
             {payment.transaction_number}
           </Text>
         </Tooltip>
       </Table.Td>
       <Table.Td>
         <Tooltip position="top-start" label={payment.order_number_ref}>
-          <Text size="sm" truncate="end" w={150}>
+          <Text size="sm" truncate="end" w={350}>
             {payment.order_number_ref}
           </Text>
         </Tooltip>
@@ -80,9 +80,9 @@ export default function TransactionPaymentsTable({
       <Table verticalSpacing="xs" stickyHeader stickyHeaderOffset={0}>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>No.</Table.Th>
-            <Table.Th>Transaction ID</Table.Th>
-            <Table.Th>Order Ref</Table.Th>
+            <Table.Th w={60}>No.</Table.Th>
+            <Table.Th w={350}>Transaction ID</Table.Th>
+            <Table.Th w={350}>Order Ref</Table.Th>
             <Table.Th>Amount</Table.Th>
             <Table.Th>Create date time</Table.Th>
             <Table.Th>Expired date time</Table.Th>

@@ -3,7 +3,7 @@ export const ACCESS_TOKEN_COOKIE_KEY = "session";
 export const PORTAL_WITH_PATHNAME = {
   payments: "transaction/payments",
   orders: "transaction/orders",
-  employees: "account/employess",
+  employees: "account/employees",
   members: "account/members",
 };
 
