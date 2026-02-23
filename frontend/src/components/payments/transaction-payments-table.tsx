@@ -1,10 +1,10 @@
 import {
   Badge,
-  Table,
-  Tooltip,
-  Text,
-  type BadgeProps,
   Button,
+  Table,
+  Text,
+  Tooltip,
+  type BadgeProps,
 } from "@mantine/core";
 import { useCallback } from "react";
 import { priceFormat } from "~/helper";
@@ -37,14 +37,14 @@ export default function TransactionPaymentsTable({
       <Table.Td>{i + 1}</Table.Td>
       <Table.Td>
         <Tooltip position="top-start" label={payment.transaction_number}>
-          <Text size="sm" w={350} truncate="end">
+          <Text size="sm" w={200} truncate="end">
             {payment.transaction_number}
           </Text>
         </Tooltip>
       </Table.Td>
       <Table.Td>
         <Tooltip position="top-start" label={payment.order_number_ref}>
-          <Text size="sm" truncate="end" w={350}>
+          <Text size="sm" truncate="end" w={200}>
             {payment.order_number_ref}
           </Text>
         </Tooltip>
@@ -81,8 +81,8 @@ export default function TransactionPaymentsTable({
         <Table.Thead>
           <Table.Tr>
             <Table.Th w={60}>No.</Table.Th>
-            <Table.Th w={350}>Transaction ID</Table.Th>
-            <Table.Th w={350}>Order Ref</Table.Th>
+            <Table.Th w={200}>Transaction ID</Table.Th>
+            <Table.Th w={200}>Order Ref</Table.Th>
             <Table.Th>Amount</Table.Th>
             <Table.Th>Create date time</Table.Th>
             <Table.Th>Expired date time</Table.Th>

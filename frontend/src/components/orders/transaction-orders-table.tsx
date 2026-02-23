@@ -60,10 +60,10 @@ export default function TransactionOrdersTable({
         <Table.Thead>
           <Table.Tr>
             <Table.Th w={60}>No.</Table.Th>
-            <Table.Th w={400}>Order ID</Table.Th>
-            <Table.Th w={120}>Amount</Table.Th>
-            <Table.Th w={350}>Staff name</Table.Th>
-            <Table.Th w={300}>Customer</Table.Th>
+            <Table.Th>Order ID</Table.Th>
+            <Table.Th>Amount</Table.Th>
+            <Table.Th w={200}>Staff name</Table.Th>
+            <Table.Th w={200}>Customer</Table.Th>
             <Table.Th w={200}>Create date time</Table.Th>
             <Table.Th w={120}>Status</Table.Th>
           </Table.Tr>
