@@ -86,7 +86,7 @@ export default function PortalLayout({
             bg={"#1A1A19"}
             c="gray.1"
           >
-            <Flex px={24} align="center" h="5vh">
+            <Flex px={24} align="center" h="8vh">
               <Flex align="center" gap={5}>
                 <Coffee color="#228be6" />
                 <Flex direction="column">
@@ -99,7 +99,7 @@ export default function PortalLayout({
                 </Flex>
               </Flex>
             </Flex>
-            <ScrollArea h="95dvh" p={24}>
+            <ScrollArea h="91vh" p={24}>
               {MENUS.map((menu, i) => {
                 if (menu?.children) {
                   return (
@@ -138,7 +138,8 @@ export default function PortalLayout({
             <Flex
               bg={"#F8FAFC"}
               align="center"
-              h="5vh"
+              h="8vh"
+              pl={12}
               pos="sticky"
               top={0}
               style={{ zIndex: 10 }}
@@ -148,7 +149,9 @@ export default function PortalLayout({
               </Typography>
             </Flex>
             <Card withBorder>
-              <ScrollArea h={"91dvh"}>{children}</ScrollArea>
+              <ScrollArea mah={"85dvh"} mih={"85dvh"}>
+                {children}
+              </ScrollArea>
             </Card>
           </Flex>
         </Flex>

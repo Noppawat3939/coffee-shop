@@ -7,11 +7,11 @@ export const Route = createFileRoute("/transaction/orders")({
   loader: async () => {
     const res = await order.getOrders({ page: 1, limit: 50 });
 
-    const mapped = res.data?.map((item) => ({
+    const data = res.data?.map((item) => ({
       ...item,
       created_at: dateFormat(item.created_at, "DD MMM YYYY, HH:mm"),
     }));
 
-    return { data: mapped };
+    return { data };
   },
 });
