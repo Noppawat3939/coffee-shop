@@ -1,7 +1,16 @@
-import { Card, Drawer, Flex, Stack, Text } from "@mantine/core";
+import {
+  Badge,
+  Button,
+  Card,
+  Drawer,
+  Flex,
+  Stack,
+  Text,
+  type BadgeProps,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
-import { TransactionPaymentsTable } from "~/components/payments";
+import { useCallback, useState } from "react";
+import { CustomTable } from "~/components/table";
 import { dateFormat, isBeforeToDay, priceFormat } from "~/helper";
 import { Route } from "~/routes/transaction/payments";
 
@@ -14,14 +23,87 @@ export default function TransactionPaymentsPage() {
     (typeof payments)[number] | null
   >(null);
 
+  const mappingPaymentStatusColor = useCallback(
+    (status: string): BadgeProps["color"] => {
+      const dict: Record<string, BadgeProps["color"]> = {
+        paid: "cyan",
+        canceled: "red",
+        to_pay: "yellow",
+      };
+
+      return dict[status] ?? "dark";
+    },
+    []
+  );
+
   return (
     <Stack>
-      <TransactionPaymentsTable
-        data={payments}
-        onRow={(data) => {
-          setPaymentData(data);
-          open();
-        }}
+      <CustomTable
+        columns={[
+          {
+            key: "id",
+            data: payments,
+            isIndex: true,
+            header: "No.",
+            thProps: { w: 60 },
+          },
+          {
+            key: "transaction_number",
+            header: "Transaction ID",
+            data: payments,
+            thProps: { w: 200 },
+          },
+          {
+            key: "order_number_ref",
+            header: "Order Ref",
+            data: payments,
+            thProps: { w: 200 },
+          },
+          {
+            key: "amount",
+            header: "Amount",
+            data: payments,
+          },
+          {
+            key: "created_at",
+            header: "Create date time",
+            data: payments,
+          },
+          {
+            key: "expired_at",
+            header: "Expired date time",
+            data: payments,
+          },
+          {
+            key: "status",
+            header: "Status",
+            data: payments,
+            thProps: { w: 100 },
+            render: ({ status }) => (
+              <Badge
+                w="100%"
+                size="sm"
+                variant="light"
+                color={mappingPaymentStatusColor(status)}
+              >
+                {status}
+              </Badge>
+            ),
+          },
+        ]}
+        actions={(data) => (
+          <Button
+            variant="outline"
+            radius={20}
+            size="xs"
+            onClick={() => {
+              setPaymentData(data);
+              open();
+            }}
+          >
+            View
+          </Button>
+        )}
       />
 
       <Drawer
