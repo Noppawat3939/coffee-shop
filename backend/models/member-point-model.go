@@ -16,7 +16,7 @@ type MemberPoint struct {
 	TotalPoints int       `json:"total_points" gorm:"not null;default:0"` // point * 100
 	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
-	Member Member `gorm:"foreignKey:MemberID"`
+	Member Member `gorm:"foreignKey:MemberID" json:"-"` // not appear field
 }
 
 var MemberPointLogType = struct {

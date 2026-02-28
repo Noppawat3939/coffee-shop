@@ -14,7 +14,8 @@ type Pagination struct {
 
 const (
 	DefaultPage  = 1
-	DefaultLimit = 10
+	DefaultLimit = 50
+	MaxLimit     = 50
 )
 
 func (p *Pagination) getPage() int {
@@ -26,9 +27,13 @@ func (p *Pagination) getPage() int {
 }
 
 func (p *Pagination) getLimit() int {
-	if p.Limit > 50 || p.Limit <= 0 {
+	if p.Limit <= 0 {
 		p.Limit = DefaultLimit
 	}
+	if p.Limit > MaxLimit {
+		p.Limit = MaxLimit
+	}
+
 	return p.Limit
 }
 

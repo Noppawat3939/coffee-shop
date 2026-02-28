@@ -9,6 +9,7 @@ import (
 type MemberService interface {
 	CreateMember(req dto.CreateMemberRequest) (models.Member, error)
 	FindMember(phone string) (models.Member, error)
+	FindAllMembers(filter models.MemberFilter, page, limt int) ([]models.Member, error)
 }
 
 type memberService struct {
@@ -35,4 +36,8 @@ func (s *memberService) FindMember(phone string) (models.Member, error) {
 	}
 
 	return data, nil
+}
+
+func (s *memberService) FindAllMembers(filter models.MemberFilter, page, limit int) ([]models.Member, error) {
+	return s.repo.FindAllIncluded(filter, page, limit)
 }

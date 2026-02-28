@@ -17,4 +17,12 @@ type Member struct {
 	FullName    string    `json:"full_name"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+
+	MemberPoint *MemberPoint `json:"member_point,omitempty" gorm:"foreignKey:MemberID"`
+}
+
+// filter
+type MemberFilter struct {
+	PhoneNumber string
+	FullName    string
 }

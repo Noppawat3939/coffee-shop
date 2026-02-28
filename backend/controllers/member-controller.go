@@ -63,3 +63,21 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 
 	util.Success(c, member)
 }
+
+func (mc *memberController) GetMembers(c *gin.Context) {
+	page, limit := util.BuildPagination(c)
+
+	filter := models.MemberFilter{
+		PhoneNumber: c.Query("phone_number"),
+		FullName:    c.Query("full_name"),
+	}
+
+	members, err := mc.memberSvc.FindAllMembers(filter, page, limit)
+
+	if err != nil {
+		util.ErrorNotFound(c)
+		return
+	}
+
+	util.Success(c, members)
+}
