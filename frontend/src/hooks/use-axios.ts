@@ -44,5 +44,7 @@ export default function useAxios<Args extends unknown[], Return>(
     [fn]
   );
 
-  return { data, loading, execute };
+  const reset = useCallback(() => setData(null), []);
+
+  return { data, loading, execute, reset };
 }

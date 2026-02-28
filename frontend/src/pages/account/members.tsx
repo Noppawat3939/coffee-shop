@@ -1,13 +1,43 @@
-import { Stack } from "@mantine/core";
+import { Flex, Input, Stack } from "@mantine/core";
+import { SearchIcon } from "lucide-react";
+import { SearchWithResetButton } from "~/components";
 import { CustomTable } from "~/components/table";
 import { numberFormat } from "~/helper";
-import { Route } from "~/routes/account/members";
+import { useMembers } from "~/hooks/member";
 
 export default function MembersPage() {
-  const { data } = Route.useLoaderData();
+  const {
+    loading,
+    setSearchTerm,
+    handleReset,
+    handleSearch,
+    searchTerm,
+    data,
+  } = useMembers();
 
   return (
     <Stack>
+      <Flex justify="space-between">
+        <Input
+          value={searchTerm}
+          placeholder="Search Full name or Phone number"
+          leftSection={<SearchIcon size={14} />}
+          w={300}
+          onChange={setSearchTerm}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        />
+
+        <SearchWithResetButton
+          searchProps={{
+            onClick: handleSearch,
+            loading,
+          }}
+          resetProps={{
+            onClick: handleReset,
+            disabled: loading,
+          }}
+        />
+      </Flex>
       <CustomTable
         columns={[
           { key: "id", isIndex: true, header: "No.", data, thProps: { w: 60 } },

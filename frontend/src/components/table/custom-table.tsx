@@ -25,7 +25,19 @@ export default function CustomTable<TData>({
   const [{ data = [] }] = columns;
 
   if (!data.length)
-    throw new Error("[CustomTable] expected data props length >= 1");
+    return (
+      <Table>
+        <Table.Thead>
+          <Table.Tr>
+            {columns.map((col) => (
+              <Table.Th key={`empt-table-header-${col.key.toString()}`}>
+                {col.header}
+              </Table.Th>
+            ))}
+          </Table.Tr>
+        </Table.Thead>
+      </Table>
+    );
 
   return (
     <Table.ScrollContainer minWidth={200} type="native">
