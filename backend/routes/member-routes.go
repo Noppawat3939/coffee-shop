@@ -22,6 +22,6 @@ func (cfg *RouterConfig) InitialMemberRoutes(r *gin.RouterGroup) {
 	{
 		member.POST("/register", controller.CreateMember)
 		member.POST("find", middleware.AuthGuard(), controller.GetMember)
-		member.GET("/", middleware.AuthGuard(), controller.GetMembers)
+		member.GET("", middleware.AuthGuard(), controller.GetMembers)
 	}
 }

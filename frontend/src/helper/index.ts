@@ -21,6 +21,14 @@ export const priceFormat = (amount: number | string) => {
   }).format(+amount);
 };
 
+export const numberFormat = (num: string | number, digits = 2) => {
+  if (isNil(num)) return "";
+
+  const normalized = typeof num === "string" ? Number(num) : num;
+
+  return normalized.toFixed(digits);
+};
+
 /**
  * Sum an array of numbers.
  *
@@ -45,3 +53,5 @@ export const isExpired = <T>(day: T) => dayjs().isAfter(dayjs(day as Dayjs));
 
 export const isBeforeToDay = (date?: TFormatDay) =>
   dayjs(date).isBefore(dayjs());
+
+export const isNil = <T>(val: T) => typeof val === "undefined" || val === null;

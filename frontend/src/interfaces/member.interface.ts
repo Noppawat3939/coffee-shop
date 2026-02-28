@@ -10,3 +10,15 @@ export interface IMember extends ITimestampt {
   phone_number: string;
   provider: string;
 }
+
+// base member-points
+export interface IMemberPoint {
+  id: number;
+  member_id: number;
+  total_points: number;
+  updated_at: string | Date;
+}
+
+export interface IMemberWithMemberPoint extends IMember {
+  member_point: IMemberPoint;
+}
