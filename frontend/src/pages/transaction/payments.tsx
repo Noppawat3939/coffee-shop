@@ -7,6 +7,7 @@ import {
   Stack,
   Text,
   type BadgeProps,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useState } from "react";
@@ -52,12 +53,26 @@ export default function TransactionPaymentsPage() {
             header: "Transaction ID",
             data: payments,
             thProps: { w: 200 },
+            render: ({ transaction_number }) => (
+              <Tooltip position="top-start" label={transaction_number}>
+                <Text size="sm" w={200} truncate="end">
+                  {transaction_number}
+                </Text>
+              </Tooltip>
+            ),
           },
           {
             key: "order_number_ref",
             header: "Order Ref",
             data: payments,
             thProps: { w: 200 },
+            render: ({ order_number_ref }) => (
+              <Tooltip position="top-start" label={order_number_ref}>
+                <Text size="sm" w={200} truncate="end">
+                  {order_number_ref}
+                </Text>
+              </Tooltip>
+            ),
           },
           {
             key: "amount",

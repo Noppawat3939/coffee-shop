@@ -31,13 +31,20 @@ export default function TransactionOrdersPage() {
             data,
             render: ({ total }) => priceFormat(total),
           },
-          { key: "employee", header: "Staff name", data, thProps: { w: 200 } },
+          {
+            key: "employee",
+            header: "Staff name",
+            data,
+            thProps: { w: 200 },
+            render: ({ employee }) => employee?.username,
+          },
           {
             key: "member",
             header: "Customer",
             data,
             thProps: { w: 200 },
-            render: (r) => (r.member ? r.member.full_name : r.customer),
+            render: ({ member, customer }) =>
+              member ? member.full_name : customer,
           },
           {
             key: "created_at",
