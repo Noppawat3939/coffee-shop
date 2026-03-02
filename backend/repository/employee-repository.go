@@ -25,7 +25,6 @@ func NewEmployeeRepository(db *gorm.DB) EmployeeRepo {
 }
 
 func (r *empRepo) Create(employee models.Employee) (models.Employee, error) {
-
 	if err := r.db.Create(&employee).Error; err != nil {
 		return models.Employee{}, err
 	}
@@ -36,6 +35,7 @@ func (r *empRepo) Create(employee models.Employee) (models.Employee, error) {
 func (r *empRepo) FindOne(id int) (models.Employee, error) {
 	var data models.Employee
 	err := r.db.First(&data, id).Error
+
 	return data, err
 }
 
@@ -45,19 +45,19 @@ func (r *empRepo) FindByUsername(username string) (models.Employee, error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return data, nil
 	}
+
 	return data, err
 }
 
 func (r *empRepo) FindAll(q map[string]interface{}) ([]models.Employee, error) {
 	var data []models.Employee
-
 	err := r.db.Where(q).Find(&data).Error
+
 	return data, err
 }
 
 func (r *empRepo) UpdateEmployeeByID(id int, employee models.Employee) (models.Employee, error) {
 	var data models.Employee
-
 	if err := r.db.First(&data, id).Error; err != nil {
 		return data, err
 	}
@@ -68,7 +68,6 @@ func (r *empRepo) UpdateEmployeeByID(id int, employee models.Employee) (models.E
 
 func (r *empRepo) UpdateEmployeeByUsername(username string, employee models.Employee) (models.Employee, error) {
 	var data models.Employee
-
 	if err := r.db.Where("username = ?", username).First(&data).Error; err != nil {
 		return data, err
 	}

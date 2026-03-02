@@ -49,12 +49,7 @@ func (ac *authController) EmployeeLogin(c *gin.Context) {
 }
 
 func (ac *authController) VerifyJWTByEmployee(c *gin.Context) {
-	data, ok := util.GetUserFromHeader(c)
-	if !ok {
-		util.ErrorUnauthorized(c)
-		return
-
-	}
+	data := util.GetUserFromHeader(c)
 
 	util.Success(c, data)
 }
@@ -62,7 +57,7 @@ func (ac *authController) VerifyJWTByEmployee(c *gin.Context) {
 func (ac *authController) EmployeeLogout(c *gin.Context) {
 	var msg string = ""
 
-	data, _ := util.GetUserFromHeader(c)
+	data := util.GetUserFromHeader(c)
 
 	if data.ID != 0 {
 		err := ac.sessionSvc.ExpiredByEmployeeID(data.ID)

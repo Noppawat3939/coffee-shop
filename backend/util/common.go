@@ -41,13 +41,13 @@ func IntToString(num int) string {
 	return strconv.Itoa(int(num))
 }
 
-func GetUserFromHeader(c *gin.Context) (*AuthUser, bool) {
+func GetUserFromHeader(c *gin.Context) *AuthUser {
 	user, exits := c.Get("user")
 
 	if !exits {
 		ErrorUnauthorized(c)
 		c.Abort()
-		return nil, false
+		return nil
 	}
 
 	// build claims
@@ -56,14 +56,14 @@ func GetUserFromHeader(c *gin.Context) (*AuthUser, bool) {
 	if !ok {
 		ErrorUnauthorized(c)
 		c.Abort()
-		return nil, false
+		return nil
 	}
 
 	return &AuthUser{
 		ID:       uint(claims.EmployeeID),
 		Username: claims.Username,
 		Exp:      uint(claims.ExpiresAt.Time.Unix()),
-	}, true
+	}
 }
 
 func GenerateTransactionNumber(orderNumber string) string {

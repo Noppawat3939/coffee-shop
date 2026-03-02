@@ -6,14 +6,27 @@ import (
 	"gorm.io/gorm"
 )
 
-type AuditLogRepository struct {
+type AuditLogRepository interface {
+	Create(data models.AuditLog, tx *gorm.DB) error
+}
+
+type auditLogRepository struct {
 	db *gorm.DB
 }
 
-func NewAuditLogRepository(db *gorm.DB) *AuditLogRepository {
-	return &AuditLogRepository{db}
+func NewAuditLogRepository(db *gorm.DB) AuditLogRepository {
+	return &auditLogRepository{db}
 }
 
-func (r *AuditLogRepository) Create(data models.AuditLog) error {
-	return r.db.Create(&data).Error
+func (r *auditLogRepository) getDB(tx *gorm.DB) *gorm.DB {
+	if tx != nil {
+		return tx
+	}
+	return r.db
+}
+
+func (r *auditLogRepository) Create(data models.AuditLog, tx *gorm.DB) error {
+	db := r.getDB(tx)
+
+	return db.Create(&data).Error
 }

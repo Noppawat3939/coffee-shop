@@ -6,17 +6,38 @@ import (
 	"encoding/json"
 
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
-type AuditLogService struct {
+type AuditLogService interface {
+	LogWithTx(
+		tx *gorm.DB,
+		employeeID *uint,
+		action models.AuditLogAction,
+		entity string,
+		entityID uint,
+		oldValue interface{},
+		newValue interface{},
+	) error
+}
+
+type service struct {
 	repo repository.AuditLogRepository
 }
 
-func NewAuditLogService(repo repository.AuditLogRepository) *AuditLogService {
-	return &AuditLogService{repo}
+func NewAuditLogService(repo repository.AuditLogRepository) AuditLogService {
+	return &service{repo}
 }
 
-func (s *AuditLogService) Log(employeeID *uint, action models.AuditLogAction, entity string, entityID uint, oldValue interface{}, newValue interface{}) {
+func (s *service) LogWithTx(
+	tx *gorm.DB,
+	employeeID *uint,
+	action models.AuditLogAction,
+	entity string,
+	entityID uint,
+	oldValue any,
+	newValue any,
+) error {
 	log := models.AuditLog{
 		EmployeeID: employeeID,
 		Action:     action,
@@ -26,10 +47,10 @@ func (s *AuditLogService) Log(employeeID *uint, action models.AuditLogAction, en
 		NewData:    toJSON(newValue),
 	}
 
-	go s.repo.Create(log)
+	return s.repo.Create(log, tx)
 }
 
-func toJSON(v interface{}) datatypes.JSON {
+func toJSON(v any) datatypes.JSON {
 	if v == nil {
 		return nil
 	}

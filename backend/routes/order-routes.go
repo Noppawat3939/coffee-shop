@@ -16,7 +16,7 @@ func (cfg *RouterConfig) IntialOrderRoutes(r *gin.RouterGroup) {
 
 	order := r.Group("/Orders")
 	{
-		order.POST("", middleware.AuthGuard(), middleware.AuthGuard(), controller.CreateOrder)
+		order.POST("", middleware.AuthGuard(), controller.CreateOrder)
 		order.GET("", controller.GetOrders)
 		order.GET("/:id", middleware.AuthGuard(), controller.GetOrderByID)
 		order.GET("/order-number/:order_number", middleware.AuthGuard(), controller.GetOrderByOrderNumber)

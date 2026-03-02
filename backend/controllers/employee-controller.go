@@ -4,6 +4,7 @@ import (
 	"backend/dto"
 	"backend/models"
 	"backend/repository"
+	"backend/services"
 	"backend/util"
 	"net/http"
 
@@ -12,8 +13,9 @@ import (
 )
 
 type employeeController struct {
-	repo repository.EmployeeRepo
-	db   *gorm.DB
+	repo    repository.EmployeeRepo
+	service services.EmployeeService
+	db      *gorm.DB
 }
 
 var Role = struct {
@@ -21,8 +23,8 @@ var Role = struct {
 	Staff string
 }{Admin: "admin", Staff: "staff"}
 
-func NewEmployeeController(repo repository.EmployeeRepo, db *gorm.DB) *employeeController {
-	return &employeeController{repo, db}
+func NewEmployeeController(repo repository.EmployeeRepo, service services.EmployeeService, db *gorm.DB) *employeeController {
+	return &employeeController{repo, service, db}
 }
 
 func (ec *employeeController) RegisterEmployee(c *gin.Context) {
@@ -89,13 +91,19 @@ func (ec *employeeController) FindOne(c *gin.Context) {
 
 func (ec *employeeController) UpdateEmployee(c *gin.Context) {
 	var req dto.UpdateEmployeeRequest
+	user := util.GetUserFromHeader(c)
+	id := util.ParamToInt(c, "id")
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
 		return
 	}
 
-	// TODO: handle update by id
+	data, err := ec.service.UpdateByID(id, req, user)
+	if err != nil {
+		util.ErrorConflict(c)
+		return
+	}
 
-	util.Success(c, nil)
+	util.Success(c, data)
 }

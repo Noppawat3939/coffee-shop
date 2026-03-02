@@ -28,12 +28,7 @@ func NewOrderController(repo repository.OrderRepo, odSvc services.OrderService, 
 func (oc *orderController) CreateOrder(c *gin.Context) {
 	var req dto.CreateOrderRequest
 
-	user, ok := util.GetUserFromHeader(c)
-
-	if !ok {
-		util.ErrorUnauthorized(c)
-		return
-	}
+	user := util.GetUserFromHeader(c)
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.ErrorBodyInvalid(c)
