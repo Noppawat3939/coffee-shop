@@ -17,10 +17,6 @@ func init() {
 	db.Connect(cfg)
 }
 
-type QRRequest struct {
-	Amount float64 `json:"amount" binding:"required"`
-}
-
 func main() {
 	cfg = c.Load()
 	database := db.Connect(cfg)
