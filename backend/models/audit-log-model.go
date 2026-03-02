@@ -11,10 +11,18 @@ func AuditLogMigration(db *gorm.DB) error {
 	return db.AutoMigrate(&AuditLog{})
 }
 
+type AuditLogAction string
+
+var AuditAction = struct {
+	Create AuditLogAction
+	Update AuditLogAction
+	Delete AuditLogAction
+}{Create: "create", Update: "update", Delete: "delete"}
+
 type AuditLog struct {
 	ID         uint           `gorm:"primaryKey"`
 	EmployeeID *uint          `gorm:"index"` // nullable (supported employee deleted)
-	Action     string         `gorm:"type:varchar(20);not null;index"`
+	Action     AuditLogAction `gorm:"type:varchar(20);not null;index"`
 	Entity     string         `gorm:"type:varchar(50);not null;index"`
 	EntityID   uint           `gorm:"not null;index"`
 	OldData    datatypes.JSON `gorm:"type:jsonb"`
