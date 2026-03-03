@@ -1,8 +1,10 @@
 package services
 
 import (
+	"backend/dto"
 	"backend/models"
 	"backend/repository"
+	"backend/util"
 	"encoding/json"
 
 	"gorm.io/datatypes"
@@ -19,6 +21,8 @@ type AuditLogService interface {
 		oldValue interface{},
 		newValue interface{},
 	) error
+
+	FindAll(req dto.GetAuditLogRequest, p *util.Pagination) ([]models.AuditLog, error)
 }
 
 type service struct {
@@ -48,6 +52,11 @@ func (s *service) LogWithTx(
 	}
 
 	return s.repo.Create(log, tx)
+}
+
+func (s *service) FindAll(req dto.GetAuditLogRequest, p *util.Pagination) ([]models.AuditLog, error) {
+	// build query
+	return s.repo.FindAll(p)
 }
 
 func toJSON(v any) datatypes.JSON {

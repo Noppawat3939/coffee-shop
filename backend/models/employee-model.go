@@ -25,3 +25,9 @@ type Employee struct {
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }
+
+type UserJwyToken struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Exp      uint   `json:"exp"`
+}

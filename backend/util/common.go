@@ -1,18 +1,13 @@
 package util
 
 import (
+	"backend/models"
 	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
-
-type AuthUser struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Exp      uint   `json:"exp"`
-}
 
 func ToInt(s string) int {
 	value, _ := strconv.Atoi(s)
@@ -41,7 +36,7 @@ func IntToString(num int) string {
 	return strconv.Itoa(int(num))
 }
 
-func GetUserFromHeader(c *gin.Context) *AuthUser {
+func GetUserFromHeader(c *gin.Context) *models.UserJwyToken {
 	user, exits := c.Get("user")
 
 	if !exits {
@@ -59,7 +54,7 @@ func GetUserFromHeader(c *gin.Context) *AuthUser {
 		return nil
 	}
 
-	return &AuthUser{
+	return &models.UserJwyToken{
 		ID:       uint(claims.EmployeeID),
 		Username: claims.Username,
 		Exp:      uint(claims.ExpiresAt.Time.Unix()),

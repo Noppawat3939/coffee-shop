@@ -2,12 +2,14 @@ package repository
 
 import (
 	"backend/models"
+	"backend/util"
 
 	"gorm.io/gorm"
 )
 
 type AuditLogRepository interface {
 	Create(data models.AuditLog, tx *gorm.DB) error
+	FindAll(p *util.Pagination) ([]models.AuditLog, error)
 }
 
 type auditLogRepository struct {
@@ -29,4 +31,13 @@ func (r *auditLogRepository) Create(data models.AuditLog, tx *gorm.DB) error {
 	db := r.getDB(tx)
 
 	return db.Create(&data).Error
+}
+
+func (r *auditLogRepository) FindAll(p *util.Pagination) ([]models.AuditLog, error) {
+	var data []models.AuditLog
+	query := r.db.Preload("Employee").Model(&models.AuditLog{})
+	query = p.Apply(query)
+	err := query.Find(&data).Error
+
+	return data, err
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type EmployeeService interface {
-	UpdateByID(id int, req dto.UpdateEmployeeRequest, user *util.AuthUser) (models.Employee, error)
+	UpdateByID(id int, req dto.UpdateEmployeeRequest, user *models.UserJwyToken) (models.Employee, error)
 }
 
 type employeeService struct {
@@ -20,7 +20,7 @@ func NewEmployeeService(repo repository.EmployeeRepo, auditSvc AuditLogService) 
 	return &employeeService{repo, auditSvc}
 }
 
-func (s *employeeService) UpdateByID(id int, req dto.UpdateEmployeeRequest, user *util.AuthUser) (models.Employee, error) {
+func (s *employeeService) UpdateByID(id int, req dto.UpdateEmployeeRequest, user *models.UserJwyToken) (models.Employee, error) {
 	var oldData models.Employee
 	employee, err := s.repo.FindOne(id)
 
