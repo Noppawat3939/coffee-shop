@@ -55,8 +55,15 @@ func (s *service) LogWithTx(
 }
 
 func (s *service) FindAll(req dto.GetAuditLogRequest, p *util.Pagination) ([]models.AuditLog, error) {
-	// build query
-	return s.repo.FindAll(p)
+	q := repository.AuditLogFilter{
+		ID:        req.ID,
+		Action:    req.Action,
+		Entity:    req.Entity,
+		StartDate: req.StartDate,
+		EndDate:   req.EndDate,
+	}
+
+	return s.repo.FindAll(q, p)
 }
 
 func toJSON(v any) datatypes.JSON {
