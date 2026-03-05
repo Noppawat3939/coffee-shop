@@ -1,33 +1,35 @@
 import { useInputState } from "@mantine/hooks";
-import { Route } from "~/routes/account/members";
-import { useAxios } from "..";
-import { member } from "~/services";
 import { useRouter } from "@tanstack/react-router";
 import { useTransition } from "react";
+import { Route } from "~/routes/account/members";
+import { useAxios } from ".";
+import { member } from "~/services";
+import { isNumberChar } from "~/helper";
 
+// Query members
 export default function useMembers() {
   const { invalidate } = useRouter();
-  // intial loader
   const { data: intialData } = Route.useLoaderData();
+
   const [pending, startTransition] = useTransition();
   const [searchTerm, setSearchTerm] = useInputState("");
 
+  // service
   const { execute, data, loading, reset } = useAxios(member.getMembers);
 
   const handleSearch = () => {
     if (!searchTerm) return;
 
-    const isNumber = /^[0-9]+$/.test(searchTerm);
-
     execute({
-      ...(isNumber ? { phone_number: searchTerm } : { full_name: searchTerm }),
+      ...(isNumberChar(searchTerm)
+        ? { phone_number: searchTerm }
+        : { full_name: searchTerm }),
     });
   };
 
   const handleReset = () => {
-    startTransition(() => {
-      invalidate();
-    });
+    startTransition(invalidate);
+
     reset();
     setSearchTerm("");
   };

@@ -45,23 +45,29 @@ func (r *auditLogRepository) Create(data models.AuditLog, tx *gorm.DB) error {
 func (r *auditLogRepository) FindAll(filter AuditLogFilter, p *util.Pagination) ([]models.AuditLog, error) {
 	var data []models.AuditLog
 
-	query := r.db.Preload("Employee").Model(&models.AuditLog{})
-
-	if filter.ID != nil {
-		query = query.Where("id = ?", *filter.ID)
-	}
-	if filter.Action != nil {
-		query = query.Where("action = ?", *filter.Action)
-	}
-	if filter.Entity != nil {
-		query = query.Where("entity = ?", *filter.Entity)
-	}
-	if filter.StartDate != nil && filter.EndDate != nil {
-		query = query.Where("created_at BETWEEN ? AND ?", *filter.StartDate, *filter.EndDate)
-	}
+	query := r.db.Model(&models.AuditLog{}).Preload("Employee").Scopes(buildFilter(filter))
 
 	query = p.Apply(query)
 	err := query.Find(&data).Error
 
 	return data, err
+}
+
+func buildFilter(filter AuditLogFilter) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if filter.ID != nil {
+			db = db.Where("id = ?", *filter.ID)
+		}
+		if filter.Action != nil {
+			db = db.Where("action = ?", *filter.Action)
+		}
+		if filter.Entity != nil {
+			db = db.Where("entity = ?", *filter.EndDate)
+		}
+		if filter.StartDate != nil && filter.EndDate != nil {
+			db = db.Where("created_at BETWEEN ? AND ?", *filter.StartDate, *filter.EndDate)
+		}
+
+		return db
+	}
 }

@@ -3,7 +3,7 @@ import { SearchIcon } from "lucide-react";
 import { SearchWithResetButton } from "~/components";
 import { CustomTable } from "~/components/table";
 import { numberFormat } from "~/helper";
-import { useMembers } from "~/hooks/member";
+import { useMembers } from "~/hooks";
 
 export default function MembersPage() {
   const {
@@ -19,12 +19,13 @@ export default function MembersPage() {
     <Stack>
       <Flex justify="space-between">
         <Input
+          name="search-members-input"
           value={searchTerm}
           placeholder="Search Full name or Phone number"
           leftSection={<SearchIcon size={14} />}
           w={300}
           onChange={setSearchTerm}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          onKeyUp={(e) => !loading && e.key === "Enter" && handleSearch()}
         />
 
         <SearchWithResetButton

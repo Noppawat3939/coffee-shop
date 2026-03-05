@@ -55,3 +55,5 @@ export const isBeforeToDay = (date?: TFormatDay) =>
   dayjs(date).isBefore(dayjs());
 
 export const isNil = <T>(val: T) => typeof val === "undefined" || val === null;
+
+export const isNumberChar = (value: string) => /^[0-9]+$/.test(value);

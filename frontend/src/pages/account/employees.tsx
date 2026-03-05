@@ -6,7 +6,9 @@ import {
   Stack,
   type ButtonProps,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { Edit, Lock } from "lucide-react";
+import { CreateEmployeeModal } from "~/components/modal";
 import { CustomTable } from "~/components/table";
 import { Route } from "~/routes/account/employees";
 
@@ -19,10 +21,12 @@ const actionBtnProps = {
 export default function EmployeesPage() {
   const { data } = Route.useLoaderData();
 
+  const [opennedNewEmp, newEmpOps] = useDisclosure(false);
+
   return (
     <Stack>
       <Flex justify="end">
-        <Button>Create</Button>
+        <Button onClick={newEmpOps.open}>Create</Button>
       </Flex>
 
       <CustomTable
@@ -61,6 +65,8 @@ export default function EmployeesPage() {
           </Group>
         )}
       />
+
+      <CreateEmployeeModal open={opennedNewEmp} onClose={newEmpOps.close} />
     </Stack>
   );
 }

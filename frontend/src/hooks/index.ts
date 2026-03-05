@@ -4,3 +4,4 @@ export { default as useCookie } from "./use-cookie";
 export { default as useOneEffect } from "./use-one-effect";
 export { default as useCountdown } from "./use-countdown";
 export { default as useQueriesPaymentWithOrder } from "./use-queries-payment-with-order";
+export { default as useMembers } from "./use-member-hooks";
