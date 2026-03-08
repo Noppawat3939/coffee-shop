@@ -8,27 +8,16 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { z } from "zod";
 import { zodValidate } from "~/helper/form";
+import { employeeSchema, type TZodSchema } from "~/helper/schemas";
 
-type FormValues = z.infer<typeof employeeSchema>;
+type FormValues = TZodSchema<typeof employeeSchema>;
 type CreateEmployeeModalProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const employeeSchema = z.object({
-  username: z
-    .string({ error: "username is required" })
-    .min(3, "username must be at least 3 characters")
-    .max(20, "username too long"),
-  name: z
-    .string({ error: "name is required" })
-    .min(1, "name is required")
-    .max(10, "name too long"),
-  role: z.enum(["admin", "super_admin", "staff"]),
-  password: z.string().min(4, "password must be at least 4 characters"),
-});
+const { options: roles } = employeeSchema.shape.role;
 
 export default function CreateEmployeeModal({
   onClose,
@@ -76,11 +65,7 @@ export default function CreateEmployeeModal({
           />
           <Select
             label="Role"
-            data={[
-              { value: "staff", label: "Staff" },
-              { value: "admin", label: "Admin" },
-              { value: "super_admin", label: "Super Admin" },
-            ]}
+            data={roles.map((role) => ({ label: role, value: role }))}
             key={form.key("role")}
             {...form.getInputProps("role")}
           />
