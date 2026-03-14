@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"backend/dto"
+	"backend/internal/dto"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
 	"backend/repository"

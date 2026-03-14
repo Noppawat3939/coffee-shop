@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"backend/dto"
+	"backend/internal/dto"
 	"backend/models"
 	"backend/pkg/response"
 	"backend/pkg/util"

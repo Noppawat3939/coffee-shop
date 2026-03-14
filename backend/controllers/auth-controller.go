@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"backend/dto"
 	"backend/internal/auth"
+	"backend/internal/dto"
 	"backend/pkg/password"
 	"backend/pkg/response"
 	"backend/repository"

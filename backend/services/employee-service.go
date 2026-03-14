@@ -1,7 +1,7 @@
 package services
 
 import (
-	"backend/dto"
+	"backend/internal/dto"
 	"backend/models"
 	"backend/pkg/password"
 	"backend/repository"
