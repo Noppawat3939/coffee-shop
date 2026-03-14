@@ -2,7 +2,6 @@ package repository
 
 import (
 	"backend/models"
-	"backend/pkg/types"
 
 	"gorm.io/gorm"
 )
@@ -13,7 +12,7 @@ type OrderRepo interface {
 	CreateOrderStatusLog(odLog models.OrderStatusLog, tx *gorm.DB) (models.OrderStatusLog, error)
 	CreateOrderMenuVariation(odVaria models.OrderMenuVariation, tx *gorm.DB) (models.OrderMenuVariation, error)
 	// Find all
-	FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error)
+	FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error)
 	// Find one
 	FindOneOrder(id int) (models.Order, error)
 	FindOneOrderByOrderNumber(odNo string) (models.Order, error)
@@ -61,7 +60,7 @@ func (r *orderRepo) CreateOrderMenuVariation(odVaria models.OrderMenuVariation, 
 	return odVaria, nil
 }
 
-func (r *orderRepo) FindAllOrders(q types.Filter, page, limit int) ([]models.Order, error) {
+func (r *orderRepo) FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error) {
 	var orders []models.Order
 
 	err := r.db.Preload("Employee").Preload("Member").Limit(limit).Offset(page).Order("id desc").Find(&orders).Error

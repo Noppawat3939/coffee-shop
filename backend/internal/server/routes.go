@@ -1,20 +1,22 @@
-package routes
+package server
 
 import (
 	"backend/util"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-type RouterConfig struct {
-	Router *gin.Engine
-	DB     *gorm.DB
-}
+func (s *Server) registerRoutes() {
+	r := s.router
+	db := s.db
 
-func SetupRoutes(r *gin.Engine, db *gorm.DB) {
-	r.NoRoute(
-		func(c *gin.Context) { util.ErrorNotFound(c) })
+	r.NoRoute(func(c *gin.Context) {
+		util.ErrorNotFound(c)
+	})
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
 
 	cfg := RouterConfig{
 		Router: r,
@@ -24,11 +26,12 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	api := r.Group("/api")
 
 	cfg.InitAuthRoutes(api)
+	cfg.InitialAuditLogRoutes(api)
+	cfg.InitialMemberPointRoutes(api)
 	cfg.InitialMemberRoutes(api)
 	cfg.IntialEmployeeRoues(api)
 	cfg.IntialMenuRoutes(api)
 	cfg.IntialOrderRoutes(api)
 	cfg.IntialPaymentRoutes(api)
-	cfg.InitialMemberPointRoutes(api)
-	cfg.InitialAuditLogRoutes(api)
+
 }

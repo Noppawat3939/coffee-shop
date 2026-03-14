@@ -2,39 +2,26 @@ package main
 
 import (
 	c "backend/config"
-	"backend/db"
-	"backend/middleware"
-	"backend/routes"
-	"fmt"
-
-	"github.com/gin-gonic/gin"
+	"backend/internal/database"
+	"backend/internal/server"
+	"log"
 )
 
 var cfg c.Config
 
-func init() {
-	cfg = c.Load()
-	db.Connect(cfg)
-}
-
 func main() {
 	cfg = c.Load()
-	database := db.Connect(cfg)
 
-	r := gin.Default()
-	r.RedirectTrailingSlash = true
+	db, err := database.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	r.Use(gin.Logger(), gin.Recovery())
+	s := server.New(db)
 
-	r.Use(middleware.SetupCORS())
+	log.Println("✅ Starting server in port ", cfg.ServerPort)
 
-	routes.SetupRoutes(r, database)
-
-	fmt.Println("✅ Starting server in port ", cfg.ServerPort)
-
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
-	})
-
-	r.Run(":" + cfg.ServerPort)
+	if err := s.Start(cfg.ServerPort); err != nil {
+		log.Fatal(err)
+	}
 }

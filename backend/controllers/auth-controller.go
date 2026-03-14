@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"backend/dto"
-	"backend/pkg/types"
 	"backend/repository"
 	"backend/services"
 	"backend/util"
@@ -42,7 +41,7 @@ func (ac *authController) EmployeeLogin(c *gin.Context) {
 		return
 	}
 
-	data := make(types.Filter)
+	data := make(map[string]interface{})
 	data["access_token"] = ac.sessionSvc.GetJWT(emp)
 
 	util.Success(c, data)
