@@ -3,10 +3,10 @@ package controllers
 import (
 	"backend/internal/dto"
 	"backend/internal/model"
+	"backend/internal/repository"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
 	"backend/pkg/util"
-	"backend/repository"
 	"backend/services"
 	"fmt"
 	"net/http"

@@ -2,8 +2,8 @@ package services
 
 import (
 	"backend/internal/model"
+	"backend/internal/repository"
 	"backend/pkg/jwt"
-	"backend/repository"
 	"time"
 )
 

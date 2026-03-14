@@ -3,7 +3,7 @@ package services
 import (
 	"backend/internal/dto"
 	"backend/internal/model"
-	"backend/repository"
+	"backend/internal/repository"
 )
 
 type MemberService interface {

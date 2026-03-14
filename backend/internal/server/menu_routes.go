@@ -2,7 +2,7 @@ package server
 
 import (
 	ctl "backend/controllers"
-	repo "backend/repository"
+	repo "backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
 )

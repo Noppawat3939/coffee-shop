@@ -3,8 +3,8 @@ package services
 import (
 	"backend/internal/dto"
 	"backend/internal/model"
+	"backend/internal/repository"
 	"backend/pkg/password"
-	"backend/repository"
 )
 
 type EmployeeService interface {

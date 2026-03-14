@@ -3,9 +3,9 @@ package controllers
 import (
 	"backend/internal/auth"
 	"backend/internal/dto"
+	"backend/internal/repository"
 	"backend/pkg/password"
 	"backend/pkg/response"
-	"backend/repository"
 	"backend/services"
 	"log"
 	"net/http"

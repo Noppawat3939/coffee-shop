@@ -2,8 +2,8 @@ package server
 
 import (
 	"backend/controllers"
+	"backend/internal/repository"
 	"backend/middleware"
-	"backend/repository"
 	"backend/services"
 
 	"github.com/gin-gonic/gin"

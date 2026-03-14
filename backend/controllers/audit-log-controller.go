@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"backend/internal/dto"
+	"backend/internal/repository"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
-	"backend/repository"
 	"backend/services"
 
 	"github.com/gin-gonic/gin"

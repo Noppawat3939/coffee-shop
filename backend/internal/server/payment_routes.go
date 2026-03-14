@@ -3,8 +3,8 @@ package server
 import (
 	ctl "backend/controllers"
 	"backend/internal/model"
+	"backend/internal/repository"
 	"backend/middleware"
-	"backend/repository"
 	"backend/services"
 
 	"github.com/gin-gonic/gin"

@@ -2,7 +2,7 @@ package services
 
 import (
 	"backend/internal/model"
-	"backend/repository"
+	"backend/internal/repository"
 	"fmt"
 	"slices"
 

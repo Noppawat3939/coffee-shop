@@ -3,8 +3,8 @@ package services
 import (
 	"backend/internal/dto"
 	"backend/internal/model"
+	"backend/internal/repository"
 	"backend/pkg/pagination"
-	"backend/repository"
 	"encoding/json"
 
 	"gorm.io/datatypes"
