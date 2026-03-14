@@ -2,7 +2,7 @@ package services
 
 import (
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/pagination"
 	"backend/repository"
 	"encoding/json"
@@ -15,14 +15,14 @@ type AuditLogService interface {
 	LogWithTx(
 		tx *gorm.DB,
 		employeeID *uint,
-		action models.AuditLogAction,
+		action model.AuditLogAction,
 		entity string,
 		entityID uint,
 		oldValue interface{},
 		newValue interface{},
 	) error
 
-	FindAll(req dto.GetAuditLogRequest, p *pagination.Pagination) ([]models.AuditLog, error)
+	FindAll(req dto.GetAuditLogRequest, p *pagination.Pagination) ([]model.AuditLog, error)
 }
 
 type service struct {
@@ -36,13 +36,13 @@ func NewAuditLogService(repo repository.AuditLogRepository) AuditLogService {
 func (s *service) LogWithTx(
 	tx *gorm.DB,
 	employeeID *uint,
-	action models.AuditLogAction,
+	action model.AuditLogAction,
 	entity string,
 	entityID uint,
 	oldValue any,
 	newValue any,
 ) error {
-	log := models.AuditLog{
+	log := model.AuditLog{
 		EmployeeID: employeeID,
 		Action:     action,
 		Entity:     entity,
@@ -54,7 +54,7 @@ func (s *service) LogWithTx(
 	return s.repo.Create(log, tx)
 }
 
-func (s *service) FindAll(req dto.GetAuditLogRequest, p *pagination.Pagination) ([]models.AuditLog, error) {
+func (s *service) FindAll(req dto.GetAuditLogRequest, p *pagination.Pagination) ([]model.AuditLog, error) {
 	filter := repository.AuditLogFilter{
 		ID:        req.ID,
 		Action:    req.Action,

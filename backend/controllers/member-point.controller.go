@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/response"
 	"backend/services"
 	"net/http"
@@ -29,7 +29,7 @@ func (mc *memberPointController) CreateMemberPoint(c *gin.Context) {
 		return
 	}
 
-	ok, _ := mc.svc.CreateMemberPoint(models.MemberPoint{MemberID: member.ID, TotalPoints: 0}, nil)
+	ok, _ := mc.svc.CreateMemberPoint(model.MemberPoint{MemberID: member.ID, TotalPoints: 0}, nil)
 
 	if !ok {
 		response.Error(c, http.StatusConflict, "failed register a new member point")

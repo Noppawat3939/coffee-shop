@@ -1,24 +1,24 @@
 package repository
 
 import (
-	"backend/models"
+	"backend/internal/model"
 
 	"gorm.io/gorm"
 )
 
 type OrderRepo interface {
 	// Create repositories
-	CreateOrder(order *models.Order, tx *gorm.DB) (models.Order, error)
-	CreateOrderStatusLog(odLog models.OrderStatusLog, tx *gorm.DB) (models.OrderStatusLog, error)
-	CreateOrderMenuVariation(odVaria models.OrderMenuVariation, tx *gorm.DB) (models.OrderMenuVariation, error)
+	CreateOrder(order *model.Order, tx *gorm.DB) (model.Order, error)
+	CreateOrderStatusLog(odLog model.OrderStatusLog, tx *gorm.DB) (model.OrderStatusLog, error)
+	CreateOrderMenuVariation(odVaria model.OrderMenuVariation, tx *gorm.DB) (model.OrderMenuVariation, error)
 	// Find all
-	FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error)
+	FindAllOrders(q map[string]interface{}, page, limit int) ([]model.Order, error)
 	// Find one
-	FindOneOrder(id int) (models.Order, error)
-	FindOneOrderByOrderNumber(odNo string) (models.Order, error)
-	FindOneMenuVariation(id int) (models.MenuVariation, error)
+	FindOneOrder(id int) (model.Order, error)
+	FindOneOrderByOrderNumber(odNo string) (model.Order, error)
+	FindOneMenuVariation(id int) (model.MenuVariation, error)
 	// Update one
-	UpdateOrder(q map[string]interface{}, order models.Order, tx *gorm.DB) (models.Order, error)
+	UpdateOrder(q map[string]interface{}, order model.Order, tx *gorm.DB) (model.Order, error)
 }
 
 type orderRepo struct {
@@ -36,60 +36,60 @@ func (r *orderRepo) getDB(tx *gorm.DB) *gorm.DB {
 	return r.db
 }
 
-func (r *orderRepo) CreateOrder(order *models.Order, tx *gorm.DB) (models.Order, error) {
+func (r *orderRepo) CreateOrder(order *model.Order, tx *gorm.DB) (model.Order, error) {
 	db := r.getDB(tx)
 	if err := db.Create(order).Error; err != nil {
-		return models.Order{}, err
+		return model.Order{}, err
 	}
 	return *order, nil
 }
 
-func (r *orderRepo) CreateOrderStatusLog(odLog models.OrderStatusLog, tx *gorm.DB) (models.OrderStatusLog, error) {
+func (r *orderRepo) CreateOrderStatusLog(odLog model.OrderStatusLog, tx *gorm.DB) (model.OrderStatusLog, error) {
 	db := r.getDB(tx)
 	if err := db.Create(&odLog).Error; err != nil {
-		return models.OrderStatusLog{}, err
+		return model.OrderStatusLog{}, err
 	}
 	return odLog, nil
 }
 
-func (r *orderRepo) CreateOrderMenuVariation(odVaria models.OrderMenuVariation, tx *gorm.DB) (models.OrderMenuVariation, error) {
+func (r *orderRepo) CreateOrderMenuVariation(odVaria model.OrderMenuVariation, tx *gorm.DB) (model.OrderMenuVariation, error) {
 	db := r.getDB(tx)
 	if err := db.Create(&odVaria).Error; err != nil {
-		return models.OrderMenuVariation{}, err
+		return model.OrderMenuVariation{}, err
 	}
 	return odVaria, nil
 }
 
-func (r *orderRepo) FindAllOrders(q map[string]interface{}, page, limit int) ([]models.Order, error) {
-	var orders []models.Order
+func (r *orderRepo) FindAllOrders(q map[string]interface{}, page, limit int) ([]model.Order, error) {
+	var orders []model.Order
 
 	err := r.db.Preload("Employee").Preload("Member").Limit(limit).Offset(page).Order("id desc").Find(&orders).Error
 	return orders, err
 }
 
-func (r *orderRepo) FindOneOrder(id int) (models.Order, error) {
-	var order models.Order
+func (r *orderRepo) FindOneOrder(id int) (model.Order, error) {
+	var order model.Order
 
 	err := r.db.Preload("StatusLogs").Preload("OrderMenuVariations.MenuVariation.Menu").First(&order, id).Error
 	return order, err
 }
 
-func (r *orderRepo) FindOneOrderByOrderNumber(odNo string) (models.Order, error) {
-	var order models.Order
+func (r *orderRepo) FindOneOrderByOrderNumber(odNo string) (model.Order, error) {
+	var order model.Order
 
 	err := r.db.Preload("Employee").Preload("StatusLogs").Preload("OrderMenuVariations.MenuVariation.Menu").Where("order_number = ?", odNo).First(&order).Error
 	return order, err
 }
 
-func (r *orderRepo) FindOneMenuVariation(id int) (models.MenuVariation, error) {
-	var menuVariation models.MenuVariation
+func (r *orderRepo) FindOneMenuVariation(id int) (model.MenuVariation, error) {
+	var menuVariation model.MenuVariation
 
 	err := r.db.First(&menuVariation, id).Error
 	return menuVariation, err
 }
 
-func (r *orderRepo) UpdateOrder(q map[string]interface{}, order models.Order, tx *gorm.DB) (models.Order, error) {
-	var data models.Order
+func (r *orderRepo) UpdateOrder(q map[string]interface{}, order model.Order, tx *gorm.DB) (model.Order, error) {
+	var data model.Order
 	db := r.getDB(tx)
 
 	if err := db.Where(q).First(&data).Error; err != nil {

@@ -1,7 +1,7 @@
 package migration
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -10,7 +10,7 @@ import (
 // Migrate orders column customer not guest to member_id
 func migrationOrderCustomerToMember(db *gorm.DB) error {
 	fmt.Println("[migrationOrderCustomerToMember]")
-	var orders []models.Order
+	var orders []model.Order
 
 	if err := db.Where("member_id IS NULL").Where("customer <> ?", "guest").Find(&orders).Error; err != nil {
 		return err
@@ -26,7 +26,7 @@ func migrationOrderCustomerToMember(db *gorm.DB) error {
 		names = append(names, order.Customer)
 	}
 
-	var members []models.Member
+	var members []model.Member
 
 	if err := db.Where("full_name IN ?", names).Find(&members).Error; err != nil {
 		return err
@@ -50,7 +50,7 @@ func migrationOrderCustomerToMember(db *gorm.DB) error {
 			continue
 		}
 
-		res := db.Model(&models.Order{}).Where("id = ?", order.ID).Update("member_id", memberID)
+		res := db.Model(&model.Order{}).Where("id = ?", order.ID).Update("member_id", memberID)
 		if res.Error != nil {
 			return res.Error
 		}

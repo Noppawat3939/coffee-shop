@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"time"
 
 	"gorm.io/gorm"
@@ -9,13 +9,13 @@ import (
 
 type PaymentRepo interface {
 	// Find all
-	FindAllTransactions(q map[string]interface{}, page, limit int) ([]models.PaymentOrderTransactionLog, error)
+	FindAllTransactions(q map[string]interface{}, page, limit int) ([]model.PaymentOrderTransactionLog, error)
 	// Find one
-	FindOneTransaction(q map[string]interface{}) (models.PaymentOrderTransactionLog, error)
+	FindOneTransaction(q map[string]interface{}) (model.PaymentOrderTransactionLog, error)
 	// Create
-	CreatePaymentLog(data models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
+	CreatePaymentLog(data model.PaymentOrderTransactionLog, tx *gorm.DB) (model.PaymentOrderTransactionLog, error)
 	// Update
-	UpdatePaymentLog(q map[string]interface{}, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error)
+	UpdatePaymentLog(q map[string]interface{}, log model.PaymentOrderTransactionLog, tx *gorm.DB) (model.PaymentOrderTransactionLog, error)
 	CancelActivePaymentLog(odNumberRef string, tx *gorm.DB) error
 }
 
@@ -34,24 +34,24 @@ func NewPaymentRepository(db *gorm.DB) PaymentRepo {
 	return &paymentRepo{db}
 }
 
-func (r *paymentRepo) FindOneTransaction(q map[string]interface{}) (models.PaymentOrderTransactionLog, error) {
-	var log models.PaymentOrderTransactionLog
+func (r *paymentRepo) FindOneTransaction(q map[string]interface{}) (model.PaymentOrderTransactionLog, error) {
+	var log model.PaymentOrderTransactionLog
 
 	err := r.db.Preload("Order").Where(q).First(&log).Error
 
 	return log, err
 }
 
-func (r *paymentRepo) CreatePaymentLog(data models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error) {
+func (r *paymentRepo) CreatePaymentLog(data model.PaymentOrderTransactionLog, tx *gorm.DB) (model.PaymentOrderTransactionLog, error) {
 	db := r.getDB(tx)
 	if err := db.Create(&data).Error; err != nil {
-		return models.PaymentOrderTransactionLog{}, err
+		return model.PaymentOrderTransactionLog{}, err
 	}
 	return data, nil
 }
 
-func (r *paymentRepo) UpdatePaymentLog(q map[string]interface{}, log models.PaymentOrderTransactionLog, tx *gorm.DB) (models.PaymentOrderTransactionLog, error) {
-	var data models.PaymentOrderTransactionLog
+func (r *paymentRepo) UpdatePaymentLog(q map[string]interface{}, log model.PaymentOrderTransactionLog, tx *gorm.DB) (model.PaymentOrderTransactionLog, error) {
+	var data model.PaymentOrderTransactionLog
 	db := r.getDB(tx)
 
 	if err := db.Where(q).First(&data).Error; err != nil {
@@ -66,18 +66,18 @@ func (r *paymentRepo) UpdatePaymentLog(q map[string]interface{}, log models.Paym
 }
 
 func (r *paymentRepo) CancelActivePaymentLog(odNumberRef string, tx *gorm.DB) error {
-	var data models.PaymentOrderTransactionLog
+	var data model.PaymentOrderTransactionLog
 	db := r.getDB(tx)
 
 	// auto expired only status to_pay
-	return db.Model(&data).Where("order_number_ref = ? AND status = ?", odNumberRef, models.OrderStatus.ToPay).Updates(map[string]interface{}{
-		"status":     models.OrderStatus.Canceled,
+	return db.Model(&data).Where("order_number_ref = ? AND status = ?", odNumberRef, model.OrderStatus.ToPay).Updates(map[string]interface{}{
+		"status":     model.OrderStatus.Canceled,
 		"expired_at": time.Now(),
 	}).Error
 }
 
-func (r *paymentRepo) FindAllTransactions(q map[string]interface{}, page, limit int) ([]models.PaymentOrderTransactionLog, error) {
-	var logs []models.PaymentOrderTransactionLog
+func (r *paymentRepo) FindAllTransactions(q map[string]interface{}, page, limit int) ([]model.PaymentOrderTransactionLog, error) {
+	var logs []model.PaymentOrderTransactionLog
 
 	err := r.db.Joins("Order").Preload("Order.Employee").Preload("Order.Member").Where(q).Limit(limit).Offset(page).Order("id desc").Find(&logs).Error
 

@@ -1,16 +1,16 @@
 package repository
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/pagination"
 
 	"gorm.io/gorm"
 )
 
 type MemberRepo interface {
-	Create(member models.Member) (models.Member, error)
-	FindOne(phone_number string) (models.Member, error)
-	FindAllIncluded(filter models.MemberFilter, page, limit int) ([]models.Member, error)
+	Create(member model.Member) (model.Member, error)
+	FindOne(phone_number string) (model.Member, error)
+	FindAllIncluded(filter model.MemberFilter, page, limit int) ([]model.Member, error)
 }
 
 type memberRepo struct {
@@ -21,27 +21,27 @@ func NewMemberRepository(db *gorm.DB) MemberRepo {
 	return &memberRepo{db}
 }
 
-func (r *memberRepo) Create(member models.Member) (models.Member, error) {
+func (r *memberRepo) Create(member model.Member) (model.Member, error) {
 
 	if err := r.db.Create(&member).Error; err != nil {
-		return models.Member{}, err
+		return model.Member{}, err
 	}
 
 	return member, nil
 }
 
-func (r *memberRepo) FindOne(phone_number string) (models.Member, error) {
-	var data models.Member
+func (r *memberRepo) FindOne(phone_number string) (model.Member, error) {
+	var data model.Member
 	err := r.db.Where("phone_number = ?", phone_number).First(&data).Error
 
 	return data, err
 }
 
-func (r *memberRepo) FindAllIncluded(filter models.MemberFilter, page, limit int) ([]models.Member, error) {
-	var data []models.Member
+func (r *memberRepo) FindAllIncluded(filter model.MemberFilter, page, limit int) ([]model.Member, error) {
+	var data []model.Member
 	pagination := pagination.Pagination{Page: page, Limit: limit}
 
-	db := r.db.Model(&models.Member{})
+	db := r.db.Model(&model.Member{})
 
 	if filter.PhoneNumber != "" {
 		db = db.Where("phone_number = ?", filter.PhoneNumber)

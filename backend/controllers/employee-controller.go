@@ -3,7 +3,8 @@ package controllers
 import (
 	"backend/internal/auth"
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
+
 	"backend/pkg/password"
 	"backend/pkg/response"
 	"backend/pkg/util"
@@ -40,7 +41,7 @@ func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 
 	hash, _ := password.Hash(req.Password)
 
-	employee, err := ec.repo.Create(models.Employee{
+	employee, err := ec.repo.Create(model.Employee{
 		Username: req.Username,
 		Password: hash,
 		Name:     req.Name,

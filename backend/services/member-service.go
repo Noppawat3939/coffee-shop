@@ -2,14 +2,14 @@ package services
 
 import (
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/repository"
 )
 
 type MemberService interface {
-	CreateMember(req dto.CreateMemberRequest) (models.Member, error)
-	FindMember(phone string) (models.Member, error)
-	FindAllMembers(filter models.MemberFilter, page, limt int) ([]models.MemberResponse, error)
+	CreateMember(req dto.CreateMemberRequest) (model.Member, error)
+	FindMember(phone string) (model.Member, error)
+	FindAllMembers(filter model.MemberFilter, page, limt int) ([]model.MemberResponse, error)
 }
 
 type memberService struct {
@@ -20,8 +20,8 @@ func NewMemberService(repo repository.MemberRepo) MemberService {
 	return &memberService{repo}
 }
 
-func (s *memberService) CreateMember(req dto.CreateMemberRequest) (models.Member, error) {
-	data, err := s.repo.Create(models.Member{PhoneNumber: req.PhoneNumber, FullName: req.FullName, Provider: "line"})
+func (s *memberService) CreateMember(req dto.CreateMemberRequest) (model.Member, error) {
+	data, err := s.repo.Create(model.Member{PhoneNumber: req.PhoneNumber, FullName: req.FullName, Provider: "line"})
 	if err != nil {
 		return data, err
 	}
@@ -29,7 +29,7 @@ func (s *memberService) CreateMember(req dto.CreateMemberRequest) (models.Member
 	return data, nil
 }
 
-func (s *memberService) FindMember(phone string) (models.Member, error) {
+func (s *memberService) FindMember(phone string) (model.Member, error) {
 	data, err := s.repo.FindOne(phone)
 	if err != nil {
 		return data, err
@@ -38,8 +38,8 @@ func (s *memberService) FindMember(phone string) (models.Member, error) {
 	return data, nil
 }
 
-func (s *memberService) FindAllMembers(filter models.MemberFilter, page, limit int) ([]models.MemberResponse, error) {
-	var result []models.MemberResponse
+func (s *memberService) FindAllMembers(filter model.MemberFilter, page, limit int) ([]model.MemberResponse, error) {
+	var result []model.MemberResponse
 
 	members, err := s.repo.FindAllIncluded(filter, page, limit)
 	if err != nil {
@@ -47,7 +47,7 @@ func (s *memberService) FindAllMembers(filter models.MemberFilter, page, limit i
 	}
 
 	for _, m := range members {
-		result = append(result, models.MemberResponse{
+		result = append(result, model.MemberResponse{
 			ID:          m.ID,
 			FullName:    m.FullName,
 			Provider:    m.Provider,

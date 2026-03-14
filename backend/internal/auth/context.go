@@ -1,14 +1,14 @@
 package auth
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/jwt"
 	"backend/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetUserFromContext(c *gin.Context) *models.UserJwyToken {
+func GetUserFromContext(c *gin.Context) *model.UserJwyToken {
 	user, exists := c.Get("user")
 
 	if !exists {
@@ -25,7 +25,7 @@ func GetUserFromContext(c *gin.Context) *models.UserJwyToken {
 		return nil
 	}
 
-	return &models.UserJwyToken{
+	return &model.UserJwyToken{
 		ID:       uint(claims.EmployeeID),
 		Username: claims.Username,
 		Exp:      uint(claims.ExpiresAt.Time.Unix()),

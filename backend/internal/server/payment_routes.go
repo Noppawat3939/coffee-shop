@@ -2,8 +2,8 @@ package server
 
 import (
 	ctl "backend/controllers"
+	"backend/internal/model"
 	"backend/middleware"
-	"backend/models"
 	"backend/repository"
 	"backend/services"
 
@@ -24,7 +24,7 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 		payment.GET("", controller.GetPaymentTransactions)
 		payment.POST("/order", middleware.IdempotencyMiddleware(cfg.DB), controller.CreatePaymentTransactionLog)
 		payment.POST("/enquiry", controller.EnquiryPayment)
-		payment.POST("/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Paid) })
-		payment.POST("/:order_number/canceled", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, models.OrderStatus.Canceled) })
+		payment.POST("/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, model.OrderStatus.Paid) })
+		payment.POST("/:order_number/canceled", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, model.OrderStatus.Canceled) })
 	}
 }

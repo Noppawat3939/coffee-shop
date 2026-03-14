@@ -2,13 +2,13 @@ package services
 
 import (
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/password"
 	"backend/repository"
 )
 
 type EmployeeService interface {
-	UpdateByID(id int, req dto.UpdateEmployeeRequest, user *models.UserJwyToken) (models.Employee, error)
+	UpdateByID(id int, req dto.UpdateEmployeeRequest, user *model.UserJwyToken) (model.Employee, error)
 }
 
 type employeeService struct {
@@ -20,12 +20,12 @@ func NewEmployeeService(repo repository.EmployeeRepo, auditSvc AuditLogService) 
 	return &employeeService{repo, auditSvc}
 }
 
-func (s *employeeService) UpdateByID(id int, req dto.UpdateEmployeeRequest, user *models.UserJwyToken) (models.Employee, error) {
-	var oldData models.Employee
+func (s *employeeService) UpdateByID(id int, req dto.UpdateEmployeeRequest, user *model.UserJwyToken) (model.Employee, error) {
+	var oldData model.Employee
 	employee, err := s.repo.FindOne(id)
 
 	if err != nil {
-		return models.Employee{}, err
+		return model.Employee{}, err
 	}
 
 	oldData = employee
@@ -53,7 +53,7 @@ func (s *employeeService) UpdateByID(id int, req dto.UpdateEmployeeRequest, user
 
 	result, updateErr := s.repo.UpdateEmployeeByID(id, employee)
 
-	s.auditSvc.LogWithTx(nil, &user.ID, models.AuditAction.Update, "employee", employee.ID, oldData, employee)
+	s.auditSvc.LogWithTx(nil, &user.ID, model.AuditAction.Update, "employee", employee.ID, oldData, employee)
 
 	return result, updateErr
 }

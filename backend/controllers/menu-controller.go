@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/response"
 	"backend/pkg/util"
 	"backend/repository"
@@ -71,10 +71,10 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 		return
 	}
 
-	var data models.Memu
+	var data model.Memu
 
 	err := mc.db.Transaction(func(tx *gorm.DB) error {
-		menu, err := mc.repo.Create(models.Memu{
+		menu, err := mc.repo.Create(model.Memu{
 			Name:        req.Name,
 			Description: req.Description,
 			IsAvailable: req.IsAvailable,
@@ -86,7 +86,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 
 		for _, v := range req.Variations {
 
-			variation, err := mc.repo.CreateMenuVariation(models.MenuVariation{
+			variation, err := mc.repo.CreateMenuVariation(model.MenuVariation{
 				MenuID: int(menu.ID),
 				Type:   v.Type,
 				Price:  v.Price,
@@ -97,7 +97,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 				return err
 			}
 
-			_, err = mc.repo.CreatePriceLog(models.MenuPriceLog{
+			_, err = mc.repo.CreatePriceLog(model.MenuPriceLog{
 				MenuVariationID: variation.ID,
 				Price:           variation.Price,
 			}, tx)
@@ -125,7 +125,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 func (mc *menuController) UpdateMenuByID(c *gin.Context) {
 	id := util.ToInt(c.Param("id"))
 
-	var body models.Memu
+	var body model.Memu
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		response.Error(c, http.StatusBadRequest, "body invalid")
@@ -145,18 +145,18 @@ func (mc *menuController) UpdateMenuByID(c *gin.Context) {
 func (mc *menuController) UpdateVariationByID(c *gin.Context) {
 	id := util.ToInt(c.Param("id"))
 
-	var req models.MenuVariation
+	var req model.MenuVariation
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.ErrorBodyInvalid(c)
 		return
 	}
 
-	var data models.Memu
+	var data model.Memu
 
 	err := mc.db.Transaction(func(tx *gorm.DB) error {
 		if req.Price > 0 {
-			_, err := mc.repo.CreatePriceLog(models.MenuPriceLog{
+			_, err := mc.repo.CreatePriceLog(model.MenuPriceLog{
 				Price:           req.Price,
 				MenuVariationID: uint(id),
 			}, tx)

@@ -3,7 +3,7 @@ package controllers
 import (
 	"backend/internal/auth"
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
 	"backend/pkg/util"
@@ -43,9 +43,9 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 		customer = *req.Customer
 	}
 
-	var order models.Order
+	var order model.Order
 	var total float64
-	var odVariations []models.OrderMenuVariation
+	var odVariations []model.OrderMenuVariation
 	var invalidMenuVariationIDs []string
 	var errStatus int = http.StatusConflict
 	var errMsg string = "failed create order"
@@ -63,7 +63,7 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			total += float64(v.Amount) * mv.Price
 
 			// append to order variations
-			odVariations = append(odVariations, models.OrderMenuVariation{
+			odVariations = append(odVariations, model.OrderMenuVariation{
 				MenuVariationID: v.MenuVariationID,
 				Amount:          v.Amount,
 				Price:           mv.Price,
@@ -79,9 +79,9 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 		}
 
 		// create orders
-		order = models.Order{
+		order = model.Order{
 			OrderNumber: uuid.NewString(),
-			Status:      models.OrderStatus.ToPay,
+			Status:      model.OrderStatus.ToPay,
 			Customer:    customer,
 			Total:       total,
 			EmployeeID:  &user.ID,

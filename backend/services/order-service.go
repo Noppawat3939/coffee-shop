@@ -1,7 +1,7 @@
 package services
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"backend/repository"
 	"fmt"
 	"slices"
@@ -10,9 +10,9 @@ import (
 )
 
 type OrderService interface {
-	CreateMenuVariations(data []models.OrderMenuVariation, order models.Order, tx *gorm.DB) (bool, error)
-	CreateLog(order models.Order, tx *gorm.DB) (bool, error)
-	UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (models.Order, error)
+	CreateMenuVariations(data []model.OrderMenuVariation, order model.Order, tx *gorm.DB) (bool, error)
+	CreateLog(order model.Order, tx *gorm.DB) (bool, error)
+	UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (model.Order, error)
 }
 
 type orderService struct {
@@ -23,7 +23,7 @@ func NewOrderService(repo repository.OrderRepo) OrderService {
 	return &orderService{repo}
 }
 
-func (s *orderService) CreateMenuVariations(data []models.OrderMenuVariation, order models.Order, tx *gorm.DB) (bool, error) {
+func (s *orderService) CreateMenuVariations(data []model.OrderMenuVariation, order model.Order, tx *gorm.DB) (bool, error) {
 	for i := range data {
 		data[i].OrderID = order.ID
 		if _, err := s.repo.CreateOrderMenuVariation(data[i], tx); err != nil {
@@ -34,8 +34,8 @@ func (s *orderService) CreateMenuVariations(data []models.OrderMenuVariation, or
 	return true, nil
 }
 
-func (s *orderService) CreateLog(order models.Order, tx *gorm.DB) (bool, error) {
-	if _, err := s.repo.CreateOrderStatusLog(models.OrderStatusLog{
+func (s *orderService) CreateLog(order model.Order, tx *gorm.DB) (bool, error) {
+	if _, err := s.repo.CreateOrderStatusLog(model.OrderStatusLog{
 		OrderID: order.ID,
 		Status:  order.Status,
 	}, tx); err != nil {
@@ -45,9 +45,9 @@ func (s *orderService) CreateLog(order models.Order, tx *gorm.DB) (bool, error) 
 	return true, nil
 }
 
-func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (models.Order, error) {
+func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm.DB) (model.Order, error) {
 	q := map[string]interface{}{"order_number": odNumber}
-	data := models.Order{Status: status}
+	data := model.Order{Status: status}
 
 	order, err := s.repo.FindOneOrderByOrderNumber(odNumber)
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm
 	}
 
 	// create order status log
-	if _, err := s.repo.CreateOrderStatusLog(models.OrderStatusLog{OrderID: order.ID, Status: status}, tx); err != nil {
+	if _, err := s.repo.CreateOrderStatusLog(model.OrderStatusLog{OrderID: order.ID, Status: status}, tx); err != nil {
 		return order, err
 	}
 
@@ -73,7 +73,7 @@ func (s *orderService) UpdateOrderStatusAndLog(odNumber, status string, tx *gorm
 }
 
 var mappingAllowedStatusToUpdate = map[string][]string{
-	models.OrderStatus.ToPay:    {models.OrderStatus.Paid, models.OrderStatus.Canceled},
-	models.OrderStatus.Paid:     {models.OrderStatus.Paid},
-	models.OrderStatus.Canceled: {models.OrderStatus.Canceled},
+	model.OrderStatus.ToPay:    {model.OrderStatus.Paid, model.OrderStatus.Canceled},
+	model.OrderStatus.Paid:     {model.OrderStatus.Paid},
+	model.OrderStatus.Canceled: {model.OrderStatus.Canceled},
 }

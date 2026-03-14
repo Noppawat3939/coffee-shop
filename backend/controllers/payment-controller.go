@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
 	"backend/pkg/util"
@@ -88,7 +88,7 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 		}
 
 		// update point earn
-		if status == models.OrderStatus.Paid {
+		if status == model.OrderStatus.Paid {
 			if err := pc.pointSvc.EarnPointFromOrder(order, tx); err != nil {
 				return err
 			}

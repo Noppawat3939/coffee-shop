@@ -2,7 +2,7 @@ package database
 
 import (
 	"backend/config"
-	md "backend/models"
+	"backend/internal/model"
 	"fmt"
 
 	"gorm.io/driver/postgres"
@@ -34,14 +34,14 @@ func Migration(db *gorm.DB) error {
 
 	return RunMigrations(
 		db,
-		md.MenuMigrate,
-		md.EmployMigration,
-		md.OrderMigrate,
-		md.MemberMigrate,
-		md.PaymenMigrate,
-		md.MemberPointsMigrate,
-		md.SessionMigration,
-		md.AuditLogMigration,
+		model.MenuMigrate,
+		model.EmployMigration,
+		model.OrderMigrate,
+		model.MemberMigrate,
+		model.PaymenMigrate,
+		model.MemberPointsMigrate,
+		model.SessionMigration,
+		model.AuditLogMigration,
 	)
 }
 

@@ -1,17 +1,17 @@
 package services
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/jwt"
 	"backend/repository"
 	"time"
 )
 
 type SessionService interface {
-	FindOneSession(employeeID uint) (models.Session, bool)
-	CreateSession(data models.Session) (models.Session, error)
+	FindOneSession(employeeID uint) (model.Session, bool)
+	CreateSession(data model.Session) (model.Session, error)
 	ExpiredByEmployeeID(id uint) error
-	GetJWT(employee models.Employee) string
+	GetJWT(employee model.Employee) string
 }
 
 type sessionService struct {
@@ -22,7 +22,7 @@ func NewSessionService(repo repository.SessionRepo) SessionService {
 	return &sessionService{repo}
 }
 
-func (s *sessionService) FindOneSession(employeeID uint) (models.Session, bool) {
+func (s *sessionService) FindOneSession(employeeID uint) (model.Session, bool) {
 	v, err := s.repo.FindOne(employeeID)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func (s *sessionService) FindOneSession(employeeID uint) (models.Session, bool) 
 	return v, true
 }
 
-func (s *sessionService) CreateSession(data models.Session) (models.Session, error) {
+func (s *sessionService) CreateSession(data model.Session) (model.Session, error) {
 	return s.repo.Create(data)
 }
 
@@ -47,7 +47,7 @@ func (s *sessionService) ExpiredByEmployeeID(id uint) error {
 	return nil
 }
 
-func (s *sessionService) GetJWT(employee models.Employee) string {
+func (s *sessionService) GetJWT(employee model.Employee) string {
 	var jwtStr string = ""
 
 	// find session not expired
@@ -61,7 +61,7 @@ func (s *sessionService) GetJWT(employee models.Employee) string {
 		exp := time.Now().Add(time.Duration(24) * time.Hour) // 1d
 		value, _ := jwt.GenerateJWT(employee.ID, employee.Username, exp)
 
-		data := models.Session{EmployeeID: &employee.ID, Value: value, ExpiredAt: exp, Employee: &employee}
+		data := model.Session{EmployeeID: &employee.ID, Value: value, ExpiredAt: exp, Employee: &employee}
 		s.CreateSession(data)
 
 		jwtStr = value

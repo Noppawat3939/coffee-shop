@@ -1,15 +1,15 @@
 package repository
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"time"
 
 	"gorm.io/gorm"
 )
 
 type SessionRepo interface {
-	Create(data models.Session) (models.Session, error)
-	FindOne(employeeID uint) (models.Session, error)
+	Create(data model.Session) (model.Session, error)
+	FindOne(employeeID uint) (model.Session, error)
 	UpdateOne(id int) error
 }
 
@@ -21,15 +21,15 @@ func NewSessionRepository(db *gorm.DB) SessionRepo {
 	return &sessionRepo{db}
 }
 
-func (r *sessionRepo) Create(data models.Session) (models.Session, error) {
+func (r *sessionRepo) Create(data model.Session) (model.Session, error) {
 	if err := r.db.Create(&data).Error; err != nil {
-		return models.Session{}, err
+		return model.Session{}, err
 	}
 	return data, nil
 }
 
-func (r *sessionRepo) FindOne(employeeID uint) (models.Session, error) {
-	var data models.Session
+func (r *sessionRepo) FindOne(employeeID uint) (model.Session, error) {
+	var data model.Session
 
 	// find one not expired
 	err := r.db.Where("employee_id = ?", employeeID).Where("expired_at > ?", time.Now()).First(&data).Error
@@ -41,5 +41,5 @@ func (r *sessionRepo) FindOne(employeeID uint) (models.Session, error) {
 }
 
 func (r *sessionRepo) UpdateOne(id int) error {
-	return r.db.Model(&models.Session{}).Where("id = ?", id).Update("expired_at", time.Now()).Error
+	return r.db.Model(&model.Session{}).Where("id = ?", id).Update("expired_at", time.Now()).Error
 }

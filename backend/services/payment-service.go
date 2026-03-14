@@ -2,7 +2,7 @@ package services
 
 import (
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/util"
 	"backend/repository"
 	"crypto/hmac"
@@ -55,12 +55,12 @@ func (s *paymentService) CreatePaymentTransactionLog(
 
 	signature := signPayload(payload)
 
-	log, err := s.payRepo.CreatePaymentLog(models.PaymentOrderTransactionLog{
+	log, err := s.payRepo.CreatePaymentLog(model.PaymentOrderTransactionLog{
 		OrderID:           order.ID,
 		OrderNumberRef:    order.OrderNumber,
 		Amount:            order.Total,
 		TransactionNumber: util.GenerateTransactionNumber(req.OrderNumber),
-		Status:            models.OrderStatus.ToPay, // initial status
+		Status:            model.OrderStatus.ToPay, // initial status
 		PaymentCode:       payload,
 		QRSignature:       signature,
 		ExpiredAt:         time.Now().Add(10 * time.Minute), // expired in 10 min
@@ -106,10 +106,10 @@ func (s *paymentService) FindOnePaymentLog(q map[string]interface{}) (*dto.Enqui
 func (s *paymentService) UpdatePaymentStatus(odNumber, status string, tx *gorm.DB) (bool, error) {
 	q := map[string]interface{}{
 		"order_number_ref": odNumber,
-		"status":           models.OrderStatus.ToPay,
+		"status":           model.OrderStatus.ToPay,
 	}
 
-	_, err := s.payRepo.UpdatePaymentLog(q, models.PaymentOrderTransactionLog{
+	_, err := s.payRepo.UpdatePaymentLog(q, model.PaymentOrderTransactionLog{
 		Status:    status,
 		ExpiredAt: time.Now(),
 	}, tx)

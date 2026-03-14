@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"backend/internal/dto"
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
 	"backend/services"
@@ -54,7 +54,7 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 		return
 	}
 
-	data := models.MemberPoint{MemberID: member.ID, Member: member}
+	data := model.MemberPoint{MemberID: member.ID, Member: member}
 	_, err = mc.pointSvc.CreateMemberPoint(data, nil)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 func (mc *memberController) GetMembers(c *gin.Context) {
 	p := pagination.NewFromQuery(c)
 
-	filter := models.MemberFilter{
+	filter := model.MemberFilter{
 		PhoneNumber: c.Query("phone_number"),
 		FullName:    c.Query("full_name"),
 	}

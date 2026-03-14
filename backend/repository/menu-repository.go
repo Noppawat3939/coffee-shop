@@ -1,23 +1,23 @@
 package repository
 
 import (
-	"backend/models"
+	"backend/internal/model"
 
 	"gorm.io/gorm"
 )
 
 type MenuRepo interface {
-	FindAll() ([]models.Memu, error)
-	FindOne(id int) (models.Memu, error)
+	FindAll() ([]model.Memu, error)
+	FindOne(id int) (model.Memu, error)
 
-	FindVariationAll(ids []int) ([]models.MenuVariation, error)
+	FindVariationAll(ids []int) ([]model.MenuVariation, error)
 
-	Create(menu models.Memu, tx *gorm.DB) (models.Memu, error)
-	CreatePriceLog(priceLog models.MenuPriceLog, tx *gorm.DB) (models.MenuPriceLog, error)
-	CreateMenuVariation(variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error)
+	Create(menu model.Memu, tx *gorm.DB) (model.Memu, error)
+	CreatePriceLog(priceLog model.MenuPriceLog, tx *gorm.DB) (model.MenuPriceLog, error)
+	CreateMenuVariation(variation model.MenuVariation, tx *gorm.DB) (model.MenuVariation, error)
 
-	UpdateByID(id int, menu models.Memu) (models.Memu, error)
-	UpdateVariationByID(id int, variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error)
+	UpdateByID(id int, menu model.Memu) (model.Memu, error)
+	UpdateVariationByID(id int, variation model.MenuVariation, tx *gorm.DB) (model.MenuVariation, error)
 }
 
 type menuRepo struct {
@@ -35,15 +35,15 @@ func (r *menuRepo) getDB(tx *gorm.DB) *gorm.DB {
 	return r.db
 }
 
-func (r *menuRepo) FindAll() ([]models.Memu, error) {
-	var data []models.Memu
+func (r *menuRepo) FindAll() ([]model.Memu, error) {
+	var data []model.Memu
 	err := r.db.Preload("Variations").Find(&data).Error
 
 	return data, err
 }
 
-func (r *menuRepo) FindVariationAll(ids []int) ([]models.MenuVariation, error) {
-	var data []models.MenuVariation
+func (r *menuRepo) FindVariationAll(ids []int) ([]model.MenuVariation, error) {
+	var data []model.MenuVariation
 	query := r.db.Preload("Menu")
 
 	if len(ids) > 0 {
@@ -55,44 +55,44 @@ func (r *menuRepo) FindVariationAll(ids []int) ([]models.MenuVariation, error) {
 	return data, err
 }
 
-func (r *menuRepo) FindOne(id int) (models.Memu, error) {
-	var data models.Memu
+func (r *menuRepo) FindOne(id int) (model.Memu, error) {
+	var data model.Memu
 
 	err := r.db.Preload("Variations").First(&data, id).Error
 
 	return data, err
 }
 
-func (r *menuRepo) Create(menu models.Memu, tx *gorm.DB) (models.Memu, error) {
+func (r *menuRepo) Create(menu model.Memu, tx *gorm.DB) (model.Memu, error) {
 	db := r.getDB(tx)
 	if err := db.Create(&menu).Error; err != nil {
-		return models.Memu{}, err
+		return model.Memu{}, err
 	}
 
 	return menu, nil
 }
 
-func (r *menuRepo) CreateMenuVariation(variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error) {
+func (r *menuRepo) CreateMenuVariation(variation model.MenuVariation, tx *gorm.DB) (model.MenuVariation, error) {
 	db := r.getDB(tx)
 
 	if err := db.Create(&variation).Error; err != nil {
-		return models.MenuVariation{}, err
+		return model.MenuVariation{}, err
 	}
 	return variation, nil
 }
 
-func (r *menuRepo) CreatePriceLog(priceLog models.MenuPriceLog, tx *gorm.DB) (models.MenuPriceLog, error) {
+func (r *menuRepo) CreatePriceLog(priceLog model.MenuPriceLog, tx *gorm.DB) (model.MenuPriceLog, error) {
 	db := r.getDB(tx)
 
 	if err := db.Create(&priceLog).Error; err != nil {
-		return models.MenuPriceLog{}, err
+		return model.MenuPriceLog{}, err
 	}
 
 	return priceLog, nil
 }
 
-func (r *menuRepo) UpdateByID(id int, menu models.Memu) (models.Memu, error) {
-	var data models.Memu
+func (r *menuRepo) UpdateByID(id int, menu model.Memu) (model.Memu, error) {
+	var data model.Memu
 
 	if err := r.db.First(&data, id).Error; err != nil {
 		return data, err
@@ -103,10 +103,10 @@ func (r *menuRepo) UpdateByID(id int, menu models.Memu) (models.Memu, error) {
 	return data, err
 }
 
-func (r *menuRepo) UpdateVariationByID(id int, variation models.MenuVariation, tx *gorm.DB) (models.MenuVariation, error) {
+func (r *menuRepo) UpdateVariationByID(id int, variation model.MenuVariation, tx *gorm.DB) (model.MenuVariation, error) {
 	db := r.getDB(tx)
 
-	var data models.MenuVariation
+	var data model.MenuVariation
 
 	if err := db.First(&data, id).Error; err != nil {
 		return data, err

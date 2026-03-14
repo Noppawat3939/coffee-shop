@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/pagination"
 	"time"
 
@@ -9,8 +9,8 @@ import (
 )
 
 type AuditLogRepository interface {
-	Create(data models.AuditLog, tx *gorm.DB) error
-	FindAll(filter AuditLogFilter, p *pagination.Pagination) ([]models.AuditLog, error)
+	Create(data model.AuditLog, tx *gorm.DB) error
+	FindAll(filter AuditLogFilter, p *pagination.Pagination) ([]model.AuditLog, error)
 }
 
 type auditLogRepository struct {
@@ -36,16 +36,16 @@ func (r *auditLogRepository) getDB(tx *gorm.DB) *gorm.DB {
 	return r.db
 }
 
-func (r *auditLogRepository) Create(data models.AuditLog, tx *gorm.DB) error {
+func (r *auditLogRepository) Create(data model.AuditLog, tx *gorm.DB) error {
 	db := r.getDB(tx)
 
 	return db.Create(&data).Error
 }
 
-func (r *auditLogRepository) FindAll(filter AuditLogFilter, p *pagination.Pagination) ([]models.AuditLog, error) {
-	var data []models.AuditLog
+func (r *auditLogRepository) FindAll(filter AuditLogFilter, p *pagination.Pagination) ([]model.AuditLog, error) {
+	var data []model.AuditLog
 
-	query := r.db.Model(&models.AuditLog{}).Preload("Employee").Scopes(buildFilter(filter))
+	query := r.db.Model(&model.AuditLog{}).Preload("Employee").Scopes(buildFilter(filter))
 
 	query = p.Apply(query)
 	err := query.Find(&data).Error

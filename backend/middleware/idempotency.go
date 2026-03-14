@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"backend/models"
+	"backend/internal/model"
 	"backend/pkg/response"
 	"bytes"
 	"fmt"
@@ -32,7 +32,7 @@ func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 		endpoint := c.FullPath()
 
-		var record models.IdempotencyKey
+		var record model.IdempotencyKey
 		err := db.Where("key = ? AND endpoint = ?", key, endpoint).
 			First(&record).Error
 
@@ -51,7 +51,7 @@ func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 		c.Next()
 
-		record = models.IdempotencyKey{
+		record = model.IdempotencyKey{
 			ID:         uuid.New(),
 			Key:        key,
 			Endpoint:   endpoint,
