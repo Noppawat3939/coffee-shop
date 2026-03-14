@@ -2,10 +2,10 @@ package server
 
 import (
 	ctl "backend/internal/handler"
+	"backend/internal/middleware"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/internal/service"
-	"backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

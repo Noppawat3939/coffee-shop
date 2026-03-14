@@ -2,9 +2,9 @@ package server
 
 import (
 	"backend/internal/handler"
+	"backend/internal/middleware"
 	"backend/internal/repository"
 	"backend/internal/service"
-	"backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )
