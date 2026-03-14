@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"backend/dto"
+	"backend/internal/auth"
 	"backend/models"
+	"backend/pkg/password"
+	"backend/pkg/response"
+	"backend/pkg/util"
 	"backend/repository"
 	"backend/services"
-	"backend/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,11 +34,11 @@ func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 	var req dto.CreateEmployeeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
-	hash, _ := util.HashPassword(req.Password)
+	hash, _ := password.Hash(req.Password)
 
 	employee, err := ec.repo.Create(models.Employee{
 		Username: req.Username,
@@ -46,11 +49,11 @@ func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 	})
 
 	if err != nil {
-		util.Error(c, http.StatusConflict, "failed create employee")
+		response.Error(c, http.StatusConflict, "failed create employee")
 		return
 	}
 
-	util.Success(c, employee)
+	response.Success(c, employee)
 }
 
 func (ec *employeeController) FindAll(c *gin.Context) {
@@ -70,40 +73,40 @@ func (ec *employeeController) FindAll(c *gin.Context) {
 
 	employees, err := ec.repo.FindAll(q)
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, employees)
+	response.Success(c, employees)
 }
 
 func (ec *employeeController) FindOne(c *gin.Context) {
-	id := util.ParamToInt(c, "id")
+	id := util.ToInt((c.Param("id")))
 
 	employee, err := ec.repo.FindOne(id)
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, employee)
+	response.Success(c, employee)
 }
 
 func (ec *employeeController) UpdateEmployee(c *gin.Context) {
 	var req dto.UpdateEmployeeRequest
-	user := util.GetUserFromHeader(c)
-	id := util.ParamToInt(c, "id")
+	user := auth.GetUserFromContext(c)
+	id := util.ToInt((c.Param("id")))
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
 	data, err := ec.service.UpdateByID(id, req, user)
 	if err != nil {
-		util.ErrorConflict(c)
+		response.ErrorConflict(c)
 		return
 	}
 
-	util.Success(c, data)
+	response.Success(c, data)
 }

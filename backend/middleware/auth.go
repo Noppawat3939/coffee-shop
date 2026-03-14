@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"backend/util"
+	"backend/pkg/jwt"
+	"backend/pkg/response"
 	"net/http"
 	"strings"
 
@@ -25,18 +26,18 @@ func AuthGuard() gin.HandlerFunc {
 		}
 
 		if msg != "" {
-			util.Error(c, http.StatusUnauthorized, msg)
+			response.Error(c, http.StatusUnauthorized, msg)
 			c.Abort()
 			return
 
 		}
 
-		jwt := strings.TrimPrefix(authHeader, authPrefix)
+		jwtStr := strings.TrimPrefix(authHeader, authPrefix)
 
-		claims, err := util.ParseJWT(jwt)
+		claims, err := jwt.ParseJWT(jwtStr)
 
 		if err != nil {
-			util.ErrorUnauthorized(c)
+			response.ErrorUnauthorized(c)
 			c.Abort()
 			return
 		}

@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"backend/dto"
+	"backend/pkg/pagination"
+	"backend/pkg/response"
 	"backend/repository"
 	"backend/services"
-	"backend/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,17 +23,17 @@ func (c *auditLogController) FindAll(ctx *gin.Context) {
 	var req dto.GetAuditLogRequest
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		util.ErrorBodyInvalid(ctx)
+		response.ErrorBodyInvalid(ctx)
 		return
 	}
 
-	pagination := util.NewPaginationFromQuery(ctx)
+	pagination := pagination.NewFromQuery(ctx)
 
 	logs, err := c.svc.FindAll(req, pagination)
 	if err != nil {
-		util.ErrorNotFound(ctx)
+		response.ErrorNotFound(ctx)
 		return
 	}
 
-	util.Success(ctx, logs)
+	response.Success(ctx, logs)
 }

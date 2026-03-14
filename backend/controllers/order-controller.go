@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"backend/dto"
+	"backend/internal/auth"
 	"backend/models"
+	"backend/pkg/pagination"
+	"backend/pkg/response"
+	"backend/pkg/util"
 	"backend/repository"
 	"backend/services"
-	"backend/util"
 	"fmt"
 	"net/http"
 	"strings"
@@ -28,10 +31,10 @@ func NewOrderController(repo repository.OrderRepo, odSvc services.OrderService, 
 func (oc *orderController) CreateOrder(c *gin.Context) {
 	var req dto.CreateOrderRequest
 
-	user := util.GetUserFromHeader(c)
+	user := auth.GetUserFromContext(c)
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
@@ -101,23 +104,23 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 	})
 
 	if err != nil {
-		util.Error(c, errStatus, errMsg)
+		response.Error(c, errStatus, errMsg)
 		return
 	}
 
-	util.Success(c, order)
+	response.Success(c, order)
 }
 
 func (oc *orderController) GetOrderByID(c *gin.Context) {
-	id := util.ParamToInt(c, "id")
+	id := util.ToInt(c.Param("id"))
 
 	order, err := oc.repo.FindOneOrder(id)
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, order)
+	response.Success(c, order)
 }
 
 func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
@@ -125,28 +128,28 @@ func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
 
 	order, err := oc.repo.FindOneOrderByOrderNumber(order_number)
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, order)
+	response.Success(c, order)
 }
 
 func (oc *orderController) GetOrders(c *gin.Context) {
 	status := c.Param("status")
-	id := util.ParamToInt(c, "id")
-	page, limit := util.BuildPagination(c)
+	id := util.ToInt((c.Param("id")))
+	p := pagination.NewFromQuery(c)
 
 	q := map[string]interface{}{
 		"id":     id,
 		"status": status,
 	}
 
-	orders, err := oc.repo.FindAllOrders(q, page, limit)
+	orders, err := oc.repo.FindAllOrders(q, p.Page, p.Limit)
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, orders)
+	response.Success(c, orders)
 }

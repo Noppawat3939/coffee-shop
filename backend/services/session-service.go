@@ -2,8 +2,8 @@ package services
 
 import (
 	"backend/models"
+	"backend/pkg/jwt"
 	"backend/repository"
-	"backend/util"
 	"time"
 )
 
@@ -48,23 +48,24 @@ func (s *sessionService) ExpiredByEmployeeID(id uint) error {
 }
 
 func (s *sessionService) GetJWT(employee models.Employee) string {
-	var jwt string = ""
+	var jwtStr string = ""
 
 	// find session not expired
 	session, found := s.FindOneSession(employee.ID)
 	if found {
-		jwt = session.Value
+		jwtStr = session.Value
 	}
 
 	// not found session then gen new jwt
 	if !found {
 		exp := time.Now().Add(time.Duration(24) * time.Hour) // 1d
-		value, _ := util.GenerateJWT(employee.ID, employee.Username, exp)
+		value, _ := jwt.GenerateJWT(employee.ID, employee.Username, exp)
+
 		data := models.Session{EmployeeID: &employee.ID, Value: value, ExpiredAt: exp, Employee: &employee}
 		s.CreateSession(data)
 
-		jwt = value
+		jwtStr = value
 	}
 
-	return jwt
+	return jwtStr
 }

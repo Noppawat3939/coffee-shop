@@ -3,8 +3,8 @@ package services
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/pagination"
 	"backend/repository"
-	"backend/util"
 	"encoding/json"
 
 	"gorm.io/datatypes"
@@ -22,7 +22,7 @@ type AuditLogService interface {
 		newValue interface{},
 	) error
 
-	FindAll(req dto.GetAuditLogRequest, p *util.Pagination) ([]models.AuditLog, error)
+	FindAll(req dto.GetAuditLogRequest, p *pagination.Pagination) ([]models.AuditLog, error)
 }
 
 type service struct {
@@ -54,7 +54,7 @@ func (s *service) LogWithTx(
 	return s.repo.Create(log, tx)
 }
 
-func (s *service) FindAll(req dto.GetAuditLogRequest, p *util.Pagination) ([]models.AuditLog, error) {
+func (s *service) FindAll(req dto.GetAuditLogRequest, p *pagination.Pagination) ([]models.AuditLog, error) {
 	filter := repository.AuditLogFilter{
 		ID:        req.ID,
 		Action:    req.Action,

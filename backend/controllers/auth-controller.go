@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"backend/dto"
+	"backend/internal/auth"
+	"backend/pkg/password"
+	"backend/pkg/response"
 	"backend/repository"
 	"backend/services"
-	"backend/util"
 	"log"
 	"net/http"
 
@@ -24,39 +26,39 @@ func (ac *authController) EmployeeLogin(c *gin.Context) {
 	var req dto.LoginEmployeeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
 	emp, err := ac.repo.FindByUsername(req.Username)
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	ok := util.CheckPasswordHash(req.Password, emp.Password)
+	ok := password.Compare(req.Password, emp.Password)
 
 	if !ok {
-		util.Error(c, http.StatusBadRequest, "invalid username or password")
+		response.Error(c, http.StatusBadRequest, "invalid username or password")
 		return
 	}
 
 	data := make(map[string]interface{})
 	data["access_token"] = ac.sessionSvc.GetJWT(emp)
 
-	util.Success(c, data)
+	response.Success(c, data)
 }
 
 func (ac *authController) VerifyJWTByEmployee(c *gin.Context) {
-	data := util.GetUserFromHeader(c)
+	data := auth.GetUserFromContext(c)
 
-	util.Success(c, data)
+	response.Success(c, data)
 }
 
 func (ac *authController) EmployeeLogout(c *gin.Context) {
 	var msg string = ""
 
-	data := util.GetUserFromHeader(c)
+	data := auth.GetUserFromContext(c)
 
 	if data.ID != 0 {
 		err := ac.sessionSvc.ExpiredByEmployeeID(data.ID)
@@ -71,5 +73,5 @@ func (ac *authController) EmployeeLogout(c *gin.Context) {
 	res := make(map[string]interface{})
 	res["message"] = msg
 
-	util.Success(c, res)
+	response.Success(c, res)
 }

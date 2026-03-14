@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"backend/models"
-	"backend/util"
+	"backend/pkg/response"
 	"bytes"
 	"fmt"
 	"net/http"
@@ -24,7 +24,7 @@ func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := c.GetHeader(ID_KEY)
 		if key == "" {
-			util.Error(c, http.StatusBadRequest, fmt.Sprintf("%s %s", ID_KEY, "required"))
+			response.Error(c, http.StatusBadRequest, fmt.Sprintf("%s %s", ID_KEY, "required"))
 
 			c.Abort()
 			return
@@ -37,7 +37,7 @@ func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 			First(&record).Error
 
 		if err == nil {
-			util.Error(c, http.StatusConflict, "duplicate request (idempotency key already used)")
+			response.Error(c, http.StatusConflict, "duplicate request (idempotency key already used)")
 			c.Abort()
 			return
 		}

@@ -3,9 +3,11 @@ package controllers
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/pagination"
+	"backend/pkg/response"
+	"backend/pkg/util"
 	"backend/repository"
 	"backend/services"
-	"backend/util"
 	"fmt"
 	"net/http"
 
@@ -29,25 +31,25 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 	var req dto.CreateTxnLogRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
 	res, err := pc.paymentSvc.CreatePaymentTransactionLog(req)
 
 	if err != nil {
-		util.Error(c, http.StatusConflict, "failed create payment transaction log")
+		response.Error(c, http.StatusConflict, "failed create payment transaction log")
 		return
 	}
 
-	util.Success(c, res)
+	response.Success(c, res)
 }
 
 func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 	var req dto.EnquireTxnRequst
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
@@ -62,11 +64,11 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 	res, err := pc.paymentSvc.FindOnePaymentLog(q)
 
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, res)
+	response.Success(c, res)
 }
 
 func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status string) {
@@ -96,15 +98,15 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 	})
 
 	if err != nil {
-		util.Error(c, http.StatusNotFound, fmt.Sprintf("order number %s already status %s", odNo, status))
+		response.Error(c, http.StatusNotFound, fmt.Sprintf("order number %s already status %s", odNo, status))
 		return
 	}
 
-	util.Success(c)
+	response.Success(c)
 }
 
 func (pc *paymentController) GetPaymentTransactions(c *gin.Context) {
-	page, limit := util.BuildPagination(c)
+	p := pagination.NewFromQuery(c)
 	idStr := c.Query("id")
 	status := c.Query("status")
 	transaction_number := c.Query("transaction_number")
@@ -125,12 +127,12 @@ func (pc *paymentController) GetPaymentTransactions(c *gin.Context) {
 		q["order_number_ref"] = order_number_ref
 	}
 
-	logs, err := pc.paymentRepo.FindAllTransactions(q, page, limit)
+	logs, err := pc.paymentRepo.FindAllTransactions(q, p.Page, p.Limit)
 
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, logs)
+	response.Success(c, logs)
 }

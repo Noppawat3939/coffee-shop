@@ -3,8 +3,8 @@ package services
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/password"
 	"backend/repository"
-	"backend/util"
 )
 
 type EmployeeService interface {
@@ -47,7 +47,7 @@ func (s *employeeService) UpdateByID(id int, req dto.UpdateEmployeeRequest, user
 	}
 
 	if req.Password != nil {
-		hash, _ := util.HashPassword(*req.Password)
+		hash, _ := password.Hash(*req.Password)
 		employee.Password = hash
 	}
 

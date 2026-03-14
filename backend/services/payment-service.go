@@ -3,8 +3,8 @@ package services
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/util"
 	"backend/repository"
-	"backend/util"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"

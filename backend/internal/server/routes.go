@@ -1,7 +1,7 @@
 package server
 
 import (
-	"backend/util"
+	"backend/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,7 +11,7 @@ func (s *Server) registerRoutes() {
 	db := s.db
 
 	r.NoRoute(func(c *gin.Context) {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 	})
 
 	r.GET("/ping", func(c *gin.Context) {
@@ -33,5 +33,4 @@ func (s *Server) registerRoutes() {
 	cfg.IntialMenuRoutes(api)
 	cfg.IntialOrderRoutes(api)
 	cfg.IntialPaymentRoutes(api)
-
 }

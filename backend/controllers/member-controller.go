@@ -3,8 +3,9 @@ package controllers
 import (
 	"backend/dto"
 	"backend/models"
+	"backend/pkg/pagination"
+	"backend/pkg/response"
 	"backend/services"
-	"backend/util"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -24,32 +25,32 @@ func (mc *memberController) GetMember(c *gin.Context) {
 	var req dto.GetMemberRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
 	member, err := mc.memberSvc.FindMember(req.PhoneNumber)
 
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, member)
+	response.Success(c, member)
 }
 
 func (mc *memberController) CreateMember(c *gin.Context) {
 	var req dto.CreateMemberRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		util.ErrorBodyInvalid(c)
+		response.ErrorBodyInvalid(c)
 		return
 	}
 
 	member, err := mc.memberSvc.CreateMember(req)
 
 	if err != nil {
-		util.ErrorConflict(c)
+		response.ErrorConflict(c)
 		return
 	}
 
@@ -57,27 +58,27 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 	_, err = mc.pointSvc.CreateMemberPoint(data, nil)
 
 	if err != nil {
-		util.ErrorConflict(c)
+		response.ErrorConflict(c)
 		return
 	}
 
-	util.Success(c, member)
+	response.Success(c, member)
 }
 
 func (mc *memberController) GetMembers(c *gin.Context) {
-	page, limit := util.BuildPagination(c)
+	p := pagination.NewFromQuery(c)
 
 	filter := models.MemberFilter{
 		PhoneNumber: c.Query("phone_number"),
 		FullName:    c.Query("full_name"),
 	}
 
-	members, err := mc.memberSvc.FindAllMembers(filter, page, limit)
+	members, err := mc.memberSvc.FindAllMembers(filter, p.Page, p.Limit)
 
 	if err != nil {
-		util.ErrorNotFound(c)
+		response.ErrorNotFound(c)
 		return
 	}
 
-	util.Success(c, members)
+	response.Success(c, members)
 }

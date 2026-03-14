@@ -2,7 +2,7 @@ package repository
 
 import (
 	"backend/models"
-	"backend/util"
+	"backend/pkg/pagination"
 
 	"gorm.io/gorm"
 )
@@ -57,9 +57,9 @@ func (r *memberPointRepo) FindOneMemberPoint(memberId uint) (models.MemberPoint,
 func (r *memberPointRepo) FindAllMembersPoint(q map[string]interface{}, page, limit int) ([]models.MemberPoint, error) {
 	var data []models.MemberPoint
 
-	pagination := util.Pagination{Page: page, Limit: limit}
+	pagination := pagination.Pagination{Page: page, Limit: limit}
 
-	if err := r.db.Scopes(pagination.GetPaginationResult).Where(q).Find(&data).Error; err != nil {
+	if err := r.db.Scopes(pagination.Apply).Where(q).Find(&data).Error; err != nil {
 		return data, err
 	}
 

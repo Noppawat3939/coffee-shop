@@ -2,7 +2,7 @@ package repository
 
 import (
 	"backend/models"
-	"backend/util"
+	"backend/pkg/pagination"
 
 	"gorm.io/gorm"
 )
@@ -39,7 +39,7 @@ func (r *memberRepo) FindOne(phone_number string) (models.Member, error) {
 
 func (r *memberRepo) FindAllIncluded(filter models.MemberFilter, page, limit int) ([]models.Member, error) {
 	var data []models.Member
-	pagination := util.Pagination{Page: page, Limit: limit}
+	pagination := pagination.Pagination{Page: page, Limit: limit}
 
 	db := r.db.Model(&models.Member{})
 
@@ -51,7 +51,7 @@ func (r *memberRepo) FindAllIncluded(filter models.MemberFilter, page, limit int
 		db = db.Where("full_name ILIKE ?", "%"+filter.FullName+"%")
 	}
 
-	err := db.Preload("MemberPoint").Order("id DESC").Scopes(pagination.GetPaginationResult).Find(&data).Error
+	err := db.Preload("MemberPoint").Order("id DESC").Scopes(pagination.Apply).Find(&data).Error
 
 	return data, err
 }
