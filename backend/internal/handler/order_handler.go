@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"backend/internal/auth"
@@ -18,17 +18,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type orderController struct {
+type orderHandler struct {
 	repo  repository.OrderRepo
 	odSvc service.OrderService
 	db    *gorm.DB
 }
 
-func NewOrderController(repo repository.OrderRepo, odSvc service.OrderService, db *gorm.DB) *orderController {
-	return &orderController{repo, odSvc, db}
+func NewOrderHandler(repo repository.OrderRepo, odSvc service.OrderService, db *gorm.DB) *orderHandler {
+	return &orderHandler{repo, odSvc, db}
 }
 
-func (oc *orderController) CreateOrder(c *gin.Context) {
+func (h *orderHandler) CreateOrder(c *gin.Context) {
 	var req dto.CreateOrderRequest
 
 	user := auth.GetUserFromContext(c)
@@ -50,11 +50,11 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 	var errStatus int = http.StatusConflict
 	var errMsg string = "failed create order"
 
-	err := oc.db.Transaction(func(tx *gorm.DB) error {
+	err := h.db.Transaction(func(tx *gorm.DB) error {
 		// calculate total and prepare variations
 		for _, v := range req.Variations {
 			// check order variation id invalid
-			mv, err := oc.repo.FindOneMenuVariation(int(v.MenuVariationID))
+			mv, err := h.repo.FindOneMenuVariation(int(v.MenuVariationID))
 			if err != nil {
 				invalidMenuVariationIDs = append(invalidMenuVariationIDs, util.IntToString(int(v.MenuVariationID)))
 				continue
@@ -88,15 +88,15 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 			MemberID:    &req.MemberID,
 		}
 
-		if _, err := oc.repo.CreateOrder(&order, tx); err != nil {
+		if _, err := h.repo.CreateOrder(&order, tx); err != nil {
 			return err
 		}
 
-		if _, err := oc.odSvc.CreateMenuVariations(odVariations, order, tx); err != nil {
+		if _, err := h.odSvc.CreateMenuVariations(odVariations, order, tx); err != nil {
 			return err
 		}
 
-		if _, err := oc.odSvc.CreateLog(order, tx); err != nil {
+		if _, err := h.odSvc.CreateLog(order, tx); err != nil {
 			return err
 		}
 
@@ -111,10 +111,10 @@ func (oc *orderController) CreateOrder(c *gin.Context) {
 	response.Success(c, order)
 }
 
-func (oc *orderController) GetOrderByID(c *gin.Context) {
+func (h *orderHandler) GetOrderByID(c *gin.Context) {
 	id := util.ToInt(c.Param("id"))
 
-	order, err := oc.repo.FindOneOrder(id)
+	order, err := h.repo.FindOneOrder(id)
 	if err != nil {
 		response.ErrorNotFound(c)
 		return
@@ -123,10 +123,10 @@ func (oc *orderController) GetOrderByID(c *gin.Context) {
 	response.Success(c, order)
 }
 
-func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
+func (h *orderHandler) GetOrderByOrderNumber(c *gin.Context) {
 	order_number := c.Param("order_number")
 
-	order, err := oc.repo.FindOneOrderByOrderNumber(order_number)
+	order, err := h.repo.FindOneOrderByOrderNumber(order_number)
 	if err != nil {
 		response.ErrorNotFound(c)
 		return
@@ -135,7 +135,7 @@ func (oc *orderController) GetOrderByOrderNumber(c *gin.Context) {
 	response.Success(c, order)
 }
 
-func (oc *orderController) GetOrders(c *gin.Context) {
+func (h *orderHandler) GetOrders(c *gin.Context) {
 	status := c.Param("status")
 	id := util.ToInt((c.Param("id")))
 	p := pagination.NewFromQuery(c)
@@ -145,7 +145,7 @@ func (oc *orderController) GetOrders(c *gin.Context) {
 		"status": status,
 	}
 
-	orders, err := oc.repo.FindAllOrders(q, p.Page, p.Limit)
+	orders, err := h.repo.FindAllOrders(q, p.Page, p.Limit)
 	if err != nil {
 		response.ErrorNotFound(c)
 		return

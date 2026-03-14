@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"backend/internal/dto"
@@ -11,17 +11,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type memberController struct {
+type memberHandler struct {
 	memberSvc service.MemberService
 	pointSvc  service.MemberPointService
 	db        *gorm.DB
 }
 
-func NewMemberController(memberSvc service.MemberService, pointSvc service.MemberPointService, db *gorm.DB) *memberController {
-	return &memberController{memberSvc, pointSvc, db}
+func NewMemberHandler(memberSvc service.MemberService, pointSvc service.MemberPointService, db *gorm.DB) *memberHandler {
+	return &memberHandler{memberSvc, pointSvc, db}
 }
 
-func (mc *memberController) GetMember(c *gin.Context) {
+func (h *memberHandler) GetMember(c *gin.Context) {
 	var req dto.GetMemberRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -29,7 +29,7 @@ func (mc *memberController) GetMember(c *gin.Context) {
 		return
 	}
 
-	member, err := mc.memberSvc.FindMember(req.PhoneNumber)
+	member, err := h.memberSvc.FindMember(req.PhoneNumber)
 
 	if err != nil {
 		response.ErrorNotFound(c)
@@ -39,7 +39,7 @@ func (mc *memberController) GetMember(c *gin.Context) {
 	response.Success(c, member)
 }
 
-func (mc *memberController) CreateMember(c *gin.Context) {
+func (h *memberHandler) CreateMember(c *gin.Context) {
 	var req dto.CreateMemberRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -47,7 +47,7 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 		return
 	}
 
-	member, err := mc.memberSvc.CreateMember(req)
+	member, err := h.memberSvc.CreateMember(req)
 
 	if err != nil {
 		response.ErrorConflict(c)
@@ -55,7 +55,7 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 	}
 
 	data := model.MemberPoint{MemberID: member.ID, Member: member}
-	_, err = mc.pointSvc.CreateMemberPoint(data, nil)
+	_, err = h.pointSvc.CreateMemberPoint(data, nil)
 
 	if err != nil {
 		response.ErrorConflict(c)
@@ -65,7 +65,7 @@ func (mc *memberController) CreateMember(c *gin.Context) {
 	response.Success(c, member)
 }
 
-func (mc *memberController) GetMembers(c *gin.Context) {
+func (h *memberHandler) GetMembers(c *gin.Context) {
 	p := pagination.NewFromQuery(c)
 
 	filter := model.MemberFilter{
@@ -73,7 +73,7 @@ func (mc *memberController) GetMembers(c *gin.Context) {
 		FullName:    c.Query("full_name"),
 	}
 
-	members, err := mc.memberSvc.FindAllMembers(filter, p.Page, p.Limit)
+	members, err := h.memberSvc.FindAllMembers(filter, p.Page, p.Limit)
 
 	if err != nil {
 		response.ErrorNotFound(c)

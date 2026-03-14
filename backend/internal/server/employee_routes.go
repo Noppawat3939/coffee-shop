@@ -1,7 +1,7 @@
 package server
 
 import (
-	"backend/controllers"
+	"backend/internal/handler"
 	"backend/internal/repository"
 	"backend/internal/service"
 	"backend/middleware"
@@ -15,14 +15,14 @@ func (cfg *RouterConfig) IntialEmployeeRoues(r *gin.RouterGroup) {
 	auditRepo := repository.NewAuditLogRepository(db)
 	auditSvc := service.NewAuditLogService(auditRepo)
 	service := service.NewEmployeeService(repo, auditSvc)
-	controller := controllers.NewEmployeeController(repo, service, cfg.DB)
+	handler := handler.NewEmployeeHandler(repo, service, cfg.DB)
 
 	employee := r.Group("/Employees", middleware.AuthGuard())
 	{
-		employee.GET("", controller.FindAll)
-		employee.POST("register", controller.RegisterEmployee)
-		employee.GET("/:id", controller.FindOne)
-		employee.PATCH("/:id", controller.UpdateEmployee)
+		employee.GET("", handler.FindAll)
+		employee.POST("register", handler.RegisterEmployee)
+		employee.GET("/:id", handler.FindOne)
+		employee.PATCH("/:id", handler.UpdateEmployee)
 	}
 
 }

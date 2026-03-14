@@ -1,7 +1,7 @@
 package server
 
 import (
-	"backend/controllers"
+	"backend/internal/handler"
 	"backend/internal/repository"
 	"backend/internal/service"
 	"backend/middleware"
@@ -16,11 +16,11 @@ func (cfg *RouterConfig) InitialMemberPointRoutes(r *gin.RouterGroup) {
 	memberRepo := repository.NewMemberRepository(db)
 	svc := service.NewMemberPointService(repo)
 	memberSvc := service.NewMemberService(memberRepo)
-	controller := controllers.NewMemberPointController(svc, memberSvc, db)
+	handler := handler.NewMemberPointHandler(svc, memberSvc, db)
 
 	point := r.Group("/Points", middleware.AuthGuard())
 	{
-		point.POST("/member/register/:phone_number", controller.CreateMemberPoint)
+		point.POST("/member/register/:phone_number", handler.CreateMemberPoint)
 	}
 
 }

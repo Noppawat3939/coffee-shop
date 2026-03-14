@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"backend/internal/dto"
@@ -12,17 +12,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type menuController struct {
+type menuHandler struct {
 	repo repository.MenuRepo
 	db   *gorm.DB
 }
 
-func NewMenuController(repo repository.MenuRepo, db *gorm.DB) *menuController {
-	return &menuController{repo, db}
+func NewMenuHandler(repo repository.MenuRepo, db *gorm.DB) *menuHandler {
+	return &menuHandler{repo, db}
 }
 
-func (mc *menuController) GetMenus(c *gin.Context) {
-	menus, err := mc.repo.FindAll()
+func (h *menuHandler) GetMenus(c *gin.Context) {
+	menus, err := h.repo.FindAll()
 	if err != nil {
 		response.ErrorNotFound(c)
 		return
@@ -31,7 +31,7 @@ func (mc *menuController) GetMenus(c *gin.Context) {
 	response.Success(c, menus)
 }
 
-func (mc *menuController) GetMenuVariations(c *gin.Context) {
+func (h *menuHandler) GetMenuVariations(c *gin.Context) {
 	idParams := c.QueryArray("id[]")
 
 	var ids []int
@@ -40,7 +40,7 @@ func (mc *menuController) GetMenuVariations(c *gin.Context) {
 		ids = util.StringsToInts(idParams)
 	}
 
-	data, err := mc.repo.FindVariationAll(ids)
+	data, err := h.repo.FindVariationAll(ids)
 
 	if err != nil {
 		response.ErrorNotFound(c)
@@ -50,10 +50,10 @@ func (mc *menuController) GetMenuVariations(c *gin.Context) {
 	response.Success(c, data)
 }
 
-func (mc *menuController) GetMenu(c *gin.Context) {
+func (h *menuHandler) GetMenu(c *gin.Context) {
 	id := util.ToInt(c.Param("id"))
 
-	menu, err := mc.repo.FindOne(id)
+	menu, err := h.repo.FindOne(id)
 
 	if err != nil {
 		response.ErrorNotFound(c)
@@ -63,7 +63,7 @@ func (mc *menuController) GetMenu(c *gin.Context) {
 	response.Success(c, menu)
 }
 
-func (mc *menuController) CreateMenu(c *gin.Context) {
+func (h *menuHandler) CreateMenu(c *gin.Context) {
 	var req dto.CreateMenuRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -73,8 +73,8 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 
 	var data model.Memu
 
-	err := mc.db.Transaction(func(tx *gorm.DB) error {
-		menu, err := mc.repo.Create(model.Memu{
+	err := h.db.Transaction(func(tx *gorm.DB) error {
+		menu, err := h.repo.Create(model.Memu{
 			Name:        req.Name,
 			Description: req.Description,
 			IsAvailable: req.IsAvailable,
@@ -86,7 +86,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 
 		for _, v := range req.Variations {
 
-			variation, err := mc.repo.CreateMenuVariation(model.MenuVariation{
+			variation, err := h.repo.CreateMenuVariation(model.MenuVariation{
 				MenuID: int(menu.ID),
 				Type:   v.Type,
 				Price:  v.Price,
@@ -97,7 +97,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 				return err
 			}
 
-			_, err = mc.repo.CreatePriceLog(model.MenuPriceLog{
+			_, err = h.repo.CreatePriceLog(model.MenuPriceLog{
 				MenuVariationID: variation.ID,
 				Price:           variation.Price,
 			}, tx)
@@ -122,7 +122,7 @@ func (mc *menuController) CreateMenu(c *gin.Context) {
 	response.Success(c, data)
 }
 
-func (mc *menuController) UpdateMenuByID(c *gin.Context) {
+func (h *menuHandler) UpdateMenuByID(c *gin.Context) {
 	id := util.ToInt(c.Param("id"))
 
 	var body model.Memu
@@ -132,7 +132,7 @@ func (mc *menuController) UpdateMenuByID(c *gin.Context) {
 		return
 	}
 
-	menu, err := mc.repo.UpdateByID(id, body)
+	menu, err := h.repo.UpdateByID(id, body)
 
 	if err != nil {
 		response.ErrorConflict(c)
@@ -142,7 +142,7 @@ func (mc *menuController) UpdateMenuByID(c *gin.Context) {
 	response.Success(c, menu)
 }
 
-func (mc *menuController) UpdateVariationByID(c *gin.Context) {
+func (h *menuHandler) UpdateVariationByID(c *gin.Context) {
 	id := util.ToInt(c.Param("id"))
 
 	var req model.MenuVariation
@@ -154,9 +154,9 @@ func (mc *menuController) UpdateVariationByID(c *gin.Context) {
 
 	var data model.Memu
 
-	err := mc.db.Transaction(func(tx *gorm.DB) error {
+	err := h.db.Transaction(func(tx *gorm.DB) error {
 		if req.Price > 0 {
-			_, err := mc.repo.CreatePriceLog(model.MenuPriceLog{
+			_, err := h.repo.CreatePriceLog(model.MenuPriceLog{
 				Price:           req.Price,
 				MenuVariationID: uint(id),
 			}, tx)
@@ -166,7 +166,7 @@ func (mc *menuController) UpdateVariationByID(c *gin.Context) {
 			}
 		}
 
-		_, err := mc.repo.UpdateVariationByID(id, req, tx)
+		_, err := h.repo.UpdateVariationByID(id, req, tx)
 
 		if err != nil {
 			return err

@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"backend/internal/dto"
@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type paymentController struct {
+type paymentHandler struct {
 	paymentRepo repository.PaymentRepo
 	paymentSvc  service.PaymentService
 	pointSvc    service.MemberPointService
@@ -23,11 +23,11 @@ type paymentController struct {
 	db          *gorm.DB
 }
 
-func NewPaymentController(paymentRepo repository.PaymentRepo, paymentSvc service.PaymentService, pointSvc service.MemberPointService, odSvc service.OrderService, db *gorm.DB) *paymentController {
-	return &paymentController{paymentRepo, paymentSvc, pointSvc, odSvc, db}
+func NewPaymentHandler(paymentRepo repository.PaymentRepo, paymentSvc service.PaymentService, pointSvc service.MemberPointService, odSvc service.OrderService, db *gorm.DB) *paymentHandler {
+	return &paymentHandler{paymentRepo, paymentSvc, pointSvc, odSvc, db}
 }
 
-func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
+func (h *paymentHandler) CreatePaymentTransactionLog(c *gin.Context) {
 	var req dto.CreateTxnLogRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -35,7 +35,7 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 		return
 	}
 
-	res, err := pc.paymentSvc.CreatePaymentTransactionLog(req)
+	res, err := h.paymentSvc.CreatePaymentTransactionLog(req)
 
 	if err != nil {
 		response.Error(c, http.StatusConflict, "failed create payment transaction log")
@@ -45,7 +45,7 @@ func (pc *paymentController) CreatePaymentTransactionLog(c *gin.Context) {
 	response.Success(c, res)
 }
 
-func (pc *paymentController) EnquiryPayment(c *gin.Context) {
+func (h *paymentHandler) EnquiryPayment(c *gin.Context) {
 	var req dto.EnquireTxnRequst
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -61,7 +61,7 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 		q["status"] = req.Status
 	}
 
-	res, err := pc.paymentSvc.FindOnePaymentLog(q)
+	res, err := h.paymentSvc.FindOnePaymentLog(q)
 
 	if err != nil {
 		response.ErrorNotFound(c)
@@ -71,25 +71,25 @@ func (pc *paymentController) EnquiryPayment(c *gin.Context) {
 	response.Success(c, res)
 }
 
-func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status string) {
+func (h *paymentHandler) UpdatePaymentAndOrderStatus(c *gin.Context, status string) {
 	odNo := c.Param("order_number")
 
-	err := pc.db.Transaction(func(tx *gorm.DB) error {
+	err := h.db.Transaction(func(tx *gorm.DB) error {
 		// update payment log not expired
-		_, err := pc.paymentSvc.UpdatePaymentStatus(odNo, status, tx)
+		_, err := h.paymentSvc.UpdatePaymentStatus(odNo, status, tx)
 		if err != nil {
 			return err
 		}
 
 		// update order and create order_status_log
-		order, err := pc.odSvc.UpdateOrderStatusAndLog(odNo, status, tx)
+		order, err := h.odSvc.UpdateOrderStatusAndLog(odNo, status, tx)
 		if err != nil {
 			return err
 		}
 
 		// update point earn
 		if status == model.OrderStatus.Paid {
-			if err := pc.pointSvc.EarnPointFromOrder(order, tx); err != nil {
+			if err := h.pointSvc.EarnPointFromOrder(order, tx); err != nil {
 				return err
 			}
 		}
@@ -105,7 +105,7 @@ func (pc *paymentController) UpdatePaymentAndOrderStatus(c *gin.Context, status 
 	response.Success(c)
 }
 
-func (pc *paymentController) GetPaymentTransactions(c *gin.Context) {
+func (h *paymentHandler) GetPaymentTransactions(c *gin.Context) {
 	p := pagination.NewFromQuery(c)
 	idStr := c.Query("id")
 	status := c.Query("status")
@@ -127,7 +127,7 @@ func (pc *paymentController) GetPaymentTransactions(c *gin.Context) {
 		q["order_number_ref"] = order_number_ref
 	}
 
-	logs, err := pc.paymentRepo.FindAllTransactions(q, p.Page, p.Limit)
+	logs, err := h.paymentRepo.FindAllTransactions(q, p.Page, p.Limit)
 
 	if err != nil {
 		response.ErrorNotFound(c)

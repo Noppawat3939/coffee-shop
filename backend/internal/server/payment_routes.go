@@ -1,7 +1,7 @@
 package server
 
 import (
-	ctl "backend/controllers"
+	ctl "backend/internal/handler"
 	"backend/internal/model"
 	"backend/internal/repository"
 	"backend/internal/service"
@@ -17,14 +17,14 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 	svc := service.NewPaymentService(odRepo, payRepo)
 	odSvc := service.NewOrderService(odRepo)
 	pointSvc := service.NewMemberPointService(pointRepo)
-	controller := ctl.NewPaymentController(payRepo, svc, pointSvc, odSvc, cfg.DB)
+	handler := ctl.NewPaymentHandler(payRepo, svc, pointSvc, odSvc, cfg.DB)
 
 	payment := r.Group("/Payments/txns", middleware.AuthGuard())
 	{
-		payment.GET("", controller.GetPaymentTransactions)
-		payment.POST("/order", middleware.IdempotencyMiddleware(cfg.DB), controller.CreatePaymentTransactionLog)
-		payment.POST("/enquiry", controller.EnquiryPayment)
-		payment.POST("/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, model.OrderStatus.Paid) })
-		payment.POST("/:order_number/canceled", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { controller.UpdatePaymentAndOrderStatus(ctx, model.OrderStatus.Canceled) })
+		payment.GET("", handler.GetPaymentTransactions)
+		payment.POST("/order", middleware.IdempotencyMiddleware(cfg.DB), handler.CreatePaymentTransactionLog)
+		payment.POST("/enquiry", handler.EnquiryPayment)
+		payment.POST("/:order_number/paid", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { handler.UpdatePaymentAndOrderStatus(ctx, model.OrderStatus.Paid) })
+		payment.POST("/:order_number/canceled", middleware.IdempotencyMiddleware(cfg.DB), func(ctx *gin.Context) { handler.UpdatePaymentAndOrderStatus(ctx, model.OrderStatus.Canceled) })
 	}
 }

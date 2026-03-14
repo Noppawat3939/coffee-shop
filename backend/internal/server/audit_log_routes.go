@@ -1,7 +1,7 @@
 package server
 
 import (
-	"backend/controllers"
+	"backend/internal/handler"
 	"backend/internal/repository"
 	"backend/internal/service"
 	"backend/middleware"
@@ -12,9 +12,9 @@ import (
 func (cfg *RouterConfig) InitialAuditLogRoutes(r *gin.RouterGroup) {
 	repo := repository.NewAuditLogRepository(cfg.DB)
 	svc := service.NewAuditLogService(repo)
-	controller := controllers.NewAuditLogController(repo, svc)
+	handler := handler.NewAuditLogHandler(repo, svc)
 
 	admin := r.Group("/Admin", middleware.AuthGuard())
 
-	admin.GET("/audit-logs", controller.FindAll)
+	admin.GET("/audit-logs", handler.FindAll)
 }

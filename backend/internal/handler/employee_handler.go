@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"backend/internal/auth"
@@ -16,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type employeeController struct {
+type employeeHandler struct {
 	repo    repository.EmployeeRepo
 	service service.EmployeeService
 	db      *gorm.DB
@@ -27,11 +27,11 @@ var Role = struct {
 	Staff string
 }{Admin: "admin", Staff: "staff"}
 
-func NewEmployeeController(repo repository.EmployeeRepo, service service.EmployeeService, db *gorm.DB) *employeeController {
-	return &employeeController{repo, service, db}
+func NewEmployeeHandler(repo repository.EmployeeRepo, service service.EmployeeService, db *gorm.DB) *employeeHandler {
+	return &employeeHandler{repo, service, db}
 }
 
-func (ec *employeeController) RegisterEmployee(c *gin.Context) {
+func (h *employeeHandler) RegisterEmployee(c *gin.Context) {
 	var req dto.CreateEmployeeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -41,7 +41,7 @@ func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 
 	hash, _ := password.Hash(req.Password)
 
-	employee, err := ec.repo.Create(model.Employee{
+	employee, err := h.repo.Create(model.Employee{
 		Username: req.Username,
 		Password: hash,
 		Name:     req.Name,
@@ -57,7 +57,7 @@ func (ec *employeeController) RegisterEmployee(c *gin.Context) {
 	response.Success(c, employee)
 }
 
-func (ec *employeeController) FindAll(c *gin.Context) {
+func (h *employeeHandler) FindAll(c *gin.Context) {
 	q := make(map[string]interface{})
 
 	if username := c.Query("username"); username != "" {
@@ -72,7 +72,7 @@ func (ec *employeeController) FindAll(c *gin.Context) {
 		q["id"] = util.ToInt(id)
 	}
 
-	employees, err := ec.repo.FindAll(q)
+	employees, err := h.repo.FindAll(q)
 	if err != nil {
 		response.ErrorNotFound(c)
 		return
@@ -81,10 +81,10 @@ func (ec *employeeController) FindAll(c *gin.Context) {
 	response.Success(c, employees)
 }
 
-func (ec *employeeController) FindOne(c *gin.Context) {
+func (h *employeeHandler) FindOne(c *gin.Context) {
 	id := util.ToInt((c.Param("id")))
 
-	employee, err := ec.repo.FindOne(id)
+	employee, err := h.repo.FindOne(id)
 	if err != nil {
 		response.ErrorNotFound(c)
 		return
@@ -93,7 +93,7 @@ func (ec *employeeController) FindOne(c *gin.Context) {
 	response.Success(c, employee)
 }
 
-func (ec *employeeController) UpdateEmployee(c *gin.Context) {
+func (h *employeeHandler) UpdateEmployee(c *gin.Context) {
 	var req dto.UpdateEmployeeRequest
 	user := auth.GetUserFromContext(c)
 	id := util.ToInt((c.Param("id")))
@@ -103,7 +103,7 @@ func (ec *employeeController) UpdateEmployee(c *gin.Context) {
 		return
 	}
 
-	data, err := ec.service.UpdateByID(id, req, user)
+	data, err := h.service.UpdateByID(id, req, user)
 	if err != nil {
 		response.ErrorConflict(c)
 		return

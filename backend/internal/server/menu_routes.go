@@ -1,7 +1,7 @@
 package server
 
 import (
-	ctl "backend/controllers"
+	ctl "backend/internal/handler"
 	repo "backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
@@ -9,15 +9,15 @@ import (
 
 func (cfg *RouterConfig) IntialMenuRoutes(r *gin.RouterGroup) {
 	repo := repo.NewMenuRepository(cfg.DB)
-	controller := ctl.NewMenuController(repo, cfg.DB)
+	handler := ctl.NewMenuHandler(repo, cfg.DB)
 
 	menu := r.Group("/Menus")
 	{
-		menu.GET("", controller.GetMenus)
-		menu.GET("/:id", controller.GetMenu)
-		menu.GET("/variation", controller.GetMenuVariations)
-		menu.POST("/", controller.CreateMenu)
-		menu.PATCH("/:id", controller.UpdateMenuByID)
-		menu.PATCH("/variation/:id", controller.UpdateVariationByID)
+		menu.GET("", handler.GetMenus)
+		menu.GET("/:id", handler.GetMenu)
+		menu.GET("/variation", handler.GetMenuVariations)
+		menu.POST("/", handler.CreateMenu)
+		menu.PATCH("/:id", handler.UpdateMenuByID)
+		menu.PATCH("/variation/:id", handler.UpdateVariationByID)
 	}
 }

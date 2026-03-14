@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"backend/internal/auth"
@@ -13,16 +13,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type authController struct {
+type authHandler struct {
 	repo       repository.EmployeeRepo
 	sessionSvc service.SessionService
 }
 
-func NewAuthController(repo repository.EmployeeRepo, sessionSvc service.SessionService) *authController {
-	return &authController{repo, sessionSvc}
+func NewAuthHandler(repo repository.EmployeeRepo, sessionSvc service.SessionService) *authHandler {
+	return &authHandler{repo, sessionSvc}
 }
 
-func (ac *authController) EmployeeLogin(c *gin.Context) {
+func (h *authHandler) EmployeeLogin(c *gin.Context) {
 	var req dto.LoginEmployeeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -30,7 +30,7 @@ func (ac *authController) EmployeeLogin(c *gin.Context) {
 		return
 	}
 
-	emp, err := ac.repo.FindByUsername(req.Username)
+	emp, err := h.repo.FindByUsername(req.Username)
 	if err != nil {
 		response.ErrorNotFound(c)
 		return
@@ -44,24 +44,24 @@ func (ac *authController) EmployeeLogin(c *gin.Context) {
 	}
 
 	data := make(map[string]interface{})
-	data["access_token"] = ac.sessionSvc.GetJWT(emp)
+	data["access_token"] = h.sessionSvc.GetJWT(emp)
 
 	response.Success(c, data)
 }
 
-func (ac *authController) VerifyJWTByEmployee(c *gin.Context) {
+func (h *authHandler) VerifyJWTByEmployee(c *gin.Context) {
 	data := auth.GetUserFromContext(c)
 
 	response.Success(c, data)
 }
 
-func (ac *authController) EmployeeLogout(c *gin.Context) {
+func (h *authHandler) EmployeeLogout(c *gin.Context) {
 	var msg string = ""
 
 	data := auth.GetUserFromContext(c)
 
 	if data.ID != 0 {
-		err := ac.sessionSvc.ExpiredByEmployeeID(data.ID)
+		err := h.sessionSvc.ExpiredByEmployeeID(data.ID)
 		if err != nil {
 			log.Println(err.Error())
 			msg = "user already logged out"
