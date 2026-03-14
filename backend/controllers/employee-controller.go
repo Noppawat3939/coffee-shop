@@ -4,12 +4,12 @@ import (
 	"backend/internal/auth"
 	"backend/internal/dto"
 	"backend/internal/model"
+	"backend/internal/service"
 
 	"backend/internal/repository"
 	"backend/pkg/password"
 	"backend/pkg/response"
 	"backend/pkg/util"
-	"backend/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +18,7 @@ import (
 
 type employeeController struct {
 	repo    repository.EmployeeRepo
-	service services.EmployeeService
+	service service.EmployeeService
 	db      *gorm.DB
 }
 
@@ -27,7 +27,7 @@ var Role = struct {
 	Staff string
 }{Admin: "admin", Staff: "staff"}
 
-func NewEmployeeController(repo repository.EmployeeRepo, service services.EmployeeService, db *gorm.DB) *employeeController {
+func NewEmployeeController(repo repository.EmployeeRepo, service service.EmployeeService, db *gorm.DB) *employeeController {
 	return &employeeController{repo, service, db}
 }
 

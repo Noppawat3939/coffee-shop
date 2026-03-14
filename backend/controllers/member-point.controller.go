@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"backend/internal/model"
+	"backend/internal/service"
 	"backend/pkg/response"
-	"backend/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,12 +11,12 @@ import (
 )
 
 type memberPointController struct {
-	svc       services.MemberPointService
-	memberSvc services.MemberService
+	svc       service.MemberPointService
+	memberSvc service.MemberService
 	db        *gorm.DB
 }
 
-func NewMemberPointController(svc services.MemberPointService, memberSvc services.MemberService, db *gorm.DB) *memberPointController {
+func NewMemberPointController(svc service.MemberPointService, memberSvc service.MemberService, db *gorm.DB) *memberPointController {
 	return &memberPointController{svc, memberSvc, db}
 }
 

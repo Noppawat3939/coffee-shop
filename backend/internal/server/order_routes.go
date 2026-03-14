@@ -3,15 +3,15 @@ package server
 import (
 	"backend/controllers"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/middleware"
-	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (cfg *RouterConfig) IntialOrderRoutes(r *gin.RouterGroup) {
 	repo := repository.NewOrderRepository(cfg.DB)
-	odSvc := services.NewOrderService(repo)
+	odSvc := service.NewOrderService(repo)
 	controller := controllers.NewOrderController(repo, odSvc, cfg.DB)
 
 	order := r.Group("/Orders")

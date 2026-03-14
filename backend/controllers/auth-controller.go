@@ -4,9 +4,9 @@ import (
 	"backend/internal/auth"
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/pkg/password"
 	"backend/pkg/response"
-	"backend/services"
 	"log"
 	"net/http"
 
@@ -15,10 +15,10 @@ import (
 
 type authController struct {
 	repo       repository.EmployeeRepo
-	sessionSvc services.SessionService
+	sessionSvc service.SessionService
 }
 
-func NewAuthController(repo repository.EmployeeRepo, sessionSvc services.SessionService) *authController {
+func NewAuthController(repo repository.EmployeeRepo, sessionSvc service.SessionService) *authController {
 	return &authController{repo, sessionSvc}
 }
 

@@ -4,10 +4,10 @@ import (
 	"backend/internal/dto"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
 	"backend/pkg/util"
-	"backend/services"
 	"fmt"
 	"net/http"
 
@@ -17,13 +17,13 @@ import (
 
 type paymentController struct {
 	paymentRepo repository.PaymentRepo
-	paymentSvc  services.PaymentService
-	pointSvc    services.MemberPointService
-	odSvc       services.OrderService
+	paymentSvc  service.PaymentService
+	pointSvc    service.MemberPointService
+	odSvc       service.OrderService
 	db          *gorm.DB
 }
 
-func NewPaymentController(paymentRepo repository.PaymentRepo, paymentSvc services.PaymentService, pointSvc services.MemberPointService, odSvc services.OrderService, db *gorm.DB) *paymentController {
+func NewPaymentController(paymentRepo repository.PaymentRepo, paymentSvc service.PaymentService, pointSvc service.MemberPointService, odSvc service.OrderService, db *gorm.DB) *paymentController {
 	return &paymentController{paymentRepo, paymentSvc, pointSvc, odSvc, db}
 }
 

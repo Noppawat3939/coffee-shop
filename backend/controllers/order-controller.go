@@ -5,10 +5,10 @@ import (
 	"backend/internal/dto"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
 	"backend/pkg/util"
-	"backend/services"
 	"fmt"
 	"net/http"
 	"strings"
@@ -20,11 +20,11 @@ import (
 
 type orderController struct {
 	repo  repository.OrderRepo
-	odSvc services.OrderService
+	odSvc service.OrderService
 	db    *gorm.DB
 }
 
-func NewOrderController(repo repository.OrderRepo, odSvc services.OrderService, db *gorm.DB) *orderController {
+func NewOrderController(repo repository.OrderRepo, odSvc service.OrderService, db *gorm.DB) *orderController {
 	return &orderController{repo, odSvc, db}
 }
 

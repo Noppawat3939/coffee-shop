@@ -3,8 +3,8 @@ package server
 import (
 	"backend/controllers"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/middleware"
-	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +14,8 @@ func (cfg *RouterConfig) InitialMemberPointRoutes(r *gin.RouterGroup) {
 
 	repo := repository.NewMemberPointRepository(db)
 	memberRepo := repository.NewMemberRepository(db)
-	svc := services.NewMemberPointService(repo)
-	memberSvc := services.NewMemberService(memberRepo)
+	svc := service.NewMemberPointService(repo)
+	memberSvc := service.NewMemberService(memberRepo)
 	controller := controllers.NewMemberPointController(svc, memberSvc, db)
 
 	point := r.Group("/Points", middleware.AuthGuard())

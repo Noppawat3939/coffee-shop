@@ -3,19 +3,19 @@ package controllers
 import (
 	"backend/internal/dto"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
-	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 type auditLogController struct {
 	repo repository.AuditLogRepository
-	svc  services.AuditLogService
+	svc  service.AuditLogService
 }
 
-func NewAuditLogController(repo repository.AuditLogRepository, svc services.AuditLogService) *auditLogController {
+func NewAuditLogController(repo repository.AuditLogRepository, svc service.AuditLogService) *auditLogController {
 	return &auditLogController{repo, svc}
 }
 

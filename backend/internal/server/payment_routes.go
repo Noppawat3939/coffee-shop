@@ -4,8 +4,8 @@ import (
 	ctl "backend/controllers"
 	"backend/internal/model"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/middleware"
-	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,9 +14,9 @@ func (cfg *RouterConfig) IntialPaymentRoutes(r *gin.RouterGroup) {
 	odRepo := repository.NewOrderRepository(cfg.DB)
 	payRepo := repository.NewPaymentRepository(cfg.DB)
 	pointRepo := repository.NewMemberPointRepository(cfg.DB)
-	svc := services.NewPaymentService(odRepo, payRepo)
-	odSvc := services.NewOrderService(odRepo)
-	pointSvc := services.NewMemberPointService(pointRepo)
+	svc := service.NewPaymentService(odRepo, payRepo)
+	odSvc := service.NewOrderService(odRepo)
+	pointSvc := service.NewMemberPointService(pointRepo)
 	controller := ctl.NewPaymentController(payRepo, svc, pointSvc, odSvc, cfg.DB)
 
 	payment := r.Group("/Payments/txns", middleware.AuthGuard())

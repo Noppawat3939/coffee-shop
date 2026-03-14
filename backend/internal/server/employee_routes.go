@@ -3,8 +3,8 @@ package server
 import (
 	"backend/controllers"
 	"backend/internal/repository"
+	"backend/internal/service"
 	"backend/middleware"
-	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,8 +13,8 @@ func (cfg *RouterConfig) IntialEmployeeRoues(r *gin.RouterGroup) {
 	db := cfg.DB
 	repo := repository.NewEmployeeRepository(db)
 	auditRepo := repository.NewAuditLogRepository(db)
-	auditSvc := services.NewAuditLogService(auditRepo)
-	service := services.NewEmployeeService(repo, auditSvc)
+	auditSvc := service.NewAuditLogService(auditRepo)
+	service := service.NewEmployeeService(repo, auditSvc)
 	controller := controllers.NewEmployeeController(repo, service, cfg.DB)
 
 	employee := r.Group("/Employees", middleware.AuthGuard())

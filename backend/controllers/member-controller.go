@@ -3,21 +3,21 @@ package controllers
 import (
 	"backend/internal/dto"
 	"backend/internal/model"
+	"backend/internal/service"
 	"backend/pkg/pagination"
 	"backend/pkg/response"
-	"backend/services"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type memberController struct {
-	memberSvc services.MemberService
-	pointSvc  services.MemberPointService
+	memberSvc service.MemberService
+	pointSvc  service.MemberPointService
 	db        *gorm.DB
 }
 
-func NewMemberController(memberSvc services.MemberService, pointSvc services.MemberPointService, db *gorm.DB) *memberController {
+func NewMemberController(memberSvc service.MemberService, pointSvc service.MemberPointService, db *gorm.DB) *memberController {
 	return &memberController{memberSvc, pointSvc, db}
 }
 
