@@ -10,16 +10,27 @@ import (
 )
 
 func (cfg *RouterConfig) InitAuthRoutes(r *gin.RouterGroup) {
+	db := cfg.DB
 
-	repo := repository.NewEmployeeRepository(cfg.DB)
-	sessionRepo := repository.NewSessionRepository(cfg.DB)
-	sessionSvc := service.NewSessionService(sessionRepo)
+	repo := repository.NewEmployeeRepository(db)
+	sessionRepo := repository.NewSessionRepository(db)
+	employeeRepo := repository.NewEmployeeRepository(db)
+	sessionSvc := service.NewAuthService(sessionRepo, employeeRepo)
 	handler := handler.NewAuthHandler(repo, sessionSvc)
 
-	auth := r.Group("/Authen")
+	auth := r.Group("/Auth")
+
+	// old version
+	v1 := auth.Group("/v1")
 	{
-		auth.POST("/employee/login", handler.EmployeeLogin)
-		auth.POST("/employee/logout", middleware.AuthGuard(), handler.EmployeeLogout)
-		auth.POST("/employee/verification", middleware.AuthGuard(), handler.VerifyJWTByEmployee)
+		v1.POST("/employee/login", handler.EmployeeLoginV1)
+		v1.POST("/employee/logout", middleware.AuthGuard(), handler.EmployeeLogout)
+		v1.POST("/employee/verification", middleware.AuthGuard(), handler.VerifyJWTByEmployee)
+	}
+
+	// latest version
+	v2 := auth.Group("/v2")
+	{
+		v2.POST("/employee/login", handler.LoginV2)
 	}
 }

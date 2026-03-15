@@ -17,6 +17,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// run migration
+	if err := database.Migration(db); err != nil {
+		panic(err)
+	}
+
 	s := server.New(db)
 
 	log.Println("✅ Starting server in port ", cfg.ServerPort)

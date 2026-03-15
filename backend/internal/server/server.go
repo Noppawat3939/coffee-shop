@@ -1,6 +1,8 @@
 package server
 
 import (
+	"backend/internal/server/cor"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -14,7 +16,7 @@ func New(db *gorm.DB) *Server {
 	r := gin.Default()
 
 	r.RedirectTrailingSlash = true
-	r.Use(gin.Logger(), gin.Recovery(), CORSMiddleware())
+	r.Use(gin.Logger(), gin.Recovery(), cor.CORSMiddleware())
 
 	s := &Server{
 		db:     db,

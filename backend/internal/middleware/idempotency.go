@@ -27,7 +27,6 @@ func (w responseCapture) Write(b []byte) (int, error) {
 
 func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		key := c.GetHeader(IDKey)
 
 		if key == "" {
@@ -58,7 +57,7 @@ func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 		c.Next()
 
-		record = model.IdempotencyKey{
+		modelIdempotency := model.IdempotencyKey{
 			ID:         uuid.New(),
 			Key:        key,
 			Endpoint:   endpoint,
@@ -67,6 +66,6 @@ func IdempotencyMiddleware(db *gorm.DB) gin.HandlerFunc {
 			ExpiredAt:  time.Now().Add(2 * time.Minute),
 		}
 
-		db.Create(&record)
+		db.Create(&modelIdempotency)
 	}
 }

@@ -14,15 +14,15 @@ import (
 )
 
 type authHandler struct {
-	repo       repository.EmployeeRepo
-	sessionSvc service.SessionService
+	repo    repository.EmployeeRepo
+	authSvc service.AuthService
 }
 
-func NewAuthHandler(repo repository.EmployeeRepo, sessionSvc service.SessionService) *authHandler {
-	return &authHandler{repo, sessionSvc}
+func NewAuthHandler(repo repository.EmployeeRepo, authSvc service.AuthService) *authHandler {
+	return &authHandler{repo, authSvc}
 }
 
-func (h *authHandler) EmployeeLogin(c *gin.Context) {
+func (h *authHandler) EmployeeLoginV1(c *gin.Context) {
 	var req dto.LoginEmployeeRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -43,9 +43,31 @@ func (h *authHandler) EmployeeLogin(c *gin.Context) {
 		return
 	}
 
-	data := make(map[string]interface{})
-	data["access_token"] = h.sessionSvc.GetJWT(emp)
+	response.Error(c, 406, "version not supported")
+}
 
+func (h *authHandler) LoginV2(c *gin.Context) {
+	var req dto.LoginEmployeeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "invalid request")
+		return
+	}
+
+	ua := c.GetHeader("User-Agent")
+	ip := c.ClientIP()
+
+	result, err := h.authSvc.Login(req.Username, req.Password, ua, ip)
+	if err != nil {
+		response.ErrorUnauthorized(c)
+		return
+	}
+
+	// set refresh cookie
+	maxAge := 60 * 60 * 24 * 7
+	c.SetCookie("session", result.RefreshToken, maxAge, "/", "", true, true)
+
+	data := make(map[string]interface{})
+	data["access_token"] = result.AccessToken
 	response.Success(c, data)
 }
 
@@ -61,7 +83,7 @@ func (h *authHandler) EmployeeLogout(c *gin.Context) {
 	data := auth.GetUserFromContext(c)
 
 	if data.ID != 0 {
-		err := h.sessionSvc.ExpiredByEmployeeID(data.ID)
+		err := h.authSvc.ExpiredByEmployeeID(data.ID)
 		if err != nil {
 			log.Println(err.Error())
 			msg = "user already logged out"

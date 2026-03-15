@@ -8,7 +8,7 @@ import (
 )
 
 type SessionRepo interface {
-	Create(data model.Session) (model.Session, error)
+	Create(data model.Session) error
 	FindOne(employeeID uint) (model.Session, error)
 	UpdateOne(id int) error
 }
@@ -21,11 +21,9 @@ func NewSessionRepository(db *gorm.DB) SessionRepo {
 	return &sessionRepo{db}
 }
 
-func (r *sessionRepo) Create(data model.Session) (model.Session, error) {
-	if err := r.db.Create(&data).Error; err != nil {
-		return model.Session{}, err
-	}
-	return data, nil
+func (r *sessionRepo) Create(data model.Session) error {
+
+	return r.db.Create(&data).Error
 }
 
 func (r *sessionRepo) FindOne(employeeID uint) (model.Session, error) {

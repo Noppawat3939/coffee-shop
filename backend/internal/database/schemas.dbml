@@ -102,7 +102,11 @@ Table sessions {
   id int [pk]
   session text [not null]
   employee_id int [ref: > employees.id]
+  refresh_token_hash text
+  user_agent text
+  ip_address text
   expired_at timestamp
+  revoked_at timestamp
 }
 
 // audit_log

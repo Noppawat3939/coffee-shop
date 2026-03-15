@@ -11,8 +11,13 @@ func Hash(password string) (string, error) {
 	return string(bytes), err
 }
 
-func Compare(password, hash string) bool {
+func CheckHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	fmt.Print(err)
 	return err == nil
+}
+
+func DummyCheck() {
+	hash := "$2a$10$7EqJtq98hPqEX7fNZaFWoOeQF3bJ6X7kY3GZ0pQfM9vDOMkMt2Z4W"
+	bcrypt.CompareHashAndPassword([]byte(hash), []byte("dummy"))
 }

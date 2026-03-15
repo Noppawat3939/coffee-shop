@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"strconv"
 
@@ -31,4 +33,9 @@ func IntToString(num int) string {
 
 func GenerateTransactionNumber(orderNumber string) string {
 	return fmt.Sprintf("%s_%s", uuid.NewString(), orderNumber)
+}
+
+func HashSHA256(s string) string {
+	hash := sha256.Sum256([]byte(s))
+	return hex.EncodeToString(hash[:])
 }
