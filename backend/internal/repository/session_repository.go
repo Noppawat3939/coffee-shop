@@ -9,8 +9,8 @@ import (
 
 type SessionRepo interface {
 	Create(data model.Session) error
-	FindOne(employeeID uint) (model.Session, error)
-	UpdateOne(id int) error
+	FindByRefreshTokenHash(hash string) (*model.Session, error)
+	RevokeSession(id uint) error
 }
 
 type sessionRepo struct {
@@ -26,18 +26,21 @@ func (r *sessionRepo) Create(data model.Session) error {
 	return r.db.Create(&data).Error
 }
 
-func (r *sessionRepo) FindOne(employeeID uint) (model.Session, error) {
+func (r *sessionRepo) FindByRefreshTokenHash(hash string) (*model.Session, error) {
 	var data model.Session
 
-	// find one not expired
-	err := r.db.Where("employee_id = ?", employeeID).Where("expired_at > ?", time.Now()).First(&data).Error
+	err := r.db.Where("refresh_token_hash = ?", hash).First(&data).Error
+
 	if err != nil {
-		return data, err
+		return nil, err
 	}
 
-	return data, nil
+	return &data, nil
 }
 
-func (r *sessionRepo) UpdateOne(id int) error {
-	return r.db.Model(&model.Session{}).Where("id = ?", id).Update("expired_at", time.Now()).Error
+func (r *sessionRepo) RevokeSession(id uint) error {
+	now := time.Now()
+	var data model.Session
+
+	return r.db.Model(&data).Where("id = ?", id).Update("revoked_at", now).Error
 }

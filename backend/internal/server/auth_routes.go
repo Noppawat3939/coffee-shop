@@ -32,5 +32,6 @@ func (cfg *RouterConfig) InitAuthRoutes(r *gin.RouterGroup) {
 	v2 := auth.Group("/v2")
 	{
 		v2.POST("/employee/login", handler.LoginV2)
+		v2.POST("/employee/refresh", handler.RefreshV2)
 	}
 }

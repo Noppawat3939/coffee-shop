@@ -5,12 +5,14 @@ import (
 	"backend/internal/dto"
 	"backend/internal/repository"
 	"backend/internal/service"
-	"backend/pkg/password"
 	"backend/pkg/response"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	SessionKey = "session"
 )
 
 type authHandler struct {
@@ -18,31 +20,15 @@ type authHandler struct {
 	authSvc service.AuthService
 }
 
+type AuthResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
 func NewAuthHandler(repo repository.EmployeeRepo, authSvc service.AuthService) *authHandler {
 	return &authHandler{repo, authSvc}
 }
 
 func (h *authHandler) EmployeeLoginV1(c *gin.Context) {
-	var req dto.LoginEmployeeRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ErrorBodyInvalid(c)
-		return
-	}
-
-	emp, err := h.repo.FindByUsername(req.Username)
-	if err != nil {
-		response.ErrorNotFound(c)
-		return
-	}
-
-	ok := password.Compare(req.Password, emp.Password)
-
-	if !ok {
-		response.Error(c, http.StatusBadRequest, "invalid username or password")
-		return
-	}
-
 	response.Error(c, 406, "version not supported")
 }
 
@@ -63,12 +49,30 @@ func (h *authHandler) LoginV2(c *gin.Context) {
 	}
 
 	// set refresh cookie
-	maxAge := 60 * 60 * 24 * 7
-	c.SetCookie("session", result.RefreshToken, maxAge, "/", "", true, true)
+	setCookie(c, result.RefreshToken)
 
-	data := make(map[string]interface{})
-	data["access_token"] = result.AccessToken
-	response.Success(c, data)
+	response.Success(c, AuthResponse{AccessToken: result.AccessToken})
+}
+
+func (h *authHandler) RefreshV2(c *gin.Context) {
+	refresh, err := c.Cookie(SessionKey)
+	if err != nil {
+		response.ErrorUnauthorized(c)
+		return
+	}
+
+	ua := c.GetHeader("User-Agent")
+	ip := c.ClientIP()
+
+	result, err := h.authSvc.RefreshToken(refresh, ua, ip)
+	if err != nil {
+		response.ErrorUnauthorized(c)
+		return
+	}
+
+	setCookie(c, result.RefreshToken)
+
+	response.Success(c, AuthResponse{AccessToken: result.AccessToken})
 }
 
 func (h *authHandler) VerifyJWTByEmployee(c *gin.Context) {
@@ -78,22 +82,10 @@ func (h *authHandler) VerifyJWTByEmployee(c *gin.Context) {
 }
 
 func (h *authHandler) EmployeeLogout(c *gin.Context) {
-	var msg string = ""
+	response.Error(c, 406, "version not supported")
+}
 
-	data := auth.GetUserFromContext(c)
-
-	if data.ID != 0 {
-		err := h.authSvc.ExpiredByEmployeeID(data.ID)
-		if err != nil {
-			log.Println(err.Error())
-			msg = "user already logged out"
-		} else {
-			msg = "logged out success"
-		}
-	}
-
-	res := make(map[string]interface{})
-	res["message"] = msg
-
-	response.Success(c, res)
+func setCookie(c *gin.Context, token string) {
+	maxAge := 60 * 60 * 24 * 7
+	c.SetCookie(SessionKey, token, maxAge, "/", "", true, true)
 }

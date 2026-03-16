@@ -14,8 +14,7 @@ import (
 
 type AuthService interface {
 	Login(username, rawPassword, userAgent, ip string) (*LoginResult, error)
-	FindOneSession(employeeID uint) (model.Session, bool)
-	ExpiredByEmployeeID(id uint) error
+	RefreshToken(refresh, userAgent, ip string) (*RefreshResult, error)
 }
 
 type authService struct {
@@ -29,6 +28,11 @@ type LoginResult struct {
 	Employee     model.Employee
 }
 
+type RefreshResult struct {
+	AccessToken  string
+	RefreshToken string
+}
+
 const (
 	accessTokenExpTime  = 15 * time.Minute
 	refreshTokenExpTime = 7 * 24 * time.Hour
@@ -36,27 +40,6 @@ const (
 
 func NewAuthService(sessionRepo repository.SessionRepo, employeeRepo repository.EmployeeRepo) AuthService {
 	return &authService{sessionRepo, employeeRepo}
-}
-
-func (s *authService) FindOneSession(employeeID uint) (model.Session, bool) {
-	v, err := s.sessionRepo.FindOne(employeeID)
-
-	if err != nil {
-		return v, false
-	}
-
-	return v, true
-}
-
-func (s *authService) ExpiredByEmployeeID(id uint) error {
-	session, err := s.sessionRepo.FindOne(id)
-
-	if err != nil {
-		return err
-	}
-
-	s.sessionRepo.UpdateOne(int(session.ID))
-	return nil
 }
 
 func (s *authService) Login(username, rawPassword, userAgent, ip string) (*LoginResult, error) {
@@ -109,4 +92,55 @@ func (s *authService) Login(username, rawPassword, userAgent, ip string) (*Login
 		RefreshToken: refreshToken,
 		Employee:     employee,
 	}, nil
+}
+
+func (s *authService) RefreshToken(refresh, userAgent, ip string) (*RefreshResult, error) {
+	hash := util.HashSHA256(refresh)
+
+	session, err := s.sessionRepo.FindByRefreshTokenHash(hash)
+	if err != nil {
+		return nil, appErr.ErrorUnauthorized
+	}
+
+	// check revoked or expired
+	if session.RevokedAt != nil || time.Now().After(session.ExpiredAt) {
+		return nil, appErr.ErrorUnauthorized
+	}
+
+	employee := session.Employee
+
+	now := time.Now()
+
+	// new access token
+	newAccessToken, err := jwt.GenerateJWT(
+		employee.ID,
+		employee.Username,
+		now.Add(accessTokenExpTime))
+
+	if err != nil {
+		return nil, err
+	}
+
+	// rotation refresh token
+	newRefresh := uuid.NewString()
+	newHash := util.HashSHA256(newRefresh)
+
+	newSession := model.Session{
+		RefreshTokenHash: newHash,
+		UserAgent:        userAgent,
+		IpAddress:        ip,
+		EmployeeID:       &employee.ID,
+		ExpiredAt:        now.Add(refreshTokenExpTime),
+	}
+
+	if err := s.sessionRepo.Create(newSession); err != nil {
+		return nil, err
+	}
+
+	// revoke old token
+	if err := s.sessionRepo.RevokeSession(session.ID); err != nil {
+		return nil, err
+	}
+
+	return &RefreshResult{AccessToken: newAccessToken, RefreshToken: newRefresh}, nil
 }
