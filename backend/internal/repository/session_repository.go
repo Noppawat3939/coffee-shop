@@ -29,7 +29,7 @@ func (r *sessionRepo) Create(data model.Session) error {
 func (r *sessionRepo) FindByRefreshTokenHash(hash string) (*model.Session, error) {
 	var data model.Session
 
-	err := r.db.Where("refresh_token_hash = ?", hash).First(&data).Error
+	err := r.db.Preload("Employee").Where("refresh_token_hash = ?", hash).First(&data).Error
 
 	if err != nil {
 		return nil, err
