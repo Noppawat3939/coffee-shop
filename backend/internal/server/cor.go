@@ -1,4 +1,4 @@
-package cor
+package server
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CORSMiddleware() gin.HandlerFunc {
+func CORS() gin.HandlerFunc {
 	return cors.New(cors.Config{
 		AllowOrigins:     []string{os.Getenv("COR_ORIGIN")},
 		AllowMethods:     []string{"GET", "POST", "PATCH"},

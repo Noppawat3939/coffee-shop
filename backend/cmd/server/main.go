@@ -4,12 +4,21 @@ import (
 	c "backend/config"
 	"backend/internal/database"
 	"backend/internal/server"
+	"backend/pkg/logger"
+	"fmt"
 	"log"
 )
 
 var cfg c.Config
 
 func main() {
+	logger.Init()
+	defer func() {
+		if err := logger.Log.Sync(); err != nil {
+			fmt.Println("Error logger sync:", err)
+		}
+	}()
+
 	cfg = c.Load()
 
 	db, err := database.New(cfg)
@@ -23,8 +32,6 @@ func main() {
 	}
 
 	s := server.New(db)
-
-	log.Println("✅ Starting server in port ", cfg.ServerPort)
 
 	if err := s.Start(cfg.ServerPort); err != nil {
 		log.Fatal(err)

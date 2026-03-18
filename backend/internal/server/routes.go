@@ -2,8 +2,10 @@ package server
 
 import (
 	"backend/pkg/response"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func (s *Server) registerRoutes() {
@@ -14,9 +16,7 @@ func (s *Server) registerRoutes() {
 		response.ErrorNotFound(c)
 	})
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
-	})
+	registerCheckRoutes(r, db)
 
 	cfg := RouterConfig{
 		Router: r,
@@ -33,4 +33,20 @@ func (s *Server) registerRoutes() {
 	cfg.IntialMenuRoutes(api)
 	cfg.IntialOrderRoutes(api)
 	cfg.IntialPaymentRoutes(api)
+}
+
+func registerCheckRoutes(r *gin.Engine, db *gorm.DB) {
+	r.GET("/health", func(c *gin.Context) {
+		sqlDB, err := db.DB()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "database instance error"})
+			return
+		}
+		if err := sqlDB.Ping(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "database down"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "ok"})
+	})
 }
