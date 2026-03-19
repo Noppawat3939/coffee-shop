@@ -5,7 +5,9 @@ import (
 	"backend/internal/dto"
 	"backend/internal/repository"
 	"backend/internal/service"
+	appErr "backend/pkg/errors"
 	"backend/pkg/response"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +31,7 @@ func NewAuthHandler(repo repository.EmployeeRepo, authSvc service.AuthService) *
 }
 
 func (h *authHandler) EmployeeLoginV1(c *gin.Context) {
-	response.Error(c, 406, "version not supported")
+	response.Error(c, http.StatusHTTPVersionNotSupported, "version not supported")
 }
 
 func (h *authHandler) LoginV2(c *gin.Context) {
@@ -44,7 +46,12 @@ func (h *authHandler) LoginV2(c *gin.Context) {
 
 	result, err := h.authSvc.Login(req.Username, req.Password, ua, ip)
 	if err != nil {
-		response.ErrorUnauthorized(c)
+		if errors.Is(err, appErr.ErrInvalidCredential) {
+			response.ErrorUnauthorized(c)
+			return
+		}
+
+		response.Error(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
