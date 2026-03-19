@@ -11,6 +11,7 @@ const (
 	BodyInvalid  = "body invalid"
 	Unauthorized = "unauthorized"
 	Conflict     = "data conflict"
+	TooManyReq   = "too many requests"
 )
 
 func Success(c *gin.Context, data ...interface{}) {

@@ -1,6 +1,6 @@
 module backend
 
-go 1.24.2
+go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.10.1
@@ -53,7 +53,10 @@ require (
 	gorm.io/datatypes v1.2.7
 )
 
-require go.uber.org/multierr v1.10.0 // indirect
+require (
+	go.uber.org/multierr v1.10.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
+)
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
