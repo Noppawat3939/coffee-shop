@@ -23,21 +23,21 @@ export default function LoginPage() {
 
   const onLoginFailed = useCallback((err?: OveridedAxiosError) => {
     const errMsg = err?.response?.data?.message;
-    if (errMsg) {
-      setErrorLogin(errMsg);
-    }
+
+    errMsg && setErrorLogin(errMsg);
   }, []);
 
   const { execute: login, loading } = useAxios(auth.employeeLogin, {
     onSuccess: (res) => {
-      const response = res as Response<IEmployeeLoggedIn>;
+      startTransition(() => {
+        const response = res as Response<IEmployeeLoggedIn>;
 
-      set(response.data.access_token, {
-        expires: 1, // expired in 1 day
-        secure: true,
+        set(response.data.access_token, {
+          expires: 1, // expired in 1 day
+          secure: true,
+        });
+        navigation({ to: "/menus", reloadDocument: true });
       });
-
-      startTransition(() => navigation({ to: "/menus", reloadDocument: true }));
     },
     onError: onLoginFailed,
   });

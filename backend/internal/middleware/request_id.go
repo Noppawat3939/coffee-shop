@@ -14,7 +14,7 @@ func ReqID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		reqID := c.GetHeader(RequestIDKeyHeader)
 		if reqID == "" {
-			reqID = fmt.Sprintf("%s%s", "XRI-", uuid.NewString()[0:15])
+			reqID = fmt.Sprintf("%s%s", "XRI-", uuid.NewString())
 		}
 
 		// set context for apply in middleware

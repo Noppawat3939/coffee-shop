@@ -14,6 +14,7 @@ import {
 import { auth } from "~/services";
 import Cookies from "js-cookie";
 import type { TVerifyUserResponse } from "~/services/auth";
+import { AxiosError, HttpStatusCode } from "axios";
 
 let cacheData: TVerifyUserResponse["data"] | null = null;
 
@@ -31,9 +32,24 @@ export const Route = createRootRoute({
       return { data: cacheData };
     } catch (err) {
       console.error(err);
-      // auto logout
       const hasToken = Cookies.get(ACCESS_TOKEN_COOKIE_KEY);
+
       if (hasToken) {
+        const isUnauthorized =
+          err instanceof AxiosError &&
+          err.status === HttpStatusCode.Unauthorized;
+
+        if (isUnauthorized) {
+          const revoked = await auth.revokeToken();
+          const newToken = revoked.data.access_token;
+
+          Cookies.set(ACCESS_TOKEN_COOKIE_KEY, newToken, {
+            expires: 1,
+            secure: true,
+          });
+          return;
+        }
+
         await auth.employeeLogout();
         Cookies.remove(ACCESS_TOKEN_COOKIE_KEY);
       }

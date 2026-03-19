@@ -11,11 +11,16 @@ export type TVerifyUserResponse = Response<{
   username: string;
 }>;
 
-const prefix = "Authen";
+const prefix = "Auth";
+
+const versions = {
+  v1: "v1",
+  v2: "v2",
+};
 
 const employeeLogin = async (body: ILoginEmployee) => {
   const { data } = await svc.post<Response<IEmployeeLoggedIn>>(
-    `${prefix}/employee/login`,
+    `${prefix}/${versions.v2}/employee/login`,
     body
   );
   return data;
@@ -23,14 +28,28 @@ const employeeLogin = async (body: ILoginEmployee) => {
 
 const verifyToken = async () => {
   const { data } = await svc.post<TVerifyUserResponse>(
-    `${prefix}/employee/verification`
+    `${prefix}/${versions.v1}/employee/verification`
   );
   return data;
 };
 
 const employeeLogout = async () => {
-  const { data } = await svc.post<Response>(`${prefix}/employee/logout`);
+  const { data } = await svc.post<Response>(
+    `${prefix}/${versions.v1}/employee/logout`
+  );
   return data;
 };
 
-export default { employeeLogin, verifyToken, employeeLogout };
+const revokeToken = async () => {
+  const { data } = await svc.post<Response<IEmployeeLoggedIn>>(
+    `${prefix}/${versions.v2}/employee/refresh`
+  );
+  return data;
+};
+
+export default {
+  employeeLogin,
+  employeeLogout,
+  revokeToken,
+  verifyToken,
+};

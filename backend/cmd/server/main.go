@@ -5,7 +5,6 @@ import (
 	"backend/internal/database"
 	"backend/internal/server"
 	"backend/pkg/logger"
-	"fmt"
 	"log"
 )
 
@@ -14,9 +13,7 @@ var cfg c.Config
 func main() {
 	logger.Init()
 	defer func() {
-		if err := logger.Log.Sync(); err != nil {
-			fmt.Println("Error logger sync:", err)
-		}
+		_ = logger.Log.Sync()
 	}()
 
 	cfg = c.Load()
