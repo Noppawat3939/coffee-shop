@@ -50,12 +50,15 @@ require (
 	github.com/gin-contrib/cors v1.7.6
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
+	github.com/stretchr/testify v1.10.0
+	golang.org/x/time v0.15.0
 	gorm.io/datatypes v1.2.7
 )
 
 require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/time v0.15.0 // indirect
 )
 
 require (

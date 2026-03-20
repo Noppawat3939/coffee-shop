@@ -3,6 +3,7 @@ package util
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -38,4 +39,9 @@ func GenerateTransactionNumber(orderNumber string) string {
 func HashSHA256(s string) string {
 	hash := sha256.Sum256([]byte(s))
 	return hex.EncodeToString(hash[:])
+}
+
+func JSONParse(data any) []byte {
+	b, _ := json.Marshal(data)
+	return b
 }

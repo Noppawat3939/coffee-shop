@@ -49,7 +49,7 @@ func ErrorBodyInvalid(c *gin.Context) {
 func ErrorUnauthorized(c *gin.Context) {
 	res := gin.H{"code": http.StatusUnauthorized, "message": Unauthorized}
 
-	c.JSON(http.StatusBadRequest, res)
+	c.JSON(http.StatusUnauthorized, res)
 }
 
 func ErrorConflict(c *gin.Context) {

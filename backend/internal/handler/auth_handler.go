@@ -7,7 +7,6 @@ import (
 	"backend/internal/service"
 	appErr "backend/pkg/errors"
 	"backend/pkg/response"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -46,7 +45,7 @@ func (h *authHandler) LoginV2(c *gin.Context) {
 
 	result, err := h.authSvc.Login(req.Username, req.Password, ua, ip)
 	if err != nil {
-		if errors.Is(err, appErr.ErrInvalidCredential) {
+		if err == appErr.ErrInvalidCredential {
 			response.ErrorUnauthorized(c)
 			return
 		}
@@ -94,5 +93,17 @@ func (h *authHandler) EmployeeLogout(c *gin.Context) {
 
 func setCookie(c *gin.Context, token string) {
 	maxAge := 60 * 60 * 24 * 7
-	c.SetCookie(SessionKey, token, maxAge, "/", "", true, true)
+	secure := true
+	if gin.Mode() == gin.TestMode {
+		secure = false
+	}
+
+	c.SetCookie(
+		SessionKey,
+		token,
+		maxAge,
+		"/",
+		"",
+		secure,
+		true)
 }
