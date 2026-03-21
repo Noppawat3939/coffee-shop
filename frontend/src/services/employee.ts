@@ -1,4 +1,7 @@
-import type { IEmployee } from "~/interfaces/employee.interface";
+import type {
+  ICreateEmployee,
+  IEmployee,
+} from "~/interfaces/employee.interface";
 import { service } from ".";
 import type { Response } from "./service-instance";
 
@@ -9,4 +12,9 @@ export const getEmployees = async <T extends object>(params: T) => {
   return data;
 };
 
-export default { getEmployees };
+export const createEmployee = async (body: ICreateEmployee) => {
+  const { data } = await service.post(`${prefix}/register`, body);
+  return data;
+};
+
+export default { getEmployees, createEmployee };

@@ -10,7 +10,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Edit, Lock } from "lucide-react";
 import { CreateEmployeeModal } from "~/components/modal";
 import { CustomTable } from "~/components/table";
-import { Route } from "~/routes/account/employees";
+import { useCreateEmployee, useEmployees } from "~/hooks/use-employee-hooks";
 
 const actionBtnProps = {
   variant: "transparent",
@@ -19,14 +19,15 @@ const actionBtnProps = {
 } satisfies ButtonProps;
 
 export default function EmployeesPage() {
-  const { data } = Route.useLoaderData();
+  const { data } = useEmployees();
+  const createEmployee = useCreateEmployee();
 
-  const [opennedNewEmp, newEmpOps] = useDisclosure(false);
+  const [openned, { open, close }] = useDisclosure(false);
 
   return (
     <Stack>
       <Flex justify="end">
-        <Button onClick={newEmpOps.open}>Create</Button>
+        <Button onClick={open}>Create</Button>
       </Flex>
 
       <CustomTable
@@ -66,7 +67,11 @@ export default function EmployeesPage() {
         )}
       />
 
-      <CreateEmployeeModal open={opennedNewEmp} onClose={newEmpOps.close} />
+      <CreateEmployeeModal
+        open={openned}
+        onClose={close}
+        onSubmit={createEmployee}
+      />
     </Stack>
   );
 }

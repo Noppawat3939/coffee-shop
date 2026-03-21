@@ -8,13 +8,16 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useTransition } from "react";
 import { zodValidate } from "~/helper/form";
 import { employeeSchema, type TZodSchema } from "~/helper/schemas";
+import type { ICreateEmployee } from "~/interfaces/employee.interface";
 
 type FormValues = TZodSchema<typeof employeeSchema>;
 type CreateEmployeeModalProps = {
   open: boolean;
   onClose: () => void;
+  onSubmit: (data: ICreateEmployee) => void;
 };
 
 const { options: roles } = employeeSchema.shape.role;
@@ -22,6 +25,7 @@ const { options: roles } = employeeSchema.shape.role;
 export default function CreateEmployeeModal({
   onClose,
   open,
+  onSubmit,
 }: CreateEmployeeModalProps) {
   const form = useForm<FormValues>({
     mode: "uncontrolled",
@@ -29,8 +33,10 @@ export default function CreateEmployeeModal({
     initialValues: { username: "", name: "", role: "admin", password: "" },
   });
 
+  const [pending, startTransition] = useTransition();
+
   const handleSubmit = (value: typeof form.values) => {
-    console.log(value);
+    startTransition(() => onSubmit(value));
   };
 
   const handleClose = () => {
@@ -70,10 +76,15 @@ export default function CreateEmployeeModal({
             {...form.getInputProps("role")}
           />
           <Group justify="center" mt="xl">
-            <Button onClick={handleClose} variant="outline" w={150}>
+            <Button
+              disabled={pending}
+              onClick={handleClose}
+              variant="outline"
+              w={150}
+            >
               Cancel
             </Button>
-            <Button type="submit" w={150}>
+            <Button loading={pending} type="submit" w={150}>
               Save
             </Button>
           </Group>

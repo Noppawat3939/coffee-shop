@@ -7,3 +7,8 @@ export interface IEmployee {
   created_at: string;
   updated_at: string;
 }
+
+export interface ICreateEmployee
+  extends Pick<IEmployee, "username" | "name" | "role"> {
+  password: string;
+}
