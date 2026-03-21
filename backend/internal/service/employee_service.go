@@ -47,7 +47,7 @@ func (s *employeeService) UpdateByID(id int, req dto.UpdateEmployeeRequest, user
 	}
 
 	if req.Password != nil {
-		hash, _ := password.Hash(*req.Password)
+		hash := password.Hash(*req.Password)
 		employee.Password = hash
 	}
 

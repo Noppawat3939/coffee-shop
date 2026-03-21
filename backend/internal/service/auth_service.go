@@ -83,6 +83,7 @@ func (s *authService) Login(username, rawPassword, userAgent, ip string) (*Login
 		ExpiredAt:        exp,
 	}
 
+	// create new session
 	if err := s.sessionRepo.Create(session); err != nil {
 		return nil, err
 	}

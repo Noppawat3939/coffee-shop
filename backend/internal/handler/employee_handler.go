@@ -39,7 +39,7 @@ func (h *employeeHandler) RegisterEmployee(c *gin.Context) {
 		return
 	}
 
-	hash, _ := password.Hash(req.Password)
+	hash := password.Hash(req.Password)
 
 	employee, err := h.repo.Create(model.Employee{
 		Username: req.Username,
