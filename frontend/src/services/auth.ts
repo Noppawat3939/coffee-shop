@@ -4,11 +4,13 @@ import type {
 } from "~/interfaces/auth.interface";
 import { service as svc } from ".";
 import type { Response } from "./service-instance";
+import type { EmployeeRole } from "~/interfaces/employee.interface";
 
 export type TVerifyUserResponse = Response<{
   id: number;
   exp: number;
   username: string;
+  role: EmployeeRole;
 }>;
 
 const prefix = "Auth";

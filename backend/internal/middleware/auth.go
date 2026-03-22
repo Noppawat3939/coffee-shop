@@ -13,7 +13,6 @@ const authPrefix = "Bearer "
 
 func AuthGuard() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		authHeader := c.GetHeader("Authorization")
 
 		if authHeader == "" {

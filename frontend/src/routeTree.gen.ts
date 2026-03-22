@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as MenusRouteImport } from './routes/menus'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TransactionPaymentsRouteImport } from './routes/transaction/payments'
@@ -33,6 +34,11 @@ const MembershipRoute = MembershipRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -74,6 +80,7 @@ const AccountEmployeesRoute = AccountEmployeesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
@@ -113,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/checkout'
+    | '/home'
     | '/login'
     | '/membership'
     | '/menus'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/checkout'
+    | '/home'
     | '/login'
     | '/membership'
     | '/menus'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/checkout'
+    | '/home'
     | '/login'
     | '/membership'
     | '/menus'
@@ -150,6 +162,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
+  HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   MembershipRoute: typeof MembershipRoute
   MenusRoute: typeof MenusRoute
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -238,6 +258,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
+  HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   MembershipRoute: MembershipRoute,
   MenusRoute: MenusRoute,

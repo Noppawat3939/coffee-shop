@@ -23,38 +23,56 @@ export const Route = createRootRoute({
   beforeLoad: async ({ location }) => {
     if (location.pathname === "/login") return;
 
+    const token = Cookies.get(ACCESS_TOKEN_COOKIE_KEY);
+
+    if (!token) {
+      throw redirect({ to: "/login" });
+    }
+
     try {
-      if (cacheData === null) {
+      if (!cacheData) {
         const res = await auth.verifyToken();
         cacheData = res.data;
       }
 
       return { data: cacheData };
     } catch (err) {
-      console.error(err);
-      const hasToken = Cookies.get(ACCESS_TOKEN_COOKIE_KEY);
+      console.error("Failed verify token:", err);
 
-      if (hasToken) {
-        const isUnauthorized =
-          err instanceof AxiosError &&
-          err.status === HttpStatusCode.Unauthorized;
+      const isUnauthorized =
+        err instanceof AxiosError && err.status === HttpStatusCode.Unauthorized;
 
-        if (isUnauthorized) {
-          const revoked = await auth.revokeToken();
-          const newToken = revoked.data.access_token;
-
-          Cookies.set(ACCESS_TOKEN_COOKIE_KEY, newToken, {
-            expires: 1,
-            secure: true,
-          });
-          return;
-        }
-
+      if (!isUnauthorized) {
         await auth.employeeLogout();
         Cookies.remove(ACCESS_TOKEN_COOKIE_KEY);
+        throw redirect({ to: "/login" });
       }
 
-      throw redirect({ to: "/login" });
+      try {
+        // refresh token
+        const res = await auth.revokeToken();
+        const newToken = res.data.access_token;
+
+        // expired in 3 hours
+        const expires = new Date();
+        expires.setHours(expires.getHours() + 3);
+
+        Cookies.set(ACCESS_TOKEN_COOKIE_KEY, newToken, {
+          expires,
+          secure: true,
+        });
+
+        // retry verify after set new token
+        const verify = await auth.verifyToken();
+        cacheData = verify.data;
+
+        return { data: cacheData };
+      } catch {
+        Cookies.remove(ACCESS_TOKEN_COOKIE_KEY);
+        cacheData = null;
+
+        throw redirect({ to: "/login" });
+      }
     }
   },
 });

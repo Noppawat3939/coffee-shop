@@ -29,5 +29,6 @@ type Employee struct {
 type UserJwyToken struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
+	Role     string `json:"role"`
 	Exp      uint   `json:"exp"`
 }

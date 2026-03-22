@@ -1,9 +1,15 @@
+export enum EmployeeRole {
+  super_admin = "super_admin",
+  admin = "admin",
+  staff = "staff",
+}
+
 export interface IEmployee {
   id: number;
   username: string;
   name: string;
   active: boolean;
-  role: string;
+  role: EmployeeRole;
   created_at: string;
   updated_at: string;
 }

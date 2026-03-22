@@ -36,7 +36,7 @@ export default function LoginPage() {
           expires: 1, // expired in 1 day
           secure: true,
         });
-        navigation({ to: "/menus", reloadDocument: true });
+        navigation({ to: "/home", reloadDocument: true });
       });
     },
     onError: onLoginFailed,

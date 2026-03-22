@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EmployeeRole } from "~/interfaces/employee.interface";
 
 export type TZodSchema<T> = z.infer<T>;
 
@@ -11,6 +12,6 @@ export const employeeSchema = z.object({
     .string({ error: "name is required" })
     .min(1, "name is required")
     .max(10, "name too long"),
-  role: z.enum(["admin", "super_admin", "staff"]),
+  role: EmployeeRole,
   password: z.string().min(4, "password must be at least 4 characters"),
 });

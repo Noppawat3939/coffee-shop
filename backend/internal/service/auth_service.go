@@ -63,6 +63,7 @@ func (s *authService) Login(username, rawPassword, userAgent, ip string) (*Login
 	accessToken, err := jwt.GenerateJWT(
 		employee.ID,
 		username,
+		employee.Role,
 		accessExp,
 	)
 
@@ -116,6 +117,7 @@ func (s *authService) RefreshToken(refresh, userAgent, ip string) (*RefreshResul
 	newAccessToken, err := jwt.GenerateJWT(
 		employee.ID,
 		employee.Username,
+		employee.Role,
 		now.Add(accessTokenExpTime))
 
 	if err != nil {

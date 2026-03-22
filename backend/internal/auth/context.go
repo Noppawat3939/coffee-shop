@@ -28,6 +28,7 @@ func GetUserFromContext(c *gin.Context) *model.UserJwyToken {
 	return &model.UserJwyToken{
 		ID:       uint(claims.EmployeeID),
 		Username: claims.Username,
+		Role:     claims.Role,
 		Exp:      uint(claims.ExpiresAt.Time.Unix()),
 	}
 }
