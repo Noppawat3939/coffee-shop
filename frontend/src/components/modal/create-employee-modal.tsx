@@ -11,7 +11,10 @@ import { useForm } from "@mantine/form";
 import { useTransition } from "react";
 import { zodValidate } from "~/helper/form";
 import { employeeSchema, type TZodSchema } from "~/helper/schemas";
-import type { ICreateEmployee } from "~/interfaces/employee.interface";
+import {
+  EmployeeRole,
+  type ICreateEmployee,
+} from "~/interfaces/employee.interface";
 
 type FormValues = TZodSchema<typeof employeeSchema>;
 type CreateEmployeeModalProps = {
@@ -19,8 +22,6 @@ type CreateEmployeeModalProps = {
   onClose: () => void;
   onSubmit: (data: ICreateEmployee) => void;
 };
-
-const { options: roles } = employeeSchema.shape.role;
 
 export default function CreateEmployeeModal({
   onClose,
@@ -36,7 +37,7 @@ export default function CreateEmployeeModal({
   const [pending, startTransition] = useTransition();
 
   const handleSubmit = (value: typeof form.values) => {
-    startTransition(() => onSubmit(value));
+    startTransition(() => onSubmit(value as ICreateEmployee));
   };
 
   const handleClose = () => {
@@ -71,7 +72,11 @@ export default function CreateEmployeeModal({
           />
           <Select
             label="Role"
-            data={roles.map((role) => ({ label: role, value: role }))}
+            data={[
+              EmployeeRole.super_admin,
+              EmployeeRole.admin,
+              EmployeeRole.staff,
+            ].map((role) => ({ label: role, value: role }))}
             key={form.key("role")}
             {...form.getInputProps("role")}
           />

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as MenusRouteImport } from './routes/menus'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as LoginRouteImport } from './routes/login'
@@ -21,6 +22,11 @@ import { Route as BillOrder_numberRouteImport } from './routes/bill/$order_numbe
 import { Route as AccountMembersRouteImport } from './routes/account/members'
 import { Route as AccountEmployeesRouteImport } from './routes/account/employees'
 
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenusRoute = MenusRouteImport.update({
   id: '/menus',
   path: '/menus',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
+  '/profile': typeof ProfileRoute
   '/account/employees': typeof AccountEmployeesRoute
   '/account/members': typeof AccountMembersRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
+  '/profile': typeof ProfileRoute
   '/account/employees': typeof AccountEmployeesRoute
   '/account/members': typeof AccountMembersRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/membership': typeof MembershipRoute
   '/menus': typeof MenusRoute
+  '/profile': typeof ProfileRoute
   '/account/employees': typeof AccountEmployeesRoute
   '/account/members': typeof AccountMembersRoute
   '/bill/$order_number': typeof BillOrder_numberRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/membership'
     | '/menus'
+    | '/profile'
     | '/account/employees'
     | '/account/members'
     | '/bill/$order_number'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/membership'
     | '/menus'
+    | '/profile'
     | '/account/employees'
     | '/account/members'
     | '/bill/$order_number'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/membership'
     | '/menus'
+    | '/profile'
     | '/account/employees'
     | '/account/members'
     | '/bill/$order_number'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MembershipRoute: typeof MembershipRoute
   MenusRoute: typeof MenusRoute
+  ProfileRoute: typeof ProfileRoute
   AccountEmployeesRoute: typeof AccountEmployeesRoute
   AccountMembersRoute: typeof AccountMembersRoute
   BillOrder_numberRoute: typeof BillOrder_numberRoute
@@ -175,6 +188,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menus': {
       id: '/menus'
       path: '/menus'
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MembershipRoute: MembershipRoute,
   MenusRoute: MenusRoute,
+  ProfileRoute: ProfileRoute,
   AccountEmployeesRoute: AccountEmployeesRoute,
   AccountMembersRoute: AccountMembersRoute,
   BillOrder_numberRoute: BillOrder_numberRoute,

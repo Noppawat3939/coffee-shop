@@ -12,9 +12,14 @@ export const getEmployees = async <T extends object>(params: T) => {
   return data;
 };
 
+export const getEmployeeByID = async (id: number) => {
+  const { data } = await service.get<Response<IEmployee>>(`${prefix}/${id}`);
+  return data;
+};
+
 export const createEmployee = async (body: ICreateEmployee) => {
   const { data } = await service.post(`${prefix}/register`, body);
   return data;
 };
 
-export default { getEmployees, createEmployee };
+export default { getEmployees, getEmployeeByID, createEmployee };

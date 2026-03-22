@@ -38,7 +38,7 @@ export default function Page() {
           fullWidth
           radius="md"
           variant="subtle"
-          //   onClick={() => navigate({ to: "/profile" })}
+          onClick={() => navigate({ to: "/profile" })}
         >
           Profile
         </Button>
